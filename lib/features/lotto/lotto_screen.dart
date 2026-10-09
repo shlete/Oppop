@@ -92,13 +92,21 @@ class _LottoScreenState extends ConsumerState<LottoScreen>
       appBar: AppBar(
         title: const Text('로또'),
         actions: [
-          IconButton(
-            tooltip: '저장한 번호',
-            onPressed: _openSaved,
-            icon: Badge(
-              isLabelVisible: savedCount > 0,
-              label: Text('$savedCount'),
-              child: const Icon(Icons.bookmarks_outlined),
+          // 아이콘만 두면 눈에 잘 안 띄어서 글자 버튼으로 둔다.
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: Tooltip(
+              message: '저장한 번호',
+              child: OutlinedButton(
+                onPressed: _openSaved,
+                style: OutlinedButton.styleFrom(
+                  visualDensity: VisualDensity.compact,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                ),
+                child: Text(
+                  savedCount > 0 ? '저장 목록 $savedCount' : '저장 목록',
+                ),
+              ),
             ),
           ),
         ],
