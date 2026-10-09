@@ -1,11 +1,229 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../placeholder.dart';
+import '../../core/ads/interstitial.dart';
+import 'lotto_ball.dart';
+import 'lotto_logic.dart';
+import 'saved_lotto.dart';
+import 'saved_lotto_screen.dart';
 
-class LottoScreen extends StatelessWidget {
-  const LottoScreen({super.key});
+class LottoScreen extends ConsumerStatefulWidget {
+  const LottoScreen({super.key, this.random});
+
+  /// 테스트에서 번호를 고정할 때 넘긴다.
+  final Random? random;
 
   @override
-  Widget build(BuildContext context) =>
-      const ComingSoon(title: '로또', items: ['번호 뽑기', '저장한 번호']);
+  ConsumerState<LottoScreen> createState() => _LottoScreenState();
+}
+
+class _LottoScreenState extends ConsumerState<LottoScreen>
+    with SingleTickerProviderStateMixin {
+  late final Random _random = widget.random ?? Random();
+
+  /// 공이 하나씩 튀어나오는 연출.
+  late final AnimationController _reveal = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1500),
+    // 결과 연출이라 기기의 '애니메이션 줄이기' 설정에서도 그대로 재생한다.
+    animationBehavior: AnimationBehavior.preserve,
+  );
+
+  int _gameCount = 1;
+  List<List<int>> _games = const [];
+  bool _drawing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    InterstitialGate.instance.preload();
+  }
+
+  @override
+  void dispose() {
+    _reveal.dispose();
+    super.dispose();
+  }
+
+  Future<void> _draw() async {
+    if (_drawing) return;
+    setState(() => _drawing = true);
+    await InterstitialGate.instance.show();
+    if (!mounted) return;
+    setState(() {
+      _games = [for (var i = 0; i < _gameCount; i++) drawLotto(_random)];
+    });
+    await _reveal.forward(from: 0);
+    if (!mounted) return;
+    HapticFeedback.lightImpact();
+    setState(() => _drawing = false);
+  }
+
+  Future<void> _toggleSave(List<int> numbers) async {
+    final saved = ref.read(savedLottoProvider.notifier);
+    final messenger = ScaffoldMessenger.of(context)..hideCurrentSnackBar();
+    if (saved.contains(numbers)) {
+      await saved.remove(numbers);
+      messenger.showSnackBar(const SnackBar(content: Text('저장을 취소했어요')));
+    } else {
+      await saved.add(numbers);
+      messenger.showSnackBar(
+        SnackBar(
+          content: const Text('번호를 저장했어요'),
+          action: SnackBarAction(label: '보기', onPressed: _openSaved),
+        ),
+      );
+    }
+  }
+
+  void _openSaved() =>
+      Navigator.of(context)
+          .push(MaterialPageRoute(builder: (_) => const SavedLottoScreen()));
+
+  @override
+  Widget build(BuildContext context) {
+    final savedCount = ref.watch(savedLottoProvider).length;
+    final text = Theme.of(context).textTheme;
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('로또'),
+        actions: [
+          IconButton(
+            tooltip: '저장한 번호',
+            onPressed: _openSaved,
+            icon: Badge(
+              isLabelVisible: savedCount > 0,
+              label: Text('$savedCount'),
+              child: const Icon(Icons.bookmarks_outlined),
+            ),
+          ),
+        ],
+      ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SegmentedButton<int>(
+                segments: const [
+                  ButtonSegment(value: 1, label: Text('1게임')),
+                  ButtonSegment(value: 5, label: Text('5게임')),
+                ],
+                selected: {_gameCount},
+                onSelectionChanged: _drawing
+                    ? null
+                    : (s) => setState(() => _gameCount = s.first),
+              ),
+              const SizedBox(height: 16),
+              Expanded(
+                child: _games.isEmpty
+                    ? Center(
+                        child: Text(
+                          '아래 버튼을 눌러 번호를 뽑아보세요',
+                          style: text.bodyMedium,
+                        ),
+                      )
+                    : AnimatedBuilder(
+                        animation: _reveal,
+                        builder: (context, _) => ListView(
+                          children: [
+                            for (var i = 0; i < _games.length; i++)
+                              _GameRow(
+                                label: String.fromCharCode(65 + i),
+                                numbers: _games[i],
+                                progress: _reveal.value,
+                                saved: ref
+                                    .read(savedLottoProvider.notifier)
+                                    .contains(_games[i]),
+                                onSave: _drawing
+                                    ? null
+                                    : () => _toggleSave(_games[i]),
+                              ),
+                          ],
+                        ),
+                      ),
+              ),
+              SizedBox(
+                height: 56,
+                child: FilledButton(
+                  onPressed: _drawing ? null : _draw,
+                  child: Text(
+                    _games.isEmpty ? '번호 뽑기' : '다시 뽑기',
+                    style: const TextStyle(fontSize: 18),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                '재미로 뽑는 랜덤 번호예요. 당첨을 보장하지 않아요.',
+                textAlign: TextAlign.center,
+                style: text.bodySmall,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _GameRow extends StatelessWidget {
+  const _GameRow({
+    required this.label,
+    required this.numbers,
+    required this.progress,
+    required this.saved,
+    required this.onSave,
+  });
+
+  final String label;
+  final List<int> numbers;
+
+  /// 0~1. 공은 왼쪽부터 차례로 튀어나온다.
+  final double progress;
+  final bool saved;
+  final VoidCallback? onSave;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 8, 4, 8),
+        child: Row(
+          children: [
+            Text(label, style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(width: 8),
+            Expanded(
+              child: LayoutBuilder(
+                builder: (context, box) {
+                  final size = min(40.0, (box.maxWidth - 5 * 4) / 6);
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      for (var b = 0; b < numbers.length; b++)
+                        Transform.scale(
+                          scale: Curves.elasticOut.transform(
+                            (progress * numbers.length - b).clamp(0.0, 1.0),
+                          ),
+                          child: LottoBall(numbers[b], size: size),
+                        ),
+                    ],
+                  );
+                },
+              ),
+            ),
+            IconButton(
+              tooltip: saved ? '저장 취소' : '저장',
+              onPressed: onSave,
+              icon: Icon(saved ? Icons.bookmark : Icons.bookmark_border),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
