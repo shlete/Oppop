@@ -187,48 +187,43 @@ class _GameRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 8, 8, 8),
+        // A 글자 왼쪽과 저장 버튼 오른쪽 여백을 똑같이 맞춘다.
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Row(
           children: [
-            Text(label, style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(width: 8),
+            SizedBox(
+              width: 16,
+              child: Text(
+                label,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+            ),
             Expanded(
               child: LayoutBuilder(
                 builder: (context, box) {
-                  const gap = 7.0;
-                  // 공과 저장 버튼 사이는 공 간격보다 넓게 띄운다.
-                  const saveGap = 14.0;
-                  const saveWidth = 40.0;
-                  final size = min(
-                    40.0,
-                    (box.maxWidth - 5 * gap - saveGap - saveWidth) / 6,
-                  );
-                  // 넓은 화면에서는 공과 버튼을 한 덩어리로 가운데에 둔다.
-                  return Center(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        for (var b = 0; b < numbers.length; b++) ...[
-                          if (b > 0) const SizedBox(width: gap),
-                          Transform.scale(
-                            scale: Curves.elasticOut.transform(
-                              (progress * numbers.length - b).clamp(0.0, 1.0),
-                            ),
-                            child: LottoBall(numbers[b], size: size),
+                  // 공은 A와 저장 버튼 사이에 같은 간격으로 고르게 펼친다.
+                  const minGap = 6.0;
+                  final size = min(40.0, (box.maxWidth - 7 * minGap) / 6);
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      for (var b = 0; b < numbers.length; b++)
+                        Transform.scale(
+                          scale: Curves.elasticOut.transform(
+                            (progress * numbers.length - b).clamp(0.0, 1.0),
                           ),
-                        ],
-                        const SizedBox(width: saveGap),
-                        SizedBox(
-                          width: saveWidth,
-                          child: Tooltip(
-                            message: saved ? '저장 취소' : '저장',
-                            child: _SaveChip(saved: saved, onPressed: onSave),
-                          ),
+                          child: LottoBall(numbers[b], size: size),
                         ),
-                      ],
-                    ),
+                    ],
                   );
                 },
+              ),
+            ),
+            SizedBox(
+              width: 40,
+              child: Tooltip(
+                message: saved ? '저장 취소' : '저장',
+                child: _SaveChip(saved: saved, onPressed: onSave),
               ),
             ),
           ],
