@@ -27,7 +27,7 @@ class _RouletteScreenState extends State<RouletteScreen>
   late final Random _random = widget.random ?? Random();
   late final AnimationController _controller = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 5500),
+    duration: const Duration(milliseconds: 6500),
   );
   List<String> _items = List.of(builtInPresets.first.items);
   double _rotation = 0;
@@ -48,7 +48,7 @@ class _RouletteScreenState extends State<RouletteScreen>
       current: _rotation,
       index: index,
       count: _items.length,
-      extraTurns: 3,
+      extraTurns: 2,
       jitter: _random.nextDouble() * 2 - 1,
     );
     _spin = Tween(
