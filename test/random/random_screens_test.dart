@@ -102,4 +102,25 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('결과'), findsOneWidget);
   });
+
+  testWidgets('사다리: 그려지는 중엔 눌러도 무시하고, 전체 결과는 경로가 다 채워진 뒤 공개된다', (tester) async {
+    await tester.binding.setSurfaceSize(const Size(400, 1000));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    await tester.pumpWidget(_wrap(LadderScreen(random: Random(5))));
+
+    await tester.tap(find.text('사다리 만들기'));
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.tap(find.text('전체 결과'));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.text('?'), findsNWidgets(4));
+
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('전체 결과'));
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.text('?'), findsNWidgets(4));
+
+    await tester.pumpAndSettle();
+    expect(find.text('?'), findsNothing);
+    expect(find.byType(AlertDialog), findsOneWidget);
+  });
 }

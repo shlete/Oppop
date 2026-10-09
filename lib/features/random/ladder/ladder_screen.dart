@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -20,11 +19,20 @@ class LadderScreen extends StatefulWidget {
 }
 
 class _LadderScreenState extends State<LadderScreen>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late final Random _random = widget.random ?? Random();
+
+  /// 사다리 가로줄이 위에서부터 하나씩 그어지는 연출.
+  late final AnimationController _drawing = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1200),
+    animationBehavior: AnimationBehavior.preserve,
+  );
+
+  /// 참가자 경로가 아래로 채워지며 내려가는 연출.
   late final AnimationController _controller = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 1400),
+    duration: const Duration(milliseconds: 2200),
     // 이 애니메이션이 곧 결과 연출이라, 기기의 '애니메이션 줄이기' 설정에서도
     // 20배 빨라지지 않고 정해진 시간 그대로 재생한다.
     animationBehavior: AnimationBehavior.preserve,
@@ -38,10 +46,15 @@ class _LadderScreenState extends State<LadderScreen>
   List<String> _shownPlayers = const [];
   List<String> _shownResults = const [];
   final Set<int> _revealed = {};
-  int? _active;
+
+  /// 지금 경로가 그려지고 있는 참가자들.
+  final Set<int> _tracing = {};
+
+  bool get _busy => _drawing.isAnimating || _controller.isAnimating;
 
   @override
   void dispose() {
+    _drawing.dispose();
     _controller.dispose();
     super.dispose();
   }
@@ -64,29 +77,38 @@ class _LadderScreenState extends State<LadderScreen>
       ];
       _ladder = Ladder.random(_players.length, random: _random);
       _revealed.clear();
-      _active = null;
+      _tracing.clear();
     });
+    _controller.stop();
+    _drawing.forward(from: 0);
   }
 
-  Future<void> _reveal(int player) async {
-    if (_controller.isAnimating || _revealed.contains(player)) return;
-    setState(() => _active = player);
+  /// [players]의 경로를 동시에 그린 뒤 결과를 공개한다.
+  Future<void> _trace(Iterable<int> players) async {
+    setState(() => _tracing.addAll(players));
     await _controller.forward(from: 0);
     if (!mounted) return;
     HapticFeedback.lightImpact();
     setState(() {
-      _revealed.add(player);
-      _active = null;
+      _revealed.addAll(_tracing);
+      _tracing.clear();
     });
   }
 
+  Future<void> _reveal(int player) async {
+    if (_busy || _revealed.contains(player)) return;
+    await _trace([player]);
+  }
+
   Future<void> _revealAll() async {
+    if (_busy) return;
     final ladder = _ladder!;
-    _controller.stop();
-    setState(() {
-      _active = null;
-      _revealed.addAll(List.generate(ladder.columns, (i) => i));
-    });
+    final rest = [
+      for (var i = 0; i < ladder.columns; i++)
+        if (!_revealed.contains(i)) i,
+    ];
+    if (rest.isNotEmpty) await _trace(rest);
+    if (!mounted) return;
     await showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
@@ -202,13 +224,14 @@ class _LadderScreenState extends State<LadderScreen>
           ),
           Expanded(
             child: AnimatedBuilder(
-              animation: _controller,
+              animation: Listenable.merge([_drawing, _controller]),
               builder: (context, _) => CustomPaint(
                 size: Size.infinite,
                 painter: LadderPainter(
                   ladder: ladder,
                   revealed: _revealed,
-                  active: _active,
+                  tracing: _tracing,
+                  drawProgress: _drawing.value,
                   progress: _controller.value,
                   lineColor: Theme.of(context).colorScheme.outlineVariant,
                 ),
@@ -276,14 +299,20 @@ class LadderPainter extends CustomPainter {
   LadderPainter({
     required this.ladder,
     required this.revealed,
-    required this.active,
+    required this.tracing,
+    required this.drawProgress,
     required this.progress,
     required this.lineColor,
   });
 
   final Ladder ladder;
   final Set<int> revealed;
-  final int? active;
+  final Set<int> tracing;
+
+  /// 가로줄이 그어진 정도 (0~1). 위쪽 줄부터 차례로 그어진다.
+  final double drawProgress;
+
+  /// [tracing] 경로가 채워진 정도 (0~1).
   final double progress;
   final Color lineColor;
 
@@ -305,11 +334,13 @@ class LadderPainter extends CustomPainter {
       );
     }
     for (var r = 0; r < ladder.rows; r++) {
+      final t = (drawProgress * ladder.rows - r).clamp(0.0, 1.0);
+      if (t == 0) continue;
       final y = (r + 1) / (ladder.rows + 1);
       for (final c in ladder.rungs[r]) {
         canvas.drawLine(
           toPx(Offset(c.toDouble(), y)),
-          toPx(Offset(c + 1.0, y)),
+          toPx(Offset(c + t, y)),
           base,
         );
       }
@@ -324,8 +355,11 @@ class LadderPainter extends CustomPainter {
       return path;
     }
 
+    Color colorOf(int player) =>
+        Color.lerp(paletteAt(player), Colors.black, 0.25)!;
+
     Paint stroke(int player) => Paint()
-      ..color = Color.lerp(paletteAt(player), Colors.black, 0.25)!
+      ..color = colorOf(player)
       ..strokeWidth = 5
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round
@@ -334,14 +368,15 @@ class LadderPainter extends CustomPainter {
     for (final p in revealed) {
       canvas.drawPath(pathOf(p), stroke(p));
     }
-    final a = active;
-    if (a != null) {
-      final full = pathOf(a);
-      final partial = Path();
-      for (final PathMetric m in full.computeMetrics()) {
-        partial.addPath(m.extractPath(0, m.length * progress), Offset.zero);
+    for (final p in tracing) {
+      final metric = pathOf(p).computeMetrics().first;
+      final length = metric.length * progress;
+      canvas.drawPath(metric.extractPath(0, length), stroke(p));
+      final head = metric.getTangentForOffset(length)?.position;
+      if (head != null) {
+        canvas.drawCircle(head, 8, Paint()..color = colorOf(p));
+        canvas.drawCircle(head, 4, Paint()..color = Colors.white);
       }
-      canvas.drawPath(partial, stroke(a));
     }
   }
 
