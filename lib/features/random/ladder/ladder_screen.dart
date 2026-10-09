@@ -25,7 +25,7 @@ class _LadderScreenState extends State<LadderScreen>
   /// 사다리 가로줄이 위에서부터 하나씩 그어지는 연출.
   late final AnimationController _drawing = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 1200),
+    duration: const Duration(milliseconds: 2000),
     animationBehavior: AnimationBehavior.preserve,
   );
 
