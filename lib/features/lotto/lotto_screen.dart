@@ -200,7 +200,7 @@ class _GameRow extends StatelessWidget {
             Expanded(
               child: LayoutBuilder(
                 builder: (context, box) {
-                  const gap = 4.0;
+                  const gap = 7.0;
                   // 공과 저장 버튼 사이는 공 간격보다 넓게 띄운다.
                   const saveGap = 14.0;
                   const saveWidth = 40.0;
@@ -267,8 +267,9 @@ class _SaveChip extends StatelessWidget {
         customBorder: const StadiumBorder(),
         onTap: onPressed,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+          padding: const EdgeInsets.symmetric(vertical: 3),
           child: Text(
+            textAlign: TextAlign.center,
             '저장',
             style: TextStyle(
               fontSize: 11,
