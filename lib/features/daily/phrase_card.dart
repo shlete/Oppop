@@ -37,9 +37,13 @@ class PhraseCard extends StatelessWidget {
     required this.category,
     required this.text,
     required this.date,
+    this.by,
   });
 
   final PhraseCategory category;
+
+  /// 명언의 출처. 있으면 문구 아래에 작게 붙인다.
+  final String? by;
 
   /// null이면 뽑기 전 안내 문구를 보여준다.
   final String? text;
@@ -105,7 +109,11 @@ class PhraseCard extends StatelessWidget {
                                         color: _ink.withValues(alpha: 0.45),
                                       ),
                                     )
-                                  : _PhraseBody(text: text!, accent: accent),
+                                  : _PhraseBody(
+                                      text: text!,
+                                      by: by,
+                                      accent: accent,
+                                    ),
                             ),
                           ),
                           _Footer(date: date, accent: accent),
@@ -151,9 +159,10 @@ class _CategoryPill extends StatelessWidget {
 }
 
 class _PhraseBody extends StatelessWidget {
-  const _PhraseBody({required this.text, required this.accent});
+  const _PhraseBody({required this.text, this.by, required this.accent});
 
   final String text;
+  final String? by;
   final Color accent;
 
   @override
@@ -181,6 +190,18 @@ class _PhraseBody extends StatelessWidget {
             color: PhraseCard._ink,
           ),
         ),
+        if (by != null) ...[
+          const SizedBox(height: 12),
+          Text(
+            '— $by',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: Color.lerp(accent, PhraseCard._ink, 0.45),
+            ),
+          ),
+        ],
         const SizedBox(height: 22),
         Container(
           width: 28,

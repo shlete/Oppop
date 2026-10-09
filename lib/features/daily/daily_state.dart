@@ -81,18 +81,24 @@ class SavedPhrase {
     required this.category,
     required this.text,
     required this.savedAt,
+    this.by,
   });
 
   final String id;
   final PhraseCategory category;
   final String text;
   final DateTime savedAt;
+  final String? by;
+
+  /// 출처가 있으면 문구 아래 줄에 붙인 글.
+  String get textWithSource => by == null ? text : '$text\n— $by';
 
   Map<String, Object> toJson() => {
     'id': id,
     'category': category.name,
     'text': text,
     'savedAt': savedAt.toIso8601String(),
+    'by': ?by,
   };
 
   factory SavedPhrase.fromJson(Map<String, dynamic> json) => SavedPhrase(
@@ -100,6 +106,7 @@ class SavedPhrase {
     category: PhraseCategory.values.byName(json['category'] as String),
     text: json['text'] as String,
     savedAt: DateTime.parse(json['savedAt'] as String),
+    by: json['by'] as String?,
   );
 }
 
@@ -138,6 +145,7 @@ class SavedPhrasesNotifier extends Notifier<List<SavedPhrase>> {
         category: phrase.category,
         text: phrase.text,
         savedAt: DateTime.now(),
+        by: phrase.by,
       ),
       ...state,
     ];

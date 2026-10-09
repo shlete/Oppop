@@ -33,6 +33,7 @@ class _SavedPhraseViewState extends State<SavedPhraseView> {
                   child: PhraseCard(
                     category: phrase.category,
                     text: phrase.text,
+                    by: phrase.by,
                     date: phrase.savedAt,
                   ),
                 ),

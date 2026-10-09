@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// 오늘의 뽑기 카테고리.
 enum PhraseCategory {
-  quote('좋은 글귀'),
+  quote('명언 한마디'),
   cheer('응원 한마디'),
   caution('오늘 주의할 점');
 
@@ -42,6 +42,7 @@ class Phrase {
     required this.category,
     required this.text,
     this.sign,
+    this.by,
   });
 
   final String id;
@@ -50,6 +51,9 @@ class Phrase {
 
   /// 별자리 전용 문구면 그 별자리, 공통 문구면 null.
   final Zodiac? sign;
+
+  /// 명언·격언의 출처 (사람 이름, 속담, 고사성어 등). 직접 쓴 문구는 null.
+  final String? by;
 }
 
 /// 카테고리별 문구 묶음. 지금은 앱에 넣어둔 JSON에서 읽고,
@@ -66,6 +70,7 @@ class PhraseBook {
             category: c,
             text: e['text'] as String,
             sign: e['sign'] == null ? null : Zodiac.values.byName(e['sign']),
+            by: e['by'] as String?,
           ),
       ],
   });

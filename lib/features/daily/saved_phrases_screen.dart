@@ -67,7 +67,7 @@ class _SavedCard extends ConsumerWidget {
               Padding(
                 padding: const EdgeInsets.only(right: 12),
                 child: Text(
-                  phrase.text,
+                  phrase.textWithSource,
                   style: text.bodyLarge?.copyWith(height: 1.5),
                 ),
               ),
@@ -86,7 +86,7 @@ class _SavedCard extends ConsumerWidget {
     final messenger = ScaffoldMessenger.of(context)..hideCurrentSnackBar();
     switch (value) {
       case 'copy':
-        await Clipboard.setData(ClipboardData(text: phrase.text));
+        await Clipboard.setData(ClipboardData(text: phrase.textWithSource));
         messenger.showSnackBar(const SnackBar(content: Text('문구를 복사했어요')));
       case 'delete':
         final notifier = ref.read(savedPhrasesProvider.notifier);

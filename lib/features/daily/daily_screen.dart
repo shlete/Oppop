@@ -91,7 +91,9 @@ class _DailyScreenState extends ConsumerState<DailyScreen>
     if (bytes == null) return;
     await SharePlus.instance.share(
       ShareParams(
-        text: '${phrase.text}\n\n- 오늘의 뽑기',
+        text:
+            '${phrase.text}${phrase.by == null ? '' : '\n— ${phrase.by}'}'
+            '\n\n- 오늘의 뽑기',
         files: [
           XFile.fromData(
             bytes,
@@ -191,6 +193,7 @@ class _DailyScreenState extends ConsumerState<DailyScreen>
                         child: PhraseCard(
                           category: _category,
                           text: phrase?.text,
+                          by: phrase?.by,
                           date: DateTime.now(),
                         ),
                       ),

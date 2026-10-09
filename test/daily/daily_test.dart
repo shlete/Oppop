@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oneul_ppopgi/features/daily/daily_screen.dart';
+import 'package:oneul_ppopgi/features/daily/daily_state.dart';
 import 'package:oneul_ppopgi/features/daily/phrase_card.dart';
 import 'package:oneul_ppopgi/features/daily/phrases.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -25,6 +26,8 @@ void main() {
       for (final p in book.byCategory[c]!) {
         expect(ids.add(p.id), isTrue, reason: '중복 id ${p.id}');
         expect(p.text.trim(), isNotEmpty);
+        // 명언은 모두 출처가 있고, 나머지는 직접 쓴 문구라 출처가 없다.
+        expect(p.by != null, c == PhraseCategory.quote, reason: p.id);
       }
     }
     for (final z in Zodiac.values) {
@@ -125,5 +128,41 @@ void main() {
     const wj = '⁠';
     expect(keepWords('풍경도 있어요.'), '풍$wj경$wj도 있$wj어$wj요$wj.');
     expect(keepWords('풍경도 있어요.').replaceAll(wj, ''), '풍경도 있어요.');
+  });
+
+  test('저장한 명언은 출처까지 함께 저장된다', () {
+    final saved = SavedPhrase(
+      id: 'm001',
+      category: PhraseCategory.quote,
+      text: '시작이 반이다.',
+      savedAt: DateTime(2026, 10, 9),
+      by: '속담',
+    );
+    final back = SavedPhrase.fromJson(
+      jsonDecode(jsonEncode(saved.toJson())) as Map<String, dynamic>,
+    );
+    expect(back.by, '속담');
+    expect(back.textWithSource, '시작이 반이다.\n— 속담');
+  });
+
+  testWidgets('모든 문구가 카드 안에 넘치지 않고 들어간다', (tester) async {
+    for (final p in book.byCategory.values.expand((l) => l)) {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Center(
+            child: SizedBox(
+              width: PhraseCard.designWidth,
+              child: PhraseCard(
+                category: p.category,
+                text: p.text,
+                by: p.by,
+                date: DateTime(2026, 10, 9),
+              ),
+            ),
+          ),
+        ),
+      );
+      expect(tester.takeException(), isNull, reason: p.id);
+    }
   });
 }
