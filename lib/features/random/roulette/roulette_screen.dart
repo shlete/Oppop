@@ -170,13 +170,12 @@ class _RouletteScreenState extends State<RouletteScreen>
                           padding: const EdgeInsets.only(top: 18),
                           child: AnimatedBuilder(
                             animation: _controller,
-                            builder: (context, child) => Transform.rotate(
-                              angle: _spin?.value ?? _rotation,
-                              child: child,
-                            ),
-                            child: CustomPaint(
+                            builder: (context, _) => CustomPaint(
                               size: Size.infinite,
-                              painter: WheelPainter(_items),
+                              painter: WheelPainter(
+                                _items,
+                                rotation: _spin?.value ?? _rotation,
+                              ),
                             ),
                           ),
                         ),
@@ -207,11 +206,13 @@ class _RouletteScreenState extends State<RouletteScreen>
   }
 }
 
-/// 0번 칸이 12시 방향에서 시계 방향으로 시작하는 원판.
+/// 0번 칸이 12시 방향에서 시계 방향으로 시작하는 원판을 [rotation]만큼 돌려 그린다.
+/// 칸은 함께 돌지만 글자는 어느 위치에서든 똑바로 서 있도록 가로로 그린다.
 class WheelPainter extends CustomPainter {
-  WheelPainter(this.items);
+  WheelPainter(this.items, {this.rotation = 0});
 
   final List<String> items;
+  final double rotation;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -220,9 +221,14 @@ class WheelPainter extends CustomPainter {
     final rect = Rect.fromCircle(center: center, radius: radius);
     final seg = 2 * pi / items.length;
     final fontSize = items.length > 10 ? 12.0 : 16.0;
+    final labelRadius = radius * 0.62;
+    // 칸 안에 들어가는 가로 폭 (칸이 좁을수록 줄어듦).
+    final labelWidth = items.length < 3
+        ? radius * 0.6
+        : min(radius * 0.6, 2.2 * labelRadius * sin(seg / 2));
 
     for (var i = 0; i < items.length; i++) {
-      final start = -pi / 2 + i * seg;
+      final start = -pi / 2 + rotation + i * seg;
       canvas.drawArc(rect, start, seg, true, Paint()..color = paletteAt(i));
       canvas.drawArc(
         rect,
@@ -242,25 +248,23 @@ class WheelPainter extends CustomPainter {
             color: Colors.black87,
             fontSize: fontSize,
             fontWeight: FontWeight.w600,
+            height: 1.1,
           ),
         ),
+        textAlign: TextAlign.center,
         textDirection: TextDirection.ltr,
-        maxLines: 1,
+        maxLines: 2,
         ellipsis: '…',
-      )..layout(maxWidth: radius * 0.6);
+      )..layout(maxWidth: labelWidth);
 
-      canvas.save();
-      canvas.translate(center.dx, center.dy);
-      canvas.rotate(start + seg / 2);
-      label.paint(
-        canvas,
-        Offset(radius * 0.92 - label.width, -label.height / 2),
-      );
-      canvas.restore();
+      final mid = start + seg / 2;
+      final at = center + Offset(cos(mid), sin(mid)) * labelRadius;
+      label.paint(canvas, at - Offset(label.width / 2, label.height / 2));
     }
     canvas.drawCircle(center, radius * 0.08, Paint()..color = Colors.white);
   }
 
   @override
-  bool shouldRepaint(WheelPainter old) => old.items != items;
+  bool shouldRepaint(WheelPainter old) =>
+      old.items != items || old.rotation != rotation;
 }
