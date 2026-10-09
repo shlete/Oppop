@@ -23,4 +23,14 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('응원 한마디'), findsOneWidget);
   });
+
+  testWidgets('넓은 화면에서는 가운데 480px 폭으로 제한된다', (tester) async {
+    await tester.binding.setSurfaceSize(const Size(1200, 800));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    await tester.pumpWidget(const ProviderScope(child: OneulPpopgiApp()));
+
+    final nav = tester.getRect(find.byType(NavigationBar));
+    expect(nav.width, 480);
+    expect(nav.left, 360);
+  });
 }
