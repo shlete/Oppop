@@ -10,6 +10,7 @@ import '../../core/widgets/saved_list_button.dart';
 import 'daily_state.dart';
 import 'phrase_card.dart';
 import 'phrases.dart';
+import 'save_card_image.dart';
 import 'saved_phrases_screen.dart';
 
 class DailyScreen extends ConsumerStatefulWidget {
@@ -181,12 +182,17 @@ class _DailyScreenState extends ConsumerState<DailyScreen>
                         ),
                       );
                     },
-                    child: RepaintBoundary(
-                      key: _cardKey,
-                      child: PhraseCard(
-                        category: _category,
-                        text: phrase?.text,
-                        date: DateTime.now(),
+                    child: GestureDetector(
+                      onLongPress: phrase == null
+                          ? null
+                          : () => saveCardImage(context, _cardKey),
+                      child: RepaintBoundary(
+                        key: _cardKey,
+                        child: PhraseCard(
+                          category: _category,
+                          text: phrase?.text,
+                          date: DateTime.now(),
+                        ),
                       ),
                     ),
                   ),
@@ -222,7 +228,9 @@ class _DailyScreenState extends ConsumerState<DailyScreen>
               ),
               const SizedBox(height: 8),
               Text(
-                '재미로 보는 문구예요. 가볍게 즐겨주세요.',
+                phrase == null
+                    ? '재미로 보는 문구예요. 가볍게 즐겨주세요.'
+                    : '카드를 꾹 누르면 이미지 저장 · 재미로 즐겨주세요',
                 textAlign: TextAlign.center,
                 style: text.bodySmall,
               ),
