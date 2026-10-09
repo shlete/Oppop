@@ -1,11 +1,10 @@
 import 'dart:math';
-import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../core/image_save/image_save.dart';
 import '../../core/widgets/primary_button.dart';
 import '../../core/widgets/saved_list_button.dart';
 import 'daily_state.dart';
@@ -87,18 +86,14 @@ class _DailyScreenState extends ConsumerState<DailyScreen>
 
   /// 결과 카드를 이미지로 만들어 공유한다.
   Future<void> _share(Phrase phrase) async {
-    final boundary =
-        _cardKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
-    if (boundary == null) return;
-    final image = await boundary.toImage(pixelRatio: 3);
-    final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
+    final bytes = await captureBoundary(_cardKey);
     if (bytes == null) return;
     await SharePlus.instance.share(
       ShareParams(
         text: '${phrase.text}\n\n- 오늘의 뽑기',
         files: [
           XFile.fromData(
-            bytes.buffer.asUint8List(),
+            bytes,
             mimeType: 'image/png',
             name: 'oneul-ppopgi.png',
           ),

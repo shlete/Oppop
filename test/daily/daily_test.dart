@@ -89,6 +89,14 @@ void main() {
     await tester.tap(find.text('저장 목록 1'));
     await tester.pumpAndSettle();
     expect(find.text(shown.single!), findsOneWidget);
+
+    // 저장한 문구를 누르면 카드로 크게 보인다.
+    await tester.tap(find.text(shown.single!));
+    await tester.pumpAndSettle();
+    expect(find.text('카드를 꾹 누르면 이미지로 저장돼요'), findsOneWidget);
+    expect(find.text(keepWords(shown.single!)), findsOneWidget);
+    await tester.pageBack();
+    await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('더보기'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('삭제'));

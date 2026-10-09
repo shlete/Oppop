@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'daily_state.dart';
+import 'saved_phrase_view.dart';
 import 'phrase_card.dart';
 
 class SavedPhrasesScreen extends ConsumerWidget {
@@ -35,37 +36,43 @@ class _SavedCard extends ConsumerWidget {
     final d = phrase.savedAt;
     return Card(
       color: phraseCardColors(phrase.category).first,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 8, 4, 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    '${phrase.category.label} · ${d.year}.${d.month}.${d.day}',
-                    style: text.bodySmall,
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => SavedPhraseView(phrase: phrase)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 4, 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      '${phrase.category.label} · ${d.year}.${d.month}.${d.day}',
+                      style: text.bodySmall,
+                    ),
                   ),
-                ),
-                PopupMenuButton<String>(
-                  tooltip: '더보기',
-                  onSelected: (v) => _onMenu(context, ref, v),
-                  itemBuilder: (_) => const [
-                    PopupMenuItem(value: 'copy', child: Text('문구 복사')),
-                    PopupMenuItem(value: 'delete', child: Text('삭제')),
-                  ],
-                ),
-              ],
-            ),
-            Padding(
-              padding: const EdgeInsets.only(right: 12),
-              child: Text(
-                phrase.text,
-                style: text.bodyLarge?.copyWith(height: 1.5),
+                  PopupMenuButton<String>(
+                    tooltip: '더보기',
+                    onSelected: (v) => _onMenu(context, ref, v),
+                    itemBuilder: (_) => const [
+                      PopupMenuItem(value: 'copy', child: Text('문구 복사')),
+                      PopupMenuItem(value: 'delete', child: Text('삭제')),
+                    ],
+                  ),
+                ],
               ),
-            ),
-          ],
+              Padding(
+                padding: const EdgeInsets.only(right: 12),
+                child: Text(
+                  phrase.text,
+                  style: text.bodyLarge?.copyWith(height: 1.5),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
