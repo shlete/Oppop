@@ -10,6 +10,7 @@ import 'lotto_logic.dart';
 import 'saved_lotto.dart';
 import 'saved_lotto_screen.dart';
 import '../../core/widgets/primary_button.dart';
+import '../../core/widgets/saved_list_button.dart';
 
 class LottoScreen extends ConsumerStatefulWidget {
   const LottoScreen({super.key, this.random});
@@ -92,22 +93,10 @@ class _LottoScreenState extends ConsumerState<LottoScreen>
       appBar: AppBar(
         title: const Text('로또'),
         actions: [
-          // 아이콘만 두면 눈에 잘 안 띄어서 글자 버튼으로 둔다.
-          Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: Tooltip(
-              message: '저장한 번호',
-              child: OutlinedButton(
-                onPressed: _openSaved,
-                style: OutlinedButton.styleFrom(
-                  visualDensity: VisualDensity.compact,
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                ),
-                child: Text(
-                  savedCount > 0 ? '저장 목록 $savedCount' : '저장 목록',
-                ),
-              ),
-            ),
+          SavedListButton(
+            count: savedCount,
+            onPressed: _openSaved,
+            tooltip: '저장한 번호',
           ),
         ],
       ),
