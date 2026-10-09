@@ -200,26 +200,41 @@ class _GameRow extends StatelessWidget {
             Expanded(
               child: LayoutBuilder(
                 builder: (context, box) {
-                  final size = min(40.0, (box.maxWidth - 5 * 4) / 6);
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      for (var b = 0; b < numbers.length; b++)
-                        Transform.scale(
-                          scale: Curves.elasticOut.transform(
-                            (progress * numbers.length - b).clamp(0.0, 1.0),
+                  const gap = 4.0;
+                  // 공과 저장 버튼 사이는 공 간격보다 넓게 띄운다.
+                  const saveGap = 14.0;
+                  const saveWidth = 40.0;
+                  final size = min(
+                    40.0,
+                    (box.maxWidth - 5 * gap - saveGap - saveWidth) / 6,
+                  );
+                  // 넓은 화면에서는 공과 버튼을 한 덩어리로 가운데에 둔다.
+                  return Center(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        for (var b = 0; b < numbers.length; b++) ...[
+                          if (b > 0) const SizedBox(width: gap),
+                          Transform.scale(
+                            scale: Curves.elasticOut.transform(
+                              (progress * numbers.length - b).clamp(0.0, 1.0),
+                            ),
+                            child: LottoBall(numbers[b], size: size),
                           ),
-                          child: LottoBall(numbers[b], size: size),
+                        ],
+                        const SizedBox(width: saveGap),
+                        SizedBox(
+                          width: saveWidth,
+                          child: Tooltip(
+                            message: saved ? '저장 취소' : '저장',
+                            child: _SaveChip(saved: saved, onPressed: onSave),
+                          ),
                         ),
-                    ],
+                      ],
+                    ),
                   );
                 },
               ),
-            ),
-            const SizedBox(width: 6),
-            Tooltip(
-              message: saved ? '저장 취소' : '저장',
-              child: _SaveChip(saved: saved, onPressed: onSave),
             ),
           ],
         ),
