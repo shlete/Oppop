@@ -19,12 +19,15 @@ class RouletteScreen extends StatefulWidget {
   State<RouletteScreen> createState() => _RouletteScreenState();
 }
 
+/// 살짝 가속한 뒤 오래 감속하며 천천히 멈추는 곡선.
+const _spinCurve = Cubic(0.35, 0.1, 0.25, 1.0);
+
 class _RouletteScreenState extends State<RouletteScreen>
     with SingleTickerProviderStateMixin {
   late final Random _random = widget.random ?? Random();
   late final AnimationController _controller = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 3800),
+    duration: const Duration(milliseconds: 5500),
   );
   List<String> _items = List.of(builtInPresets.first.items);
   double _rotation = 0;
@@ -45,12 +48,13 @@ class _RouletteScreenState extends State<RouletteScreen>
       current: _rotation,
       index: index,
       count: _items.length,
+      extraTurns: 3,
       jitter: _random.nextDouble() * 2 - 1,
     );
     _spin = Tween(
       begin: _rotation,
       end: target,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
+    ).animate(CurvedAnimation(parent: _controller, curve: _spinCurve));
     setState(() {});
     await _controller.forward(from: 0);
     if (!mounted) return;
