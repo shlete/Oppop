@@ -95,10 +95,10 @@ void main() {
 
     await tester.tap(find.text('돌리기'));
     await tester.pump();
-    await tester.pump(const Duration(seconds: 3));
+    await tester.pump(const Duration(seconds: 2));
     expect(find.text('결과'), findsNothing);
 
-    await tester.pump(const Duration(seconds: 4));
+    await tester.pump(const Duration(seconds: 3));
     await tester.pumpAndSettle();
     expect(find.text('결과'), findsOneWidget);
   });

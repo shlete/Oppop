@@ -27,7 +27,7 @@ class _RouletteScreenState extends State<RouletteScreen>
   late final Random _random = widget.random ?? Random();
   late final AnimationController _controller = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 6500),
+    duration: const Duration(milliseconds: 4000),
     // 이 애니메이션이 곧 결과 연출이라, 기기의 '애니메이션 줄이기' 설정에서도
     // 20배 빨라지지 않고 정해진 시간 그대로 재생한다.
     animationBehavior: AnimationBehavior.preserve,
