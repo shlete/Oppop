@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oneul_ppopgi/features/daily/daily_screen.dart';
+import 'package:oneul_ppopgi/features/daily/phrase_card.dart';
 import 'package:oneul_ppopgi/features/daily/phrases.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -74,7 +75,7 @@ void main() {
     final cheers = book.byCategory[PhraseCategory.cheer]!.map((p) => p.text);
     final shown = tester
         .widgetList<Text>(find.byType(Text))
-        .map((t) => t.data)
+        .map((t) => t.data?.replaceAll('\u2060', ''))
         .where(cheers.contains)
         .toList();
     expect(shown, hasLength(1));
@@ -110,5 +111,11 @@ void main() {
     await tester.tap(find.textContaining('사자자리'));
     await tester.pumpAndSettle();
     expect(find.text('내 별자리: 사자자리 · 바꾸기'), findsOneWidget);
+  });
+
+  test('카드 문구는 띄어쓰기에서만 줄이 바뀌도록 단어 안 글자를 붙여 둔다', () {
+    const wj = '⁠';
+    expect(keepWords('풍경도 있어요.'), '풍$wj경$wj도 있$wj어$wj요$wj.');
+    expect(keepWords('풍경도 있어요.').replaceAll(wj, ''), '풍경도 있어요.');
   });
 }
