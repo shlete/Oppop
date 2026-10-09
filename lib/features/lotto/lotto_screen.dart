@@ -228,7 +228,7 @@ class _GameRow extends StatelessWidget {
   }
 }
 
-/// 줄 오른쪽의 작은 저장 버튼. 아이콘만으로는 저장인지 알기 어려워 글자를 같이 쓴다.
+/// 줄 오른쪽의 작은 저장 버튼. 저장하면 같은 크기로 색만 채워진다.
 class _SaveChip extends StatelessWidget {
   const _SaveChip({required this.saved, required this.onPressed});
 
@@ -238,31 +238,33 @@ class _SaveChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final style = ButtonStyle(
-      visualDensity: VisualDensity.compact,
-      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      padding: const WidgetStatePropertyAll(
-        EdgeInsets.symmetric(horizontal: 8),
+    final enabled = onPressed != null;
+    return Material(
+      color: saved ? scheme.primary : Colors.transparent,
+      shape: StadiumBorder(
+        side: BorderSide(
+          color: saved
+              ? scheme.primary
+              : scheme.outline.withValues(alpha: enabled ? 1 : 0.4),
+        ),
       ),
-      minimumSize: const WidgetStatePropertyAll(Size(0, 32)),
-      textStyle: WidgetStatePropertyAll(Theme.of(context).textTheme.labelSmall),
-      iconSize: const WidgetStatePropertyAll(16),
-    );
-    final icon = Icon(saved ? Icons.bookmark : Icons.bookmark_border);
-    return saved
-        ? FilledButton.tonalIcon(
-            style: style.copyWith(
-              backgroundColor: WidgetStatePropertyAll(scheme.primaryContainer),
+      child: InkWell(
+        customBorder: const StadiumBorder(),
+        onTap: onPressed,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+          child: Text(
+            '저장',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: saved
+                  ? scheme.onPrimary
+                  : scheme.primary.withValues(alpha: enabled ? 1 : 0.4),
             ),
-            onPressed: onPressed,
-            icon: icon,
-            label: const Text('저장됨'),
-          )
-        : OutlinedButton.icon(
-            style: style,
-            onPressed: onPressed,
-            icon: icon,
-            label: const Text('저장'),
-          );
+          ),
+        ),
+      ),
+    );
   }
 }
