@@ -9,6 +9,7 @@ import 'lotto_ball.dart';
 import 'lotto_logic.dart';
 import 'saved_lotto.dart';
 import 'saved_lotto_screen.dart';
+import '../../core/widgets/primary_button.dart';
 
 class LottoScreen extends ConsumerStatefulWidget {
   const LottoScreen({super.key, this.random});
@@ -147,15 +148,9 @@ class _LottoScreenState extends ConsumerState<LottoScreen>
                         ),
                       ),
               ),
-              SizedBox(
-                height: 56,
-                child: FilledButton(
-                  onPressed: _drawing ? null : _draw,
-                  child: Text(
-                    _games.isEmpty ? '번호 뽑기' : '다시 뽑기',
-                    style: const TextStyle(fontSize: 18),
-                  ),
-                ),
+              PrimaryButton(
+                label: _games.isEmpty ? '번호 뽑기' : '다시 뽑기',
+                onPressed: _drawing ? null : _draw,
               ),
               const SizedBox(height: 8),
               Text(

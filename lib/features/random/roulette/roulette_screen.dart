@@ -8,6 +8,7 @@ import '../presets.dart';
 import '../widgets/item_list_editor.dart';
 import '../widgets/preset_buttons.dart';
 import 'roulette_logic.dart';
+import '../../../core/widgets/primary_button.dart';
 
 class RouletteScreen extends StatefulWidget {
   const RouletteScreen({super.key, this.random});
@@ -197,14 +198,7 @@ class _RouletteScreenState extends State<RouletteScreen>
                 ),
               ),
               const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: FilledButton(
-                  onPressed: _spinning ? null : _start,
-                  child: const Text('돌리기', style: TextStyle(fontSize: 18)),
-                ),
-              ),
+              PrimaryButton(label: '돌리기', onPressed: _spinning ? null : _start),
             ],
           ),
         ),

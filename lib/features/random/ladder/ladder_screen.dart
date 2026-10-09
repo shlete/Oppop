@@ -7,6 +7,7 @@ import '../palette.dart';
 import '../widgets/item_list_editor.dart';
 import '../widgets/preset_buttons.dart';
 import 'ladder.dart';
+import '../../../core/widgets/primary_button.dart';
 
 class LadderScreen extends StatefulWidget {
   const LadderScreen({super.key, this.random});
@@ -181,13 +182,7 @@ class _LadderScreenState extends State<LadderScreen>
           onChanged: (r) => _results = r,
         ),
         const SizedBox(height: 24),
-        SizedBox(
-          height: 56,
-          child: FilledButton(
-            onPressed: _build,
-            child: const Text('사다리 만들기', style: TextStyle(fontSize: 18)),
-          ),
-        ),
+        PrimaryButton(label: '사다리 만들기', onPressed: _build),
       ],
     );
   }
