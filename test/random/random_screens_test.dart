@@ -86,4 +86,20 @@ void main() {
     expect(find.text('?'), findsNothing);
     expect(find.text('당첨'), findsWidgets);
   });
+
+  testWidgets('애니메이션 줄이기 설정에서도 룰렛은 끝까지 천천히 돈다', (tester) async {
+    tester.platformDispatcher.accessibilityFeaturesTestValue =
+        const FakeAccessibilityFeatures(disableAnimations: true);
+    addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
+    await tester.pumpWidget(_wrap(RouletteScreen(random: Random(7))));
+
+    await tester.tap(find.text('돌리기'));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 3));
+    expect(find.text('결과'), findsNothing);
+
+    await tester.pump(const Duration(seconds: 4));
+    await tester.pumpAndSettle();
+    expect(find.text('결과'), findsOneWidget);
+  });
 }
