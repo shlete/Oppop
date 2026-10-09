@@ -10,16 +10,19 @@ class PrimaryButton extends StatelessWidget {
   /// null이면 비활성화된다.
   final VoidCallback? onPressed;
 
-  static const height = 56.0;
+  static const width = 220.0;
+  static const height = 52.0;
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      height: height,
-      child: FilledButton(
-        onPressed: onPressed,
-        child: Text(label, style: const TextStyle(fontSize: 18)),
+    return Center(
+      child: SizedBox(
+        width: width,
+        height: height,
+        child: FilledButton(
+          onPressed: onPressed,
+          child: Text(label, style: const TextStyle(fontSize: 17)),
+        ),
       ),
     );
   }
