@@ -262,12 +262,6 @@ class _ConsultReadingState extends State<ConsultReading> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          '타로 결과',
-          textAlign: TextAlign.center,
-          style: text.titleLarge?.copyWith(color: scheme.primary),
-        ),
-        const SizedBox(height: 16),
         SizedBox(
           height: panelHeight,
           // 웹 미리보기에서 마우스로 끌어도 넘어가게.
