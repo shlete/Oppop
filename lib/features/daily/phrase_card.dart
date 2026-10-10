@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../../core/widgets/balanced_text.dart';
 import 'phrases.dart';
 
 /// 카테고리마다 다른 배경 그라데이션 (위 → 아래).
@@ -180,9 +181,8 @@ class _PhraseBody extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 4),
-        Text(
+        BalancedText(
           keepWords(text),
-          textAlign: TextAlign.center,
           style: const TextStyle(
             fontSize: 21,
             height: 1.65,

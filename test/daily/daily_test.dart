@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:oneul_ppopgi/core/widgets/balanced_text.dart';
 import 'package:oneul_ppopgi/features/daily/daily_screen.dart';
 import 'package:oneul_ppopgi/features/daily/daily_state.dart';
 import 'package:oneul_ppopgi/features/daily/phrase_card.dart';
@@ -164,5 +165,25 @@ void main() {
       );
       expect(tester.takeException(), isNull, reason: p.id);
     }
+  });
+
+  testWidgets('여러 줄 문구는 줄 길이가 고르게 나뉜다', (tester) async {
+    await tester.pumpWidget(
+      const Directionality(
+        textDirection: TextDirection.ltr,
+        child: Center(
+          child: SizedBox(
+            width: 150,
+            child: BalancedText(
+              'aaaa bbbb cccc d',
+              style: TextStyle(fontSize: 10),
+            ),
+          ),
+        ),
+      ),
+    );
+    // 그냥 두면 "aaaa bbbb cccc / d"(140px)인데, 고르게 나누면 두 줄 모두 짧아진다.
+    expect(tester.getSize(find.byType(Text)).width, lessThan(110));
+    expect(tester.getSize(find.byType(Text)).height, 20);
   });
 }
