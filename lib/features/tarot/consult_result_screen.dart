@@ -226,7 +226,7 @@ class ConsultReading extends StatefulWidget {
 class _ConsultReadingState extends State<ConsultReading> {
   /// 카드 패널 크기. 화면 폭과 상관없이 늘 같다.
   static const panelWidth = 204.0;
-  static const panelHeight = 400.0;
+  static const panelHeight = 340.0;
   static const _gap = 16.0;
 
   PageController? _pages;
