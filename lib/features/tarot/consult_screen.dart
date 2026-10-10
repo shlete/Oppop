@@ -278,7 +278,7 @@ class _Fan extends StatefulWidget {
   State<_Fan> createState() => _FanState();
 }
 
-class _FanState extends State<_Fan> {
+class _FanState extends State<_Fan> with SingleTickerProviderStateMixin {
   /// 화면 끝 카드의 기울기 (라디안).
   static const _edgeAngle = 0.4;
 
@@ -294,6 +294,14 @@ class _FanState extends State<_Fan> {
   late double _radius;
   late double _top;
   ScrollController? _scroll;
+
+  /// 처음 들어왔을 때 덱을 왼쪽에서 오른쪽으로 쓸어 펼치는 연출.
+  /// 기기의 애니메이션 줄이기 설정에 빨라지지 않게 preserve.
+  late final AnimationController _deal = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1600),
+    animationBehavior: AnimationBehavior.preserve,
+  )..forward();
 
   void _layout() {
     final size = widget.size;
@@ -327,19 +335,41 @@ class _FanState extends State<_Fan> {
 
   @override
   void dispose() {
+    _deal.dispose();
     _scroll?.dispose();
     super.dispose();
   }
 
   /// 스크롤 위치 [offset]에서 [i]번째 카드의 중심과 기울기 (펼친 줄 기준 좌표).
-  ({Offset center, double angle}) _place(int i, double offset) {
-    final x = _pad + i * _cw * _step + _cw / 2;
+  ({Offset center, double angle}) _place(int i, double offset) =>
+      _placeAt(_pad + i * _cw * _step + _cw / 2, offset);
+
+  ({Offset center, double angle}) _placeAt(double x, double offset) {
     final d = x - offset - widget.size.width / 2;
     final angle = (d / _radius).clamp(-0.9, 0.9);
     return (
       center: Offset(x, _top + _ch / 2 + _radius * (1 - cos(angle))),
       angle: angle,
     );
+  }
+
+  /// 펼치는 중인 [i]번째 카드 자리. 덱이 왼쪽([first])에서 오른쪽([last])으로
+  /// 미끄러지며 지나간 자리마다 맨 아래 카드를 한 장씩 내려놓는다.
+  ({Offset center, double angle}) _dealt(
+    int i,
+    double offset,
+    int first,
+    int last,
+  ) {
+    final home = _place(i, offset);
+    final t = _deal.value;
+    if (t >= 1) return home;
+    // 덱은 화면 왼쪽 밖에서 들어와 오른쪽 밖까지 한 방향으로만 지나간다. 아직 덱이
+    // 자기 자리에 닿지 않은 카드는 덱에 겹쳐 같이 움직이고, 닿으면 그 자리에 남는다.
+    final a = _pad + first * _cw * _step + _cw / 2 - _cw;
+    final b = _pad + last * _cw * _step + _cw / 2;
+    final deckX = a + (b - a) * Curves.easeInOutSine.transform(t);
+    return _placeAt(min(deckX, home.center.dx), offset);
   }
 
   @override
@@ -354,7 +384,7 @@ class _FanState extends State<_Fan> {
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
         child: AnimatedBuilder(
-          animation: _scroll!,
+          animation: Listenable.merge([_scroll, _deal]),
           builder: (context, _) {
             final offset = _scroll!.hasClients
                 ? _scroll!.offset
@@ -370,7 +400,7 @@ class _FanState extends State<_Fan> {
             );
             final cards = [
               for (var i = first; i <= last; i++)
-                (index: i, p: _place(i, offset)),
+                (index: i, p: _dealt(i, offset, first, last)),
             ];
 
             // 겹친 카드 중 눌린 곳이 보이는 카드(위에 그려진 카드부터)를 고른다.
@@ -390,6 +420,7 @@ class _FanState extends State<_Fan> {
             return GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTapUp: (d) {
+                if (_deal.isAnimating) return;
                 final i = cardAt(d.localPosition);
                 if (i != null) widget.onTap(i);
               },

@@ -29,7 +29,7 @@ class HomeScreen extends StatelessWidget {
             children: [
               Expanded(
                 child: _MenuTile(
-                  title: '타로',
+                  title: '타로뽑기',
                   icon: Icons.style,
                   onTap: () => onOpenTab(1),
                 ),
@@ -37,7 +37,7 @@ class HomeScreen extends StatelessWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: _MenuTile(
-                  title: '로또',
+                  title: '로또뽑기',
                   icon: Icons.casino,
                   onTap: () => onOpenTab(2),
                 ),
@@ -45,7 +45,7 @@ class HomeScreen extends StatelessWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: _MenuTile(
-                  title: '랜덤',
+                  title: '랜덤뽑기',
                   icon: Icons.shuffle,
                   onTap: () => onOpenTab(3),
                 ),

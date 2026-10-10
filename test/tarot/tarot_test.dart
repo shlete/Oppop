@@ -139,6 +139,9 @@ void main() {
       expect(find.textContaining(label), findsOneWidget);
     }
 
+    // 저장 버튼은 통합 점괘 맨 끝에 있어서 내려야 보인다.
+    await tester.ensureVisible(find.text('저장'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('저장'));
     await tester.pump();
     final saved = container.read(savedReadingsProvider).single;
