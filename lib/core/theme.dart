@@ -22,6 +22,12 @@ abstract final class AppColors {
   static const ink = Color(0xFF15132E);
 }
 
+/// 앱 글꼴 이름 (pubspec.yaml에 등록).
+abstract final class AppFonts {
+  static const body = 'SUIT';
+  static const heading = 'IBMPlexSansKR';
+}
+
 class AppTheme {
   static const seed = AppColors.main;
 
@@ -48,11 +54,26 @@ class AppTheme {
       outline: const Color(0xFF7C78A0),
       outlineVariant: const Color(0xFFBDB8E0),
     );
-    return ThemeData(
-      // 프리텐다드: 무료 상업 이용 가능 (SIL OFL 1.1).
-      fontFamily: 'Pretendard',
+    final base = ThemeData(
+      // 본문 글꼴 SUIT. 무료 상업 이용 가능 (SIL OFL 1.1).
+      fontFamily: AppFonts.body,
       colorScheme: scheme,
       useMaterial3: true,
+    );
+    final t = base.textTheme;
+    TextStyle? heading(TextStyle? s) =>
+        s?.copyWith(fontFamily: AppFonts.heading);
+    return base.copyWith(
+      // 큰 제목은 IBM Plex Sans KR (화면 제목, 큰 글씨 제목).
+      textTheme: t.copyWith(
+        displayLarge: heading(t.displayLarge),
+        displayMedium: heading(t.displayMedium),
+        displaySmall: heading(t.displaySmall),
+        headlineLarge: heading(t.headlineLarge),
+        headlineMedium: heading(t.headlineMedium),
+        headlineSmall: heading(t.headlineSmall),
+        titleLarge: heading(t.titleLarge),
+      ),
       scaffoldBackgroundColor: AppColors.background,
       appBarTheme: const AppBarTheme(
         backgroundColor: AppColors.background,
