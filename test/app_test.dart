@@ -1,7 +1,11 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oneul_ppopgi/app.dart';
+import 'package:oneul_ppopgi/features/tarot/tarot_cards.dart';
 
 void main() {
   testWidgets('홈에서 탭과 메뉴로 각 화면에 이동한다', (tester) async {
@@ -24,6 +28,48 @@ void main() {
     await tester.tap(find.text('뽑으러 가기 ›'));
     await tester.pumpAndSettle();
     expect(find.text('응원 한마디'), findsOneWidget);
+  });
+
+  testWidgets('홈으로 가면 다른 탭은 첫 화면으로 돌아간다', (tester) async {
+    final deck = TarotDeck.fromJson(
+      jsonDecode(File('assets/tarot/cards.json').readAsStringSync()) as List,
+    );
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [tarotDeckProvider.overrideWith((ref) => deck)],
+        child: const OneulPpopgiApp(),
+      ),
+    );
+    await tester.pump(const Duration(seconds: 1));
+
+    await tester.tap(find.text('타로'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('고민상담'));
+    await tester.pumpAndSettle();
+    expect(find.text('어떤 고민이 있나요?'), findsOneWidget);
+
+    await tester.tap(find.text('홈'));
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.text('어떤 고민이 있나요?'), findsNothing);
+
+    await tester.tap(find.text('타로'));
+    await tester.pumpAndSettle();
+    expect(find.text('어떤 고민이 있나요?'), findsNothing);
+    expect(find.text('고민상담'), findsOneWidget);
+
+    // 로또에서 뽑아 둔 번호도 홈을 다녀오면 비워진다.
+    await tester.tap(find.text('로또'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('번호 뽑기'));
+    await tester.pumpAndSettle();
+    expect(find.text('다시 뽑기'), findsOneWidget);
+
+    await tester.tap(find.text('홈'));
+    await tester.pump(const Duration(seconds: 1));
+    await tester.tap(find.text('로또'));
+    await tester.pumpAndSettle();
+    expect(find.text('번호 뽑기'), findsOneWidget);
+    expect(find.text('다시 뽑기'), findsNothing);
   });
 
   testWidgets('넓은 화면에서는 가운데 480px 폭으로 제한된다', (tester) async {

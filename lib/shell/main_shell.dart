@@ -27,7 +27,16 @@ class _MainShellState extends State<MainShell> {
       _navigators[index].currentState?.popUntil((r) => r.isFirst);
       return;
     }
-    setState(() => _index = index);
+    setState(() {
+      // 홈으로 가면 다른 탭들은 새로 만들어 처음 상태로 되돌린다
+      // (안쪽 화면은 닫히고, 로또에서 뽑아 둔 번호 같은 첫 화면 상태도 비워짐).
+      if (index == 0) {
+        for (var i = 1; i < _navigators.length; i++) {
+          _navigators[i] = GlobalKey<NavigatorState>();
+        }
+      }
+      _index = index;
+    });
   }
 
   // 안 보이는 탭의 애니메이션은 멈춰 둔다.
