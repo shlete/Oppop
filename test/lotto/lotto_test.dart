@@ -38,8 +38,11 @@ void main() {
     expect(find.byType(LottoBall), findsNWidgets(6));
     expect(find.text('다시 뽑기'), findsOneWidget);
 
+    // 게임 수를 바꾸면 뽑아 둔 번호는 비워진다.
     await tester.tap(find.text('5게임'));
-    await tester.tap(find.text('다시 뽑기'));
+    await tester.pumpAndSettle();
+    expect(find.byType(LottoBall), findsNothing);
+    await tester.tap(find.text('번호 뽑기'));
     await tester.pumpAndSettle();
     expect(find.byType(LottoBall), findsNWidgets(30));
 

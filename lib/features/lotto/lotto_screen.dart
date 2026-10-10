@@ -114,7 +114,11 @@ class _LottoScreenState extends ConsumerState<LottoScreen>
                 selected: {_gameCount},
                 onSelectionChanged: _drawing
                     ? null
-                    : (s) => setState(() => _gameCount = s.first),
+                    : (s) => setState(() {
+                        // 게임 수를 바꾸면 이전에 뽑은 번호는 비우고 새로 뽑게.
+                        _gameCount = s.first;
+                        _games = const [];
+                      }),
               ),
               const SizedBox(height: 16),
               Expanded(
