@@ -132,7 +132,6 @@ class _SavedReadingView extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final d = reading.savedAt;
     return Scaffold(
-      backgroundColor: reading.isDaily ? null : scheme.surfaceContainer,
       appBar: AppBar(title: Text(reading.title)),
       body: SafeArea(
         child: SingleChildScrollView(

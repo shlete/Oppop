@@ -118,7 +118,6 @@ class _ConsultResultScreenState extends ConsumerState<ConsultResultScreen>
     final isSaved = ref.watch(savedReadingsProvider).any((r) => r.id == _id);
     final text = Theme.of(context).textTheme;
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
       appBar: AppBar(title: Text('고민상담 · ${widget.topic.label}')),
       body: SafeArea(
         child: deck == null

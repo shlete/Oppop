@@ -7,7 +7,7 @@ import 'tarot_cards.dart';
 /// 카드 그림 비율 (1909 라이더-웨이트 스캔 기준).
 const tarotAspect = 0.578;
 
-const tarotInk = Color(0xFF2E2648);
+const tarotInk = Color(0xFF15132E);
 const tarotGold = Color(0xFFE9C46A);
 
 /// 카드 뒷면. 덱 펼치기와 뒤집기 전에 보인다.
@@ -32,9 +32,9 @@ class TarotCardBack extends StatelessWidget {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  Color(0xFF3B2A78),
-                  Color(0xFF6B4FD8),
-                  Color(0xFF2B1F5C),
+                  Color(0xFF221A6E),
+                  Color(0xFF3A2DA6),
+                  Color(0xFF16114A),
                 ],
               ),
               border: Border.all(
@@ -45,7 +45,7 @@ class TarotCardBack extends StatelessWidget {
               ),
               boxShadow: const [
                 BoxShadow(
-                  color: Color(0x332E2648),
+                  color: Color(0x3315132E),
                   blurRadius: 6,
                   offset: Offset(0, 3),
                 ),
@@ -132,7 +132,7 @@ class TarotCardFace extends StatelessWidget {
               borderRadius: BorderRadius.circular(radius),
               boxShadow: const [
                 BoxShadow(
-                  color: Color(0x332E2648),
+                  color: Color(0x3315132E),
                   blurRadius: 10,
                   offset: Offset(0, 4),
                 ),

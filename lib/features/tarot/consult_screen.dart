@@ -129,7 +129,7 @@ class _TopicPicker extends StatelessWidget {
         const SizedBox(height: 16),
         for (final t in TarotTopic.values) ...[
           Card(
-            color: scheme.secondaryContainer.withValues(alpha: 0.6),
+            color: scheme.surfaceContainerLowest,
             clipBehavior: Clip.antiAlias,
             child: ListTile(
               contentPadding: const EdgeInsets.symmetric(
