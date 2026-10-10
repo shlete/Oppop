@@ -56,6 +56,20 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('어떤 고민이 있나요?'), findsNothing);
     expect(find.text('고민상담'), findsOneWidget);
+
+    // 로또에서 뽑아 둔 번호도 홈을 다녀오면 비워진다.
+    await tester.tap(find.text('로또'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('번호 뽑기'));
+    await tester.pumpAndSettle();
+    expect(find.text('다시 뽑기'), findsOneWidget);
+
+    await tester.tap(find.text('홈'));
+    await tester.pump(const Duration(seconds: 1));
+    await tester.tap(find.text('로또'));
+    await tester.pumpAndSettle();
+    expect(find.text('번호 뽑기'), findsOneWidget);
+    expect(find.text('다시 뽑기'), findsNothing);
   });
 
   testWidgets('넓은 화면에서는 가운데 480px 폭으로 제한된다', (tester) async {
