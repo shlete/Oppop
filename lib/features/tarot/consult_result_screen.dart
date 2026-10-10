@@ -153,58 +153,17 @@ class _ConsultResultScreenState extends ConsumerState<ConsultResultScreen>
                           child: SingleChildScrollView(
                             // 끝까지 내리면 마지막 글이 흐려지는 부분 위로 올라오도록.
                             padding: const EdgeInsets.fromLTRB(0, 16, 0, _fade),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                GestureDetector(
-                                  onLongPress: done
-                                      ? () => saveCardImage(context, _shotKey)
-                                      : null,
-                                  child: ConsultReading(
-                                    deck: deck,
-                                    topic: widget.topic,
-                                    cards: widget.cards,
-                                    flipT: _cardT,
-                                    shotKey: _shotKey,
-                                  ),
-                                ),
-                                // 통합 점괘 맨 끝 오른쪽 아래. 이미지 저장에는 들어가지 않는다.
-                                Padding(
-                                  padding: const EdgeInsets.fromLTRB(
-                                    20,
-                                    12,
-                                    20,
-                                    0,
-                                  ),
-                                  child: IgnorePointer(
-                                    ignoring: !done,
-                                    child: AnimatedOpacity(
-                                      opacity: done ? 1 : 0,
-                                      duration: const Duration(
-                                        milliseconds: 300,
-                                      ),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.end,
-                                        children: [
-                                          SmallActionButton(
-                                            label: isSaved ? '저장됨' : '저장',
-                                            filled: isSaved,
-                                            tooltip: isSaved ? '저장 취소' : '저장',
-                                            onPressed: _toggleSave,
-                                          ),
-                                          const SizedBox(width: 8),
-                                          SmallActionButton(
-                                            label: '공유',
-                                            tooltip: '이미지로 공유',
-                                            onPressed: () => _share(deck),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
+                            child: GestureDetector(
+                              onLongPress: done
+                                  ? () => saveCardImage(context, _shotKey)
+                                  : null,
+                              child: ConsultReading(
+                                deck: deck,
+                                topic: widget.topic,
+                                cards: widget.cards,
+                                flipT: _cardT,
+                                shotKey: _shotKey,
+                              ),
                             ),
                           ),
                         ),
@@ -213,6 +172,30 @@ class _ConsultResultScreenState extends ConsumerState<ConsultResultScreen>
                         padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                         child: Column(
                           children: [
+                            SizedBox(
+                              height: 36,
+                              child: done
+                                  ? Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        SmallActionButton(
+                                          label: isSaved ? '저장됨' : '저장',
+                                          filled: isSaved,
+                                          tooltip: isSaved ? '저장 취소' : '저장',
+                                          onPressed: _toggleSave,
+                                        ),
+                                        const SizedBox(width: 12),
+                                        SmallActionButton(
+                                          label: '공유',
+                                          tooltip: '이미지로 공유',
+                                          onPressed: () => _share(deck),
+                                        ),
+                                      ],
+                                    )
+                                  : null,
+                            ),
+                            const SizedBox(height: 12),
                             PrimaryButton(
                               label: '다시 상담하기',
                               onPressed: () => Navigator.of(context).pop(),
