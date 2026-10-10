@@ -20,12 +20,21 @@ class MainShell extends StatefulWidget {
 class _MainShellState extends State<MainShell> {
   int _index = 0;
   final _navigators = List.generate(5, (_) => GlobalKey<NavigatorState>());
+  final _stacks = List.generate(5, (_) => _RouteStack());
 
   void _goTo(int index) {
     if (index == _index) {
       // 지금 탭을 한 번 더 누르면 그 탭의 첫 화면으로.
       _navigators[index].currentState?.popUntil((r) => r.isFirst);
       return;
+    }
+    // 홈으로 가면 다른 탭들은 첫 화면으로 되돌려 둔다. 숨은 탭은 애니메이션이 멈춰
+    // 있어서 pop 대신 바로 빼낸다.
+    if (index == 0) {
+      for (var i = 1; i < _navigators.length; i++) {
+        final nav = _navigators[i].currentState;
+        if (nav != null) _stacks[i].clear(nav);
+      }
     }
     setState(() => _index = index);
   }
@@ -35,6 +44,7 @@ class _MainShellState extends State<MainShell> {
     enabled: i == _index,
     child: Navigator(
       key: _navigators[i],
+      observers: [_stacks[i]],
       onGenerateRoute: (_) => MaterialPageRoute(builder: (_) => root),
     ),
   );
@@ -88,5 +98,34 @@ class _MainShellState extends State<MainShell> {
         ),
       ),
     );
+  }
+}
+
+/// 탭 안에 쌓인 화면을 기억해 두었다가 첫 화면만 남기고 한 번에 뺀다.
+class _RouteStack extends NavigatorObserver {
+  final _routes = <Route<dynamic>>[];
+
+  void clear(NavigatorState nav) {
+    for (final r in _routes.skip(1).toList().reversed) {
+      nav.removeRoute(r);
+    }
+  }
+
+  @override
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) =>
+      _routes.add(route);
+
+  @override
+  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) =>
+      _routes.remove(route);
+
+  @override
+  void didRemove(Route<dynamic> route, Route<dynamic>? previousRoute) =>
+      _routes.remove(route);
+
+  @override
+  void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
+    final i = oldRoute == null ? -1 : _routes.indexOf(oldRoute);
+    if (i >= 0 && newRoute != null) _routes[i] = newRoute;
   }
 }
