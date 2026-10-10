@@ -5,7 +5,10 @@ import 'package:share_plus/share_plus.dart';
 import '../../core/image_save/image_save.dart';
 import '../../core/widgets/primary_button.dart';
 import '../../core/widgets/small_action_button.dart';
+import '../../core/widgets/balanced_text.dart';
+import '../daily/phrase_card.dart' show keepWords;
 import '../daily/save_card_image.dart';
+import 'consult_screen.dart';
 import 'saved_readings_screen.dart';
 import 'tarot_card_view.dart';
 import 'tarot_cards.dart';
@@ -164,7 +167,8 @@ class _DailyTarotScreenState extends ConsumerState<DailyTarotScreen>
                                 GestureDetector(
                                   onTap: _doFlip,
                                   child: SizedBox(
-                                    width: 200,
+                                    // 해석이 나타나면서 카드는 조금 작아져 한 화면에 다 보이게.
+                                    width: 200 - 50 * infoOpacity,
                                     child: FlippingCard(
                                       t: t,
                                       card: card,
@@ -217,13 +221,21 @@ class _DailyTarotScreenState extends ConsumerState<DailyTarotScreen>
                       ),
                       const SizedBox(height: 12),
                       PrimaryButton(
-                        label: done ? '내일 또 만나요' : '카드 뒤집기',
-                        onPressed: done || _flip.isAnimating ? null : _doFlip,
+                        label: done ? '고민상담 하러 가기' : '카드 뒤집기',
+                        onPressed: _flip.isAnimating
+                            ? null
+                            : done
+                            ? () => Navigator.of(context).pushReplacement(
+                                MaterialPageRoute(
+                                  builder: (_) => const ConsultScreen(),
+                                ),
+                              )
+                            : _doFlip,
                       ),
                       const SizedBox(height: 8),
                       Text(
                         done
-                            ? '오늘의 카드는 하루 동안 그대로예요 · 재미로 즐겨주세요'
+                            ? '오늘의 카드는 내일 바뀌어요 · 꾹 누르면 이미지 저장'
                             : '카드를 눌러도 뒤집혀요',
                         textAlign: TextAlign.center,
                         style: text.bodySmall,
@@ -277,10 +289,9 @@ class _DailyInfo extends StatelessWidget {
             color: scheme.primaryContainer.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(16),
           ),
-          child: Text(
-            reading.today,
-            textAlign: TextAlign.center,
-            style: text.bodyLarge?.copyWith(height: 1.6),
+          child: BalancedText(
+            keepWords(reading.today),
+            style: text.bodyLarge!.copyWith(height: 1.6),
           ),
         ),
         const SizedBox(height: 12),

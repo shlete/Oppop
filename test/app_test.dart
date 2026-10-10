@@ -19,7 +19,7 @@ void main() {
 
     await tester.tap(find.text('홈'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('좋은 글귀 · 응원 한마디 · 오늘 주의할 점'));
+    await tester.tap(find.text('명언 한마디 · 응원 한마디 · 오늘 주의할 점'));
     await tester.pumpAndSettle();
     expect(find.text('응원 한마디'), findsOneWidget);
   });

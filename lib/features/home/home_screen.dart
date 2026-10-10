@@ -19,7 +19,7 @@ class HomeScreen extends StatelessWidget {
         children: [
           _MenuCard(
             title: '오늘의 뽑기',
-            subtitle: '좋은 글귀 · 응원 한마디 · 오늘 주의할 점',
+            subtitle: '명언 한마디 · 응원 한마디 · 오늘 주의할 점',
             icon: Icons.auto_awesome,
             color: scheme.primaryContainer,
             height: 160,

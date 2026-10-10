@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/widgets/balanced_text.dart';
+import '../daily/phrase_card.dart' show keepWords;
 import 'consult_result_screen.dart';
 import 'tarot_card_view.dart';
 import 'tarot_cards.dart';
@@ -41,7 +43,10 @@ class _SavedTile extends ConsumerWidget {
     final d = reading.savedAt;
     final names = [
       for (final c in reading.cards)
-        '${deck.byId(c.cardId)?.name ?? '?'}${c.reversed ? '(역)' : ''}',
+        // 카드 이름 중간에서 줄이 바뀌지 않게.
+        keepWords(
+          '${deck.byId(c.cardId)?.name ?? '?'}${c.reversed ? '(역)' : ''}',
+        ),
     ];
     return Card(
       clipBehavior: Clip.antiAlias,
@@ -176,10 +181,9 @@ class _SavedReadingView extends StatelessWidget {
                             ),
                             borderRadius: BorderRadius.circular(16),
                           ),
-                          child: Text(
-                            r.today,
-                            textAlign: TextAlign.center,
-                            style: text.bodyLarge?.copyWith(height: 1.6),
+                          child: BalancedText(
+                            keepWords(r.today),
+                            style: text.bodyLarge!.copyWith(height: 1.6),
                           ),
                         ),
                         if (reading.luckyColor != null) ...[

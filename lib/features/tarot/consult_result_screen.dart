@@ -5,6 +5,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../core/image_save/image_save.dart';
 import '../../core/widgets/primary_button.dart';
 import '../../core/widgets/small_action_button.dart';
+import '../daily/phrase_card.dart' show keepWords;
 import '../daily/save_card_image.dart';
 import 'saved_readings_screen.dart';
 import 'tarot_card_view.dart';
@@ -287,7 +288,7 @@ class ConsultReading extends StatelessWidget {
                       KeywordRow(keywords: reading.keywords, center: false),
                       const SizedBox(height: 10),
                       Text(
-                        reading.topics[topic]!,
+                        keepWords(reading.topics[topic]!),
                         style: text.bodyLarge?.copyWith(height: 1.55),
                       ),
                     ],

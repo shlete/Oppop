@@ -160,13 +160,9 @@ class _CardPicker extends StatelessWidget {
   final ValueChanged<int> onTap;
   final VoidCallback? onShowResult;
 
-  static const _columns = 7;
-  static const _gap = 6.0;
-
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
-    final rows = (spread.length / _columns).ceil();
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -191,29 +187,12 @@ class _CardPicker extends StatelessWidget {
           const SizedBox(height: 16),
           Expanded(
             child: LayoutBuilder(
-              builder: (context, box) {
-                final byWidth =
-                    (box.maxWidth - _gap * (_columns - 1)) / _columns;
-                final byHeight =
-                    (box.maxHeight - _gap * (rows - 1)) / rows * tarotAspect;
-                final w = min(byWidth, byHeight);
-                return Center(
-                  child: Wrap(
-                    spacing: _gap,
-                    runSpacing: _gap,
-                    alignment: WrapAlignment.center,
-                    children: [
-                      for (var i = 0; i < spread.length; i++)
-                        _PickableCard(
-                          key: ValueKey('spread-$i'),
-                          width: w,
-                          picked: picked.contains(i),
-                          onTap: () => onTap(i),
-                        ),
-                    ],
-                  ),
-                );
-              },
+              builder: (context, box) => _Fan(
+                size: box.biggest,
+                count: spread.length,
+                picked: picked,
+                onTap: onTap,
+              ),
             ),
           ),
           const SizedBox(height: 16),
@@ -265,33 +244,103 @@ class _Slot extends StatelessWidget {
   }
 }
 
-class _PickableCard extends StatelessWidget {
-  const _PickableCard({
-    super.key,
-    required this.width,
+/// 덱을 부채꼴 두 줄로 펼친다. 카드가 겹쳐 있어 왼쪽 일부가 보이고, 그 부분을 눌러 고른다.
+class _Fan extends StatelessWidget {
+  const _Fan({
+    required this.size,
+    required this.count,
     required this.picked,
     required this.onTap,
   });
 
-  final double width;
-  final bool picked;
-  final VoidCallback onTap;
+  final Size size;
+  final int count;
+  final List<int> picked;
+  final ValueChanged<int> onTap;
+
+  /// 가장 바깥 카드의 기울기 (라디안).
+  static const _spread = 0.42;
+
+  /// 고른 카드가 위로 올라오는 거리.
+  static const _lift = 16.0;
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedSlide(
-        duration: const Duration(milliseconds: 150),
-        offset: picked ? const Offset(0, -0.06) : Offset.zero,
-        child: AnimatedOpacity(
-          duration: const Duration(milliseconds: 150),
-          opacity: picked ? 0.45 : 1,
-          child: SizedBox(
-            width: width,
-            child: TarotCardBack(highlight: picked),
+    final top = (count / 2).ceil();
+    final rows = [
+      [for (var i = 0; i < top; i++) i],
+      [for (var i = top; i < count; i++) i],
+    ];
+    final rowHeight = size.height / 2;
+    final cw = min(size.width * 0.2, (rowHeight - _lift - 12) * tarotAspect);
+    final ch = cw / tarotAspect;
+    // 양 끝 카드 중심이 화면 안쪽에 오도록 반지름을 정한다.
+    final radius = (size.width - cw * 1.3) / 2 / sin(_spread);
+    final sag = radius * (1 - cos(_spread));
+    final cards = <({int index, Offset center, double angle})>[];
+    for (var r = 0; r < rows.length; r++) {
+      final ids = rows[r];
+      // 줄마다 부채꼴(카드 + 처짐 + 들림)이 가운데 오게.
+      final rowTop = r * rowHeight + (rowHeight - ch - sag - _lift) / 2 + _lift;
+      for (var k = 0; k < ids.length; k++) {
+        final t = ids.length == 1 ? 0.5 : k / (ids.length - 1);
+        final angle = (t * 2 - 1) * _spread;
+        cards.add((
+          index: ids[k],
+          center: Offset(
+            size.width / 2 + radius * sin(angle),
+            rowTop + ch / 2 + radius * (1 - cos(angle)),
           ),
-        ),
+          angle: angle,
+        ));
+      }
+    }
+
+    // 겹친 카드 중 눌린 곳이 보이는 카드(위에 그려진 카드부터)를 고른다.
+    // 위젯마다 따로 누르게 하면 웹에서 기울어진 카드 끝이 잘 안 눌려서 직접 계산한다.
+    int? cardAt(Offset p) {
+      for (final c in cards.reversed) {
+        final d = p - c.center;
+        final x = d.dx * cos(-c.angle) - d.dy * sin(-c.angle);
+        var y = d.dx * sin(-c.angle) + d.dy * cos(-c.angle);
+        if (picked.contains(c.index)) y += _lift;
+        if (x.abs() <= cw / 2 && y.abs() <= ch / 2) return c.index;
+      }
+      return null;
+    }
+
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTapUp: (d) {
+        final i = cardAt(d.localPosition);
+        if (i != null) onTap(i);
+      },
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          for (final c in cards)
+            Positioned(
+              key: ValueKey('spread-${c.index}'),
+              left: c.center.dx - cw / 2,
+              top: c.center.dy - ch / 2,
+              width: cw,
+              height: ch,
+              child: Transform.rotate(
+                angle: c.angle,
+                child: AnimatedSlide(
+                  duration: const Duration(milliseconds: 150),
+                  offset: picked.contains(c.index)
+                      ? Offset(0, -_lift / ch)
+                      : Offset.zero,
+                  child: AnimatedOpacity(
+                    duration: const Duration(milliseconds: 150),
+                    opacity: picked.contains(c.index) ? 0.55 : 1,
+                    child: TarotCardBack(highlight: picked.contains(c.index)),
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }

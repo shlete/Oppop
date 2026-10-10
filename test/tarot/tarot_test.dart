@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:oneul_ppopgi/features/daily/phrase_card.dart' show keepWords;
 import 'package:oneul_ppopgi/features/tarot/consult_screen.dart';
 import 'package:oneul_ppopgi/features/tarot/daily_tarot_screen.dart';
 import 'package:oneul_ppopgi/features/tarot/tarot_cards.dart';
@@ -91,7 +92,10 @@ void main() {
     );
     final card = deck.byId(f.card.cardId)!;
     expect(find.text(card.name), findsOneWidget);
-    expect(find.text(card.reading(f.card.reversed).today), findsOneWidget);
+    expect(
+      find.text(keepWords(card.reading(f.card.reversed).today)),
+      findsOneWidget,
+    );
     expect(container.read(dailyFlippedProvider), isTrue);
 
     await tester.tap(find.text('저장'));
