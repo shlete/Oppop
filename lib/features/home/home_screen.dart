@@ -190,7 +190,7 @@ class _DailyHeroState extends State<_DailyHero>
   }
 }
 
-/// 뒤집힌 카드 세 장이 부채처럼 펼쳐졌다 오므려진다. 가운데 카드에 물음표.
+/// 뒤집힌 카드 두 장이 부채처럼 펼쳐졌다 오므려진다. 앞 카드에 물음표.
 class _CardFan extends StatelessWidget {
   const _CardFan({required this.open});
 
@@ -201,17 +201,17 @@ class _CardFan extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final angle = 0.06 + 0.26 * open;
+    // 두 장이 서로 반대쪽으로 벌어졌다 모인다.
+    final angle = 0.04 + 0.2 * open;
     return SizedBox(
       width: 170,
       height: 170,
       child: Stack(
         alignment: Alignment.center,
         children: [
-          _fanned(-angle, const [Color(0xFFD9D4F6), Color(0xFFB9B2EC)]),
           _fanned(angle, const [Color(0xFFD9D4F6), Color(0xFFB9B2EC)]),
           _fanned(
-            0,
+            -angle,
             const [Colors.white, Color(0xFFE9E6FA)],
             child: Text(
               '?',
