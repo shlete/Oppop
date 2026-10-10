@@ -556,7 +556,7 @@ class _Summary extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '${pos.label} · ${pos.meaning}  |  ${card.name}'
+                      '${pos.label} · ${pos.meaning}  |  ${card.nameEn}'
                       '${drawn.reversed ? ' (역)' : ''}',
                       style: text.labelLarge?.copyWith(color: scheme.primary),
                     ),
