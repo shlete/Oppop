@@ -43,6 +43,9 @@ class _ConsultResultScreenState extends ConsumerState<ConsultResultScreen>
     animationBehavior: AnimationBehavior.preserve,
   )..forward();
   final _shotKey = GlobalKey();
+
+  /// 아래쪽이 흐려지는 높이.
+  static const _fade = 56.0;
   late final String _id = 'consult-${DateTime.now().millisecondsSinceEpoch}';
 
   @override
@@ -130,23 +133,41 @@ class _ConsultResultScreenState extends ConsumerState<ConsultResultScreen>
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Expanded(
-                        child: SingleChildScrollView(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          child: GestureDetector(
-                            onLongPress: done
-                                ? () => saveCardImage(context, _shotKey)
-                                : null,
-                            child: ConsultReading(
-                              deck: deck,
-                              topic: widget.topic,
-                              cards: widget.cards,
-                              flipT: _cardT,
-                              shotKey: _shotKey,
+                        // 버튼 위에서 글이 뚝 잘리지 않고 아래로 갈수록 흐려지게.
+                        child: ShaderMask(
+                          blendMode: BlendMode.dstIn,
+                          shaderCallback: (bounds) => LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: const [
+                              Colors.black,
+                              Colors.black,
+                              Colors.transparent,
+                            ],
+                            stops: [
+                              0,
+                              (1 - _fade / bounds.height).clamp(0.0, 1.0),
+                              1,
+                            ],
+                          ).createShader(bounds),
+                          child: SingleChildScrollView(
+                            // 끝까지 내리면 마지막 글이 흐려지는 부분 위로 올라오도록.
+                            padding: const EdgeInsets.fromLTRB(0, 16, 0, _fade),
+                            child: GestureDetector(
+                              onLongPress: done
+                                  ? () => saveCardImage(context, _shotKey)
+                                  : null,
+                              child: ConsultReading(
+                                deck: deck,
+                                topic: widget.topic,
+                                cards: widget.cards,
+                                flipT: _cardT,
+                                shotKey: _shotKey,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                      const SizedBox(height: 12),
                       Padding(
                         padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                         child: Column(
