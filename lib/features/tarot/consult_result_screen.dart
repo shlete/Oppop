@@ -224,12 +224,31 @@ class ConsultReading extends StatefulWidget {
 }
 
 class _ConsultReadingState extends State<ConsultReading> {
-  final _pages = PageController(viewportFraction: 0.56);
+  /// 카드 패널 크기. 화면 폭과 상관없이 늘 같다.
+  static const panelWidth = 204.0;
+  static const panelHeight = 400.0;
+  static const _gap = 16.0;
+
+  PageController? _pages;
   int _page = 0;
+
+  /// 패널 폭이 고정되도록 화면 폭에 맞춰 한 장이 차지하는 비율을 정한다.
+  PageController _controllerFor(double width) {
+    final fraction = ((panelWidth + _gap) / width).clamp(0.1, 1.0);
+    final current = _pages;
+    if (current != null && current.viewportFraction == fraction) {
+      return current;
+    }
+    current?.dispose();
+    return _pages = PageController(
+      viewportFraction: fraction,
+      initialPage: _page,
+    );
+  }
 
   @override
   void dispose() {
-    _pages.dispose();
+    _pages?.dispose();
     super.dispose();
   }
 
@@ -250,26 +269,30 @@ class _ConsultReadingState extends State<ConsultReading> {
         ),
         const SizedBox(height: 16),
         SizedBox(
-          height: 400,
+          height: panelHeight,
           // 웹 미리보기에서 마우스로 끌어도 넘어가게.
           child: ScrollConfiguration(
             behavior: ScrollConfiguration.of(context)
                 .copyWith(dragDevices: PointerDeviceKind.values.toSet()),
-            child: PageView(
-              controller: _pages,
-              onPageChanged: (p) => setState(() => _page = p),
-              children: [
-                for (final pos in SpreadPosition.values)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: _CardPanel(
-                      position: pos,
-                      deck: widget.deck,
-                      drawn: widget.cards[pos.index],
-                      t: _t(pos.index),
+            child: LayoutBuilder(
+              builder: (context, box) => PageView(
+                controller: _controllerFor(box.maxWidth),
+                onPageChanged: (p) => setState(() => _page = p),
+                children: [
+                  for (final pos in SpreadPosition.values)
+                    Center(
+                      child: SizedBox(
+                        width: panelWidth,
+                        child: _CardPanel(
+                          position: pos,
+                          deck: widget.deck,
+                          drawn: widget.cards[pos.index],
+                          t: _t(pos.index),
+                        ),
+                      ),
                     ),
-                  ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
