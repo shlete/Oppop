@@ -44,8 +44,15 @@ class _ConsultResultScreenState extends ConsumerState<ConsultResultScreen>
   )..forward();
   final _shotKey = GlobalKey();
 
-  /// 아래쪽이 흐려지는 높이.
+  /// 아래쪽이 흐려지는 높이. 끝까지 내리면 흐림이 사라져 저장·공유 버튼이 또렷이 보인다.
   static const _fade = 56.0;
+  double _fadeNow = _fade;
+
+  void _updateFade(ScrollMetrics m) {
+    final next = (m.maxScrollExtent - m.pixels).clamp(0.0, _fade);
+    if (next != _fadeNow) setState(() => _fadeNow = next);
+  }
+
   late final String _id = 'consult-${DateTime.now().millisecondsSinceEpoch}';
 
   @override
@@ -134,81 +141,95 @@ class _ConsultResultScreenState extends ConsumerState<ConsultResultScreen>
                     children: [
                       Expanded(
                         // 버튼 위에서 글이 뚝 잘리지 않고 아래로 갈수록 흐려지게.
-                        child: ShaderMask(
-                          blendMode: BlendMode.dstIn,
-                          shaderCallback: (bounds) => LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: const [
-                              Colors.black,
-                              Colors.black,
-                              Colors.transparent,
-                            ],
-                            stops: [
-                              0,
-                              (1 - _fade / bounds.height).clamp(0.0, 1.0),
-                              1,
-                            ],
-                          ).createShader(bounds),
-                          child: SingleChildScrollView(
-                            // 끝까지 내리면 마지막 글이 흐려지는 부분 위로 올라오도록.
-                            padding: const EdgeInsets.fromLTRB(0, 16, 0, _fade),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                GestureDetector(
-                                  onLongPress: done
-                                      ? () => saveCardImage(context, _shotKey)
-                                      : null,
-                                  child: ConsultReading(
-                                    deck: deck,
-                                    topic: widget.topic,
-                                    cards: widget.cards,
-                                    flipT: _cardT,
-                                    shotKey: _shotKey,
+                        child: NotificationListener<ScrollMetricsNotification>(
+                          onNotification: (n) {
+                            _updateFade(n.metrics);
+                            return false;
+                          },
+                          child: NotificationListener<ScrollNotification>(
+                            onNotification: (n) {
+                              _updateFade(n.metrics);
+                              return false;
+                            },
+                            child: ShaderMask(
+                              blendMode: BlendMode.dstIn,
+                              shaderCallback: (bounds) => LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: const [
+                                  Colors.black,
+                                  Colors.black,
+                                  Colors.transparent,
+                                ],
+                                stops: [
+                                  0,
+                                  (1 - _fadeNow / bounds.height).clamp(
+                                    0.0,
+                                    1.0,
                                   ),
-                                ),
-                                // 통합 점괘 맨 끝 오른쪽 아래. 이미지 저장에는 들어가지 않는다.
-                                Padding(
-                                  padding: const EdgeInsets.fromLTRB(
-                                    20,
-                                    12,
-                                    20,
-                                    0,
-                                  ),
-                                  child: IgnorePointer(
-                                    ignoring: !done,
-                                    child: AnimatedOpacity(
-                                      opacity: done ? 1 : 0,
-                                      duration: const Duration(
-                                        milliseconds: 300,
-                                      ),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.end,
-                                        children: [
-                                          SmallActionButton(
-                                            label: isSaved ? '저장됨' : '저장',
-                                            filled: isSaved,
-                                            tooltip: isSaved ? '저장 취소' : '저장',
-                                            onPressed: _toggleSave,
-                                          ),
-                                          const SizedBox(width: 8),
-                                          SmallActionButton(
-                                            label: '공유',
-                                            tooltip: '이미지로 공유',
-                                            onPressed: () => _share(deck),
-                                          ),
-                                        ],
+                                  1,
+                                ],
+                              ).createShader(bounds),
+                              child: SingleChildScrollView(
+                                padding: const EdgeInsets.only(top: 16),
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: [
+                                    GestureDetector(
+                                      onLongPress: done
+                                          ? () =>
+                                                saveCardImage(context, _shotKey)
+                                          : null,
+                                      child: ConsultReading(
+                                        deck: deck,
+                                        topic: widget.topic,
+                                        cards: widget.cards,
+                                        flipT: _cardT,
+                                        shotKey: _shotKey,
                                       ),
                                     ),
-                                  ),
+                                    // 통합 점괘 맨 끝. 이미지 저장에는 들어가지 않는다.
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 12),
+                                      child: IgnorePointer(
+                                        ignoring: !done,
+                                        child: AnimatedOpacity(
+                                          opacity: done ? 1 : 0,
+                                          duration: const Duration(
+                                            milliseconds: 300,
+                                          ),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              SmallActionButton(
+                                                label: isSaved ? '저장됨' : '저장',
+                                                filled: isSaved,
+                                                tooltip: isSaved
+                                                    ? '저장 취소'
+                                                    : '저장',
+                                                onPressed: _toggleSave,
+                                              ),
+                                              const SizedBox(width: 12),
+                                              SmallActionButton(
+                                                label: '공유',
+                                                tooltip: '이미지로 공유',
+                                                onPressed: () => _share(deck),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ],
+                              ),
                             ),
                           ),
                         ),
                       ),
+                      const SizedBox(height: 12),
                       Padding(
                         padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                         child: Column(
