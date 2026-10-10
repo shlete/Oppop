@@ -299,7 +299,7 @@ class _FanState extends State<_Fan> with SingleTickerProviderStateMixin {
   /// 기기의 애니메이션 줄이기 설정에 빨라지지 않게 preserve.
   late final AnimationController _deal = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 1900),
+    duration: const Duration(milliseconds: 1600),
     animationBehavior: AnimationBehavior.preserve,
   )..forward();
 
@@ -353,7 +353,7 @@ class _FanState extends State<_Fan> with SingleTickerProviderStateMixin {
     );
   }
 
-  /// 펼치는 중인 [i]번째 카드 자리. 덱이 화면 왼쪽 끝([first])에서 오른쪽 끝([last])으로
+  /// 펼치는 중인 [i]번째 카드 자리. 덱이 왼쪽([first])에서 오른쪽([last])으로
   /// 미끄러지며 지나간 자리마다 맨 아래 카드를 한 장씩 내려놓는다.
   ({Offset center, double angle}) _dealt(
     int i,
@@ -364,30 +364,12 @@ class _FanState extends State<_Fan> with SingleTickerProviderStateMixin {
     final home = _place(i, offset);
     final t = _deal.value;
     if (t >= 1) return home;
-    // 덱은 화면 왼쪽 끝에서 오른쪽 끝까지 지나가고, 각 카드는 덱이 자기 몫의 지점을
-    // 지날 때 빠져나와 제자리로 미끄러진다.
-    final w = widget.size.width;
-    final x0 = offset + _cw * 0.6;
-    final x1 = offset + w - _cw * 0.6;
-    final a = _pad + first * _cw * _step + _cw / 2;
+    // 덱은 화면 왼쪽 밖에서 들어와 오른쪽 밖까지 한 방향으로만 지나간다. 아직 덱이
+    // 자기 자리에 닿지 않은 카드는 덱에 겹쳐 같이 움직이고, 닿으면 그 자리에 남는다.
+    final a = _pad + first * _cw * _step + _cw / 2 - _cw;
     final b = _pad + last * _cw * _step + _cw / 2;
-    final trig = x0 + (x1 - _cw * 1.2 - x0) * ((home.center.dx - a) / (b - a));
-    // 처음 잠깐은 덱이 아래에서 올라와 자리를 잡고, 그다음 쓸어 펼친다.
-    const rise = 0.18;
-    final sweep = Curves.easeInOutSine.transform(
-      ((t - rise) / (1 - rise)).clamp(0.0, 1.0),
-    );
-    final deckX = x0 + (x1 - x0) * sweep;
-    final deck = _placeAt(deckX, offset);
-    final s = Curves.easeOutCubic.transform(
-      ((deckX - trig) / (_cw * 1.2)).clamp(0.0, 1.0),
-    );
-    final up = Curves.easeOutCubic.transform((t / rise).clamp(0.0, 1.0));
-    final from = deck.center + Offset(0, (1 - up) * _ch * 0.8);
-    return (
-      center: Offset.lerp(from, home.center, s)!,
-      angle: deck.angle + (home.angle - deck.angle) * s,
-    );
+    final deckX = a + (b - a) * Curves.easeInOutSine.transform(t);
+    return _placeAt(min(deckX, home.center.dx), offset);
   }
 
   @override
