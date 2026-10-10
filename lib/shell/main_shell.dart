@@ -30,9 +30,13 @@ class _MainShellState extends State<MainShell> {
     setState(() => _index = index);
   }
 
-  Widget _tab(int i, Widget root) => Navigator(
-    key: _navigators[i],
-    onGenerateRoute: (_) => MaterialPageRoute(builder: (_) => root),
+  // 안 보이는 탭의 애니메이션은 멈춰 둔다.
+  Widget _tab(int i, Widget root) => TickerMode(
+    enabled: i == _index,
+    child: Navigator(
+      key: _navigators[i],
+      onGenerateRoute: (_) => MaterialPageRoute(builder: (_) => root),
+    ),
   );
 
   @override
