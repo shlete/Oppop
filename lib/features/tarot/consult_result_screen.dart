@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -223,7 +225,7 @@ class ConsultReading extends StatefulWidget {
 }
 
 class _ConsultReadingState extends State<ConsultReading> {
-  final _pages = PageController(viewportFraction: 0.8);
+  final _pages = PageController(viewportFraction: 0.66);
   int _page = 0;
 
   @override
@@ -249,7 +251,7 @@ class _ConsultReadingState extends State<ConsultReading> {
         ),
         const SizedBox(height: 16),
         SizedBox(
-          height: 430,
+          height: 400,
           // 웹 미리보기에서 마우스로 끌어도 넘어가게.
           child: ScrollConfiguration(
             behavior: ScrollConfiguration.of(context)
@@ -330,6 +332,9 @@ class _CardPanel extends StatelessWidget {
   final DrawnCard drawn;
   final double t;
 
+  /// 카드 기울기 (라디안, 약 10도).
+  static const _tilt = 0.17;
+
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
@@ -360,20 +365,32 @@ class _CardPanel extends StatelessWidget {
           Expanded(
             child: Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
                 color: scheme.surfaceContainerHigh,
                 borderRadius: BorderRadius.circular(14),
               ),
-              child: Center(
-                child: AspectRatio(
-                  aspectRatio: tarotAspect,
-                  child: FlippingCard(
-                    t: t,
-                    card: card,
-                    reversed: drawn.reversed,
-                  ),
-                ),
+              // 카드를 살짝 비스듬히 기울여 놓는다.
+              child: LayoutBuilder(
+                builder: (context, box) {
+                  final h = min(
+                    box.maxHeight * 0.84,
+                    box.maxWidth * 0.8 / tarotAspect,
+                  );
+                  return Center(
+                    child: Transform.rotate(
+                      angle: _tilt,
+                      child: SizedBox(
+                        width: h * tarotAspect,
+                        height: h,
+                        child: FlippingCard(
+                          t: t,
+                          card: card,
+                          reversed: drawn.reversed,
+                        ),
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
           ),
@@ -414,7 +431,7 @@ class _CardPanel extends StatelessWidget {
   }
 }
 
-/// 통합 점괘: 세 장을 작게 모아 보여주고 자리별 해석을 이어서 읽게 한다.
+/// 통합 점괘: 흐름 한 줄과 자리별 해석을 이어서 읽게 한다.
 /// 이미지로 저장·공유할 때 이 영역을 찍는다.
 class _Summary extends StatelessWidget {
   const _Summary({
@@ -444,29 +461,6 @@ class _Summary extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              for (final pos in SpreadPosition.values) ...[
-                if (pos.index > 0) const SizedBox(width: 10),
-                Column(
-                  children: [
-                    SizedBox(
-                      width: 56,
-                      child: TarotCardFace(
-                        card: deck.byId(cards[pos.index].cardId)!,
-                        reversed: cards[pos.index].reversed,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(pos.label, style: text.labelMedium),
-                  ],
-                ),
-              ],
-            ],
-          ),
-          const SizedBox(height: 14),
           Text(
             keepWords('${topic.label} 고민의 흐름: ${flow.join(' → ')}'),
             textAlign: TextAlign.center,
