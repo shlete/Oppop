@@ -168,7 +168,7 @@ class _DailyTarotScreenState extends ConsumerState<DailyTarotScreen>
                                   onTap: _doFlip,
                                   child: SizedBox(
                                     // 해석이 나타나면서 카드는 조금 작아져 한 화면에 다 보이게.
-                                    width: 200 - 50 * infoOpacity,
+                                    width: 150 - 30 * infoOpacity,
                                     child: FlippingCard(
                                       t: t,
                                       card: card,
