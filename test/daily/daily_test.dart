@@ -115,9 +115,13 @@ void main() {
     await tester.pumpWidget(
       const ProviderScope(child: MaterialApp(home: DailyScreen())),
     );
-    expect(find.text('내 별자리 고르기 (선택)'), findsNothing);
+    // 다른 카테고리에서는 별자리 줄이 보이지 않지만 자리는 차지해서
+    // 카드 크기와 위치가 주의할 점과 똑같다.
+    expect(find.text('내 별자리 고르기 (선택)').hitTestable(), findsNothing);
+    final quoteCard = tester.getRect(find.byType(PhraseCard));
     await tester.tap(find.text('오늘 주의할 점'));
     await tester.pumpAndSettle();
+    expect(tester.getRect(find.byType(PhraseCard)), quoteCard);
     await tester.tap(find.text('내 별자리 고르기 (선택)'));
     await tester.pumpAndSettle();
     await tester.tap(find.textContaining('사자자리'));

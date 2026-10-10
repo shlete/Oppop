@@ -7,6 +7,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../core/image_save/image_save.dart';
 import '../../core/widgets/primary_button.dart';
 import '../../core/widgets/saved_list_button.dart';
+import '../../core/widgets/small_action_button.dart';
 import 'daily_state.dart';
 import 'phrase_card.dart';
 import 'phrases.dart';
@@ -154,9 +155,15 @@ class _DailyScreenState extends ConsumerState<DailyScreen>
                 selected: {_category},
                 onSelectionChanged: (s) => _selectCategory(s.first),
               ),
-              if (_category == PhraseCategory.caution) ...[
-                const SizedBox(height: 8),
-                Center(
+              const SizedBox(height: 8),
+              // 별자리 줄은 주의할 점에서만 보이지만, 자리는 늘 차지해서
+              // 세 카테고리의 카드 크기와 위치가 똑같게 한다.
+              Visibility(
+                visible: _category == PhraseCategory.caution,
+                maintainSize: true,
+                maintainAnimation: true,
+                maintainState: true,
+                child: Center(
                   child: TextButton(
                     onPressed: _pickZodiac,
                     child: Text(
@@ -166,7 +173,7 @@ class _DailyScreenState extends ConsumerState<DailyScreen>
                     ),
                   ),
                 ),
-              ],
+              ),
               const SizedBox(height: 16),
               Expanded(
                 child: Center(
@@ -209,14 +216,14 @@ class _DailyScreenState extends ConsumerState<DailyScreen>
                     : Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          _SmallButton(
+                          SmallActionButton(
                             label: isSaved ? '저장됨' : '저장',
                             filled: isSaved,
                             tooltip: isSaved ? '저장 취소' : '저장',
                             onPressed: () => _toggleSave(phrase),
                           ),
                           const SizedBox(width: 12),
-                          _SmallButton(
+                          SmallActionButton(
                             label: '공유',
                             tooltip: '이미지로 공유',
                             onPressed: () => _share(phrase),
@@ -241,39 +248,6 @@ class _DailyScreenState extends ConsumerState<DailyScreen>
           ),
         ),
       ),
-    );
-  }
-}
-
-/// 결과 아래의 작은 글자 버튼 (저장·공유).
-class _SmallButton extends StatelessWidget {
-  const _SmallButton({
-    required this.label,
-    required this.tooltip,
-    required this.onPressed,
-    this.filled = false,
-  });
-
-  final String label;
-  final String tooltip;
-  final VoidCallback onPressed;
-  final bool filled;
-
-  @override
-  Widget build(BuildContext context) {
-    final style = ButtonStyle(
-      visualDensity: VisualDensity.compact,
-      minimumSize: const WidgetStatePropertyAll(Size(72, 34)),
-    );
-    return Tooltip(
-      message: tooltip,
-      child: filled
-          ? FilledButton(onPressed: onPressed, style: style, child: Text(label))
-          : OutlinedButton(
-              onPressed: onPressed,
-              style: style,
-              child: Text(label),
-            ),
     );
   }
 }

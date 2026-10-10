@@ -65,6 +65,32 @@ flutter:
 
   assets:
     - assets/phrases/daily.json
+    - assets/tarot/cards.json
+    - assets/tarot/cards/
+
+  # 앱 글꼴 (모두 SIL Open Font License 1.1, 각 폴더의 OFL.txt):
+  # 본문은 SUIT, 큰 제목은 IBM Plex Sans KR.
+  fonts:
+    - family: SUIT
+      fonts:
+        - asset: assets/fonts/suit/SUIT-Regular.otf
+          weight: 400
+        - asset: assets/fonts/suit/SUIT-Medium.otf
+          weight: 500
+        - asset: assets/fonts/suit/SUIT-SemiBold.otf
+          weight: 600
+        - asset: assets/fonts/suit/SUIT-Bold.otf
+          weight: 700
+    - family: IBMPlexSansKR
+      fonts:
+        - asset: assets/fonts/ibmplexsanskr/IBMPlexSansKR-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/ibmplexsanskr/IBMPlexSansKR-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/ibmplexsanskr/IBMPlexSansKR-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/ibmplexsanskr/IBMPlexSansKR-Bold.ttf
+          weight: 700
 
   # To add assets to your application, add an assets section, like this:
   # assets:

@@ -19,9 +19,9 @@ class HomeScreen extends StatelessWidget {
         children: [
           _MenuCard(
             title: '오늘의 뽑기',
-            subtitle: '좋은 글귀 · 응원 한마디 · 오늘 주의할 점',
+            subtitle: '명언 한마디 · 응원 한마디 · 오늘 주의할 점',
             icon: Icons.auto_awesome,
-            color: scheme.primaryContainer,
+            color: scheme.surfaceContainerLowest,
             height: 160,
             onTap: () => Navigator.of(context)
                 .push(MaterialPageRoute(builder: (_) => const DailyScreen())),
@@ -31,7 +31,7 @@ class HomeScreen extends StatelessWidget {
             title: '타로',
             subtitle: '오늘의 운세 1장 · 고민상담 3장',
             icon: Icons.style,
-            color: scheme.secondaryContainer,
+            color: scheme.surfaceContainerLowest,
             onTap: () => onOpenTab(1),
           ),
           const SizedBox(height: 12),
@@ -42,7 +42,7 @@ class HomeScreen extends StatelessWidget {
                   title: '로또',
                   subtitle: '랜덤 번호',
                   icon: Icons.casino,
-                  color: scheme.tertiaryContainer,
+                  color: scheme.surfaceContainerLowest,
                   onTap: () => onOpenTab(2),
                 ),
               ),
@@ -52,7 +52,7 @@ class HomeScreen extends StatelessWidget {
                   title: '랜덤',
                   subtitle: '룰렛 · 사다리',
                   icon: Icons.shuffle,
-                  color: scheme.surfaceContainerHighest,
+                  color: scheme.surfaceContainerLowest,
                   onTap: () => onOpenTab(3),
                 ),
               ),
@@ -96,7 +96,11 @@ class _MenuCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(icon, size: 28),
+                Icon(
+                  icon,
+                  size: 28,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
                 const Spacer(),
                 Text(title, style: text.titleLarge),
                 Text(subtitle, style: text.bodySmall),
