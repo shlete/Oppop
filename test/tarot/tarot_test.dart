@@ -123,8 +123,10 @@ void main() {
     final button = find.widgetWithText(FilledButton, '결과 보기');
     expect(tester.widget<FilledButton>(button).onPressed, isNull);
     // 처음에는 가운데쯤이 보인다.
-    for (final i in [36, 40, 44]) {
-      await tester.tap(find.byKey(ValueKey('spread-$i')));
+    for (final i in [36, 39, 42]) {
+      // 카드가 겹쳐 있어 왼쪽 가장자리 쪽이 보인다.
+      final rect = tester.getRect(find.byKey(ValueKey('spread-$i')));
+      await tester.tapAt(Offset(rect.left + rect.width * 0.15, rect.center.dy));
       await tester.pump();
     }
     expect(find.text('카드를 다 골랐어요'), findsOneWidget);
