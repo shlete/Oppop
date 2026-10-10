@@ -155,9 +155,15 @@ class _DailyScreenState extends ConsumerState<DailyScreen>
                 selected: {_category},
                 onSelectionChanged: (s) => _selectCategory(s.first),
               ),
-              if (_category == PhraseCategory.caution) ...[
-                const SizedBox(height: 8),
-                Center(
+              const SizedBox(height: 8),
+              // 별자리 줄은 주의할 점에서만 보이지만, 자리는 늘 차지해서
+              // 세 카테고리의 카드 크기와 위치가 똑같게 한다.
+              Visibility(
+                visible: _category == PhraseCategory.caution,
+                maintainSize: true,
+                maintainAnimation: true,
+                maintainState: true,
+                child: Center(
                   child: TextButton(
                     onPressed: _pickZodiac,
                     child: Text(
@@ -167,7 +173,7 @@ class _DailyScreenState extends ConsumerState<DailyScreen>
                     ),
                   ),
                 ),
-              ],
+              ),
               const SizedBox(height: 16),
               Expanded(
                 child: Center(
