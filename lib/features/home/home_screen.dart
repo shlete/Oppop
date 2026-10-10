@@ -125,17 +125,12 @@ class _DailyHeroState extends State<_DailyHero>
                   _Twinkle(right: 24, bottom: 24, size: 10, phase: t + 2),
                   _Twinkle(left: 196, bottom: 34, size: 7, phase: t + 4),
                   Positioned(
-                    right: 22,
+                    right: 8,
                     top: 0,
                     bottom: 0,
                     child: Center(
-                      child: Transform.translate(
-                        offset: Offset(0, sin(t) * 6),
-                        child: Transform.rotate(
-                          angle: sin(t + 1) * 0.05,
-                          child: const _CardStack(),
-                        ),
-                      ),
+                      // 0이면 오므린 상태, 1이면 다 펼친 상태.
+                      child: _CardFan(open: 0.5 - 0.5 * cos(t)),
                     ),
                   ),
                   Padding(
@@ -195,44 +190,35 @@ class _DailyHeroState extends State<_DailyHero>
   }
 }
 
-/// 뒤집힌 카드 두 장. 앞 카드에 물음표.
-class _CardStack extends StatelessWidget {
-  const _CardStack();
+/// 뒤집힌 카드 세 장이 부채처럼 펼쳐졌다 오므려진다. 가운데 카드에 물음표.
+class _CardFan extends StatelessWidget {
+  const _CardFan({required this.open});
+
+  final double open;
+
+  static const _w = 84.0;
+  static const _h = 122.0;
 
   @override
   Widget build(BuildContext context) {
+    final angle = 0.06 + 0.26 * open;
     return SizedBox(
-      width: 112,
-      height: 150,
+      width: 170,
+      height: 170,
       child: Stack(
+        alignment: Alignment.center,
         children: [
-          Positioned(
-            left: 16,
-            top: 6,
-            child: Transform.rotate(
-              angle: 0.17,
-              child: _card(const [
-                Color(0xFFE9E6FA),
-                Color(0xFFC5C0EF),
-              ], opacity: 0.55),
-            ),
-          ),
-          Positioned(
-            left: 4,
-            top: 7,
-            child: Transform.rotate(
-              angle: -0.1,
-              child: _card(
-                const [Colors.white, Color(0xFFE9E6FA)],
-                shadow: true,
-                child: Text(
-                  '?',
-                  style: TextStyle(
-                    fontFamily: AppFonts.heading,
-                    fontSize: 40,
-                    color: AppColors.main,
-                  ),
-                ),
+          _fanned(-angle, const [Color(0xFFD9D4F6), Color(0xFFB9B2EC)]),
+          _fanned(angle, const [Color(0xFFD9D4F6), Color(0xFFB9B2EC)]),
+          _fanned(
+            0,
+            const [Colors.white, Color(0xFFE9E6FA)],
+            child: Text(
+              '?',
+              style: TextStyle(
+                fontFamily: AppFonts.heading,
+                fontSize: 38,
+                color: AppColors.main,
               ),
             ),
           ),
@@ -241,17 +227,14 @@ class _CardStack extends StatelessWidget {
     );
   }
 
-  Widget _card(
-    List<Color> colors, {
-    double opacity = 1,
-    bool shadow = false,
-    Widget? child,
-  }) {
-    return Opacity(
-      opacity: opacity,
+  /// 카드 아래쪽 바깥의 한 점을 축으로 돌려서 부채꼴로 벌어지게 한다.
+  Widget _fanned(double angle, List<Color> colors, {Widget? child}) {
+    return Transform.rotate(
+      angle: angle,
+      alignment: const Alignment(0, 1.8),
       child: Container(
-        width: 92,
-        height: 136,
+        width: _w,
+        height: _h,
         alignment: Alignment.center,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
@@ -260,15 +243,13 @@ class _CardStack extends StatelessWidget {
             end: Alignment.bottomRight,
             colors: colors,
           ),
-          boxShadow: shadow
-              ? const [
-                  BoxShadow(
-                    color: Color(0x44000000),
-                    blurRadius: 16,
-                    offset: Offset(0, 6),
-                  ),
-                ]
-              : null,
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x44000000),
+              blurRadius: 14,
+              offset: Offset(0, 5),
+            ),
+          ],
         ),
         child: child,
       ),
