@@ -224,7 +224,7 @@ class ConsultReading extends StatefulWidget {
 }
 
 class _ConsultReadingState extends State<ConsultReading> {
-  final _pages = PageController(viewportFraction: 0.66);
+  final _pages = PageController(viewportFraction: 0.56);
   int _page = 0;
 
   @override
@@ -364,6 +364,7 @@ class _CardPanel extends StatelessWidget {
           Expanded(
             child: Container(
               width: double.infinity,
+              clipBehavior: Clip.antiAlias,
               decoration: BoxDecoration(
                 color: scheme.surfaceContainerHigh,
                 borderRadius: BorderRadius.circular(14),
@@ -371,9 +372,13 @@ class _CardPanel extends StatelessWidget {
               // 카드를 살짝 비스듬히 기울여 놓는다.
               child: LayoutBuilder(
                 builder: (context, box) {
+                  // 기울인 카드의 귀퉁이가 상자 밖으로 살짝 나가 잘리도록
+                  // 상자보다 조금 크게 그린다.
+                  final tiltedWidth =
+                      tarotAspect * cos(_tilt) + sin(_tilt); // 높이 1당 가로 폭
                   final h = min(
-                    box.maxHeight * 0.84,
-                    box.maxWidth * 0.8 / tarotAspect,
+                    box.maxHeight * 1.02,
+                    box.maxWidth * 1.08 / tiltedWidth,
                   );
                   return Center(
                     child: Transform.rotate(
