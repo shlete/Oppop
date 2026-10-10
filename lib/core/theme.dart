@@ -49,6 +49,8 @@ class AppTheme {
       outlineVariant: const Color(0xFFBDB8E0),
     );
     return ThemeData(
+      // 프리텐다드: 무료 상업 이용 가능 (SIL OFL 1.1).
+      fontFamily: 'Pretendard',
       colorScheme: scheme,
       useMaterial3: true,
       scaffoldBackgroundColor: AppColors.background,
