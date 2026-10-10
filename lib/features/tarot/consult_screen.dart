@@ -50,6 +50,9 @@ class _ConsultScreenState extends ConsumerState<ConsultScreen> {
         _picked.remove(i);
       } else if (_picked.length < 3) {
         _picked.add(i);
+        // 결과 화면에서 뒤집을 때 그림이 늦게 뜨지 않게 미리 불러 둔다.
+        final card = ref.read(tarotDeckProvider).value?.byId(_spread[i].cardId);
+        if (card != null) precacheImage(AssetImage(card.image), context);
       }
     });
   }

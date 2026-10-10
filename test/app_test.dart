@@ -17,9 +17,11 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('룰렛'), findsOneWidget);
 
+    // 홈의 카드는 계속 둥둥 떠 있어서 pumpAndSettle 대신 시간을 넘긴다.
     await tester.tap(find.text('홈'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('명언 한마디 · 응원 한마디 · 오늘 주의할 점'));
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.textContaining('요일'), findsOneWidget);
+    await tester.tap(find.text('뽑으러 가기 ›'));
     await tester.pumpAndSettle();
     expect(find.text('응원 한마디'), findsOneWidget);
   });

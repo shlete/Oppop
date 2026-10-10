@@ -179,14 +179,28 @@ class FlippingCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final angle = t * math.pi;
     final showFace = t >= 0.5;
+    // 돌아가는 동안 살짝 들어 올렸다 내려놓는다.
+    final lift = 1 + 0.06 * math.sin(angle);
     return Transform(
       alignment: Alignment.center,
       transform: Matrix4.identity()
         ..setEntry(3, 2, 0.0012)
+        ..scaleByDouble(lift, lift, 1, 1)
         ..rotateY(showFace ? angle - math.pi : angle),
-      child: showFace
-          ? TarotCardFace(card: card, reversed: reversed)
-          : const TarotCardBack(),
+      child: Stack(
+        children: [
+          // 앞면은 처음부터 만들어 두어 그림을 미리 불러 둔다.
+          // 그래야 뒤집히는 순간 그림이 비었다가 갑자기 나타나지 않는다.
+          Visibility(
+            visible: showFace,
+            maintainState: true,
+            maintainAnimation: true,
+            maintainSize: true,
+            child: TarotCardFace(card: card, reversed: reversed),
+          ),
+          if (!showFace) const Positioned.fill(child: TarotCardBack()),
+        ],
+      ),
     );
   }
 }
