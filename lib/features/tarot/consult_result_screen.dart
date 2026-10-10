@@ -557,7 +557,7 @@ class _Summary extends StatelessWidget {
                   children: [
                     Text(
                       '${pos.label} · ${pos.meaning}  |  ${card.nameEn}'
-                      '${drawn.reversed ? ' (역)' : ''}',
+                      '${drawn.reversed ? ' (R)' : ''}',
                       style: text.labelLarge?.copyWith(color: scheme.primary),
                     ),
                     const SizedBox(height: 6),
