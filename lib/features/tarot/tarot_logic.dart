@@ -86,15 +86,11 @@ DailyFortune dailyFortune({
   );
 }
 
-/// 덱을 섞어 펼칠 카드 [count]장을 고른다. 사용자가 이 중 3장을 탭한다.
-List<DrawnCard> shuffledSpread(
-  List<String> cardIds,
-  Random r, {
-  int count = 21,
-}) {
+/// 덱 전체를 섞어 펼친다. 사용자가 이 중 3장을 탭한다.
+List<DrawnCard> shuffledSpread(List<String> cardIds, Random r) {
   final ids = [...cardIds]..shuffle(r);
   return [
-    for (final id in ids.take(count))
+    for (final id in ids)
       DrawnCard(id, reversed: r.nextDouble() < reversedChance),
   ];
 }

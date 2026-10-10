@@ -66,7 +66,7 @@ void main() {
     for (var i = 0; i < 200; i++) {
       reversed += shuffledSpread(ids, r).where((c) => c.reversed).length;
     }
-    expect(reversed / (200 * 21), closeTo(0.3, 0.03));
+    expect(reversed / (200 * ids.length), closeTo(0.3, 0.03));
   });
 
   testWidgets('오늘의 운세: 카드를 뒤집으면 이름과 해석이 나오고 저장할 수 있다', (tester) async {
@@ -122,7 +122,8 @@ void main() {
 
     final button = find.widgetWithText(FilledButton, '결과 보기');
     expect(tester.widget<FilledButton>(button).onPressed, isNull);
-    for (final i in [0, 4, 9]) {
+    // 처음에는 가운데쯤이 보인다.
+    for (final i in [36, 40, 44]) {
       await tester.tap(find.byKey(ValueKey('spread-$i')));
       await tester.pump();
     }
