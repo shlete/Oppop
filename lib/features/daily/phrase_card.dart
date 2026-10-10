@@ -168,6 +168,9 @@ class _PhraseBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final split = text.indexOf('\n');
+    final title = split < 0 ? null : text.substring(0, split);
+    final body = split < 0 ? text : text.substring(split + 1);
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -181,8 +184,22 @@ class _PhraseBody extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 4),
+        // 고사성어처럼 첫 줄이 따로 있는 문구는 제목 줄로 띄운다.
+        if (title != null) ...[
+          Text(
+            keepWords(title),
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 22,
+              height: 1.4,
+              fontWeight: FontWeight.w800,
+              color: Color.lerp(accent, PhraseCard._ink, 0.35),
+            ),
+          ),
+          const SizedBox(height: 10),
+        ],
         BalancedText(
-          keepWords(text),
+          keepWords(body),
           style: const TextStyle(
             fontSize: 21,
             height: 1.65,
