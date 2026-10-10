@@ -132,10 +132,14 @@ class _SavedReadingView extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final d = reading.savedAt;
     return Scaffold(
+      backgroundColor: reading.isDaily ? null : scheme.surfaceContainer,
       appBar: AppBar(title: Text(reading.title)),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
+          // 상담 결과는 카드를 옆으로 넘겨 보므로 좌우 여백을 안쪽에서 둔다.
+          padding: reading.isDaily
+              ? const EdgeInsets.all(16)
+              : const EdgeInsets.symmetric(vertical: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [

@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
@@ -115,6 +116,7 @@ class _ConsultResultScreenState extends ConsumerState<ConsultResultScreen>
     final isSaved = ref.watch(savedReadingsProvider).any((r) => r.id == _id);
     final text = Theme.of(context).textTheme;
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
       appBar: AppBar(title: Text('고민상담 · ${widget.topic.label}')),
       body: SafeArea(
         child: deck == null
@@ -128,31 +130,22 @@ class _ConsultResultScreenState extends ConsumerState<ConsultResultScreen>
                     children: [
                       Expanded(
                         child: SingleChildScrollView(
-                          padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
                           child: GestureDetector(
                             onLongPress: done
                                 ? () => saveCardImage(context, _shotKey)
                                 : null,
-                            child: RepaintBoundary(
-                              key: _shotKey,
-                              child: ColoredBox(
-                                color: Theme.of(context).colorScheme.surface,
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 8,
-                                  ),
-                                  child: ConsultReading(
-                                    deck: deck,
-                                    topic: widget.topic,
-                                    cards: widget.cards,
-                                    flipT: _cardT,
-                                  ),
-                                ),
-                              ),
+                            child: ConsultReading(
+                              deck: deck,
+                              topic: widget.topic,
+                              cards: widget.cards,
+                              flipT: _cardT,
+                              shotKey: _shotKey,
                             ),
                           ),
                         ),
                       ),
+                      const SizedBox(height: 12),
                       Padding(
                         padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                         child: Column(
@@ -187,7 +180,7 @@ class _ConsultResultScreenState extends ConsumerState<ConsultResultScreen>
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              '결과를 꾹 누르면 이미지 저장 · 재미로 즐겨주세요',
+                              '꾹 누르면 통합 점괘를 이미지로 저장 · 재미로 즐겨주세요',
                               textAlign: TextAlign.center,
                               style: text.bodySmall,
                             ),
@@ -203,14 +196,16 @@ class _ConsultResultScreenState extends ConsumerState<ConsultResultScreen>
   }
 }
 
-/// 3장 펼침 + 자리별 해석. 결과 화면과 저장 목록 상세에서 같이 쓴다.
-class ConsultReading extends StatelessWidget {
+/// 고민상담 결과 화면 본문. 큰 카드 3장을 옆으로 넘겨 보고, 아래에 통합 점괘를 보여준다.
+/// 결과 화면과 저장 목록 상세에서 같이 쓴다.
+class ConsultReading extends StatefulWidget {
   const ConsultReading({
     super.key,
     required this.deck,
     required this.topic,
     required this.cards,
     this.flipT,
+    this.shotKey,
   });
 
   final TarotDeck deck;
@@ -220,84 +215,289 @@ class ConsultReading extends StatelessWidget {
   /// 카드별 뒤집기 진행도. null이면 모두 앞면.
   final double Function(int i)? flipT;
 
+  /// 이미지 저장·공유 때 찍을 통합 점괘 영역.
+  final GlobalKey? shotKey;
+
+  @override
+  State<ConsultReading> createState() => _ConsultReadingState();
+}
+
+class _ConsultReadingState extends State<ConsultReading> {
+  final _pages = PageController(viewportFraction: 0.8);
+  int _page = 0;
+
+  @override
+  void dispose() {
+    _pages.dispose();
+    super.dispose();
+  }
+
+  double _t(int i) => widget.flipT?.call(i) ?? 1;
+
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
     final scheme = Theme.of(context).colorScheme;
-    double t(int i) => flipT?.call(i) ?? 1;
+    final allShown = _t(SpreadPosition.values.length - 1) == 1;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            for (final pos in SpreadPosition.values) ...[
-              if (pos.index > 0) const SizedBox(width: 12),
-              Column(
-                children: [
-                  SizedBox(
-                    width: 96,
-                    child: FlippingCard(
-                      t: t(pos.index),
-                      card: deck.byId(cards[pos.index].cardId)!,
-                      reversed: cards[pos.index].reversed,
+        Text(
+          '타로 결과',
+          textAlign: TextAlign.center,
+          style: text.titleLarge?.copyWith(color: scheme.primary),
+        ),
+        const SizedBox(height: 16),
+        SizedBox(
+          height: 430,
+          // 웹 미리보기에서 마우스로 끌어도 넘어가게.
+          child: ScrollConfiguration(
+            behavior: ScrollConfiguration.of(context)
+                .copyWith(dragDevices: PointerDeviceKind.values.toSet()),
+            child: PageView(
+              controller: _pages,
+              onPageChanged: (p) => setState(() => _page = p),
+              children: [
+                for (final pos in SpreadPosition.values)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: _CardPanel(
+                      position: pos,
+                      deck: widget.deck,
+                      drawn: widget.cards[pos.index],
+                      t: _t(pos.index),
                     ),
                   ),
-                  const SizedBox(height: 6),
-                  Text(pos.label, style: text.labelLarge),
-                ],
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            for (var i = 0; i < SpreadPosition.values.length; i++)
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                margin: const EdgeInsets.symmetric(horizontal: 3),
+                width: i == _page ? 18 : 6,
+                height: 6,
+                decoration: BoxDecoration(
+                  color: i == _page ? scheme.primary : scheme.outlineVariant,
+                  borderRadius: BorderRadius.circular(3),
+                ),
               ),
-            ],
           ],
         ),
-        const SizedBox(height: 20),
-        for (final pos in SpreadPosition.values)
+        const SizedBox(height: 28),
+        Text(
+          '통합 점괘',
+          textAlign: TextAlign.center,
+          style: text.titleLarge?.copyWith(color: scheme.primary),
+        ),
+        const SizedBox(height: 12),
+        AnimatedOpacity(
+          duration: const Duration(milliseconds: 300),
+          opacity: allShown ? 1 : 0,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: RepaintBoundary(
+              key: widget.shotKey,
+              child: _Summary(
+                deck: widget.deck,
+                topic: widget.topic,
+                cards: widget.cards,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// 넘겨 보는 카드 한 장: 자리 이름, 큰 카드, 이름, 키워드.
+class _CardPanel extends StatelessWidget {
+  const _CardPanel({
+    required this.position,
+    required this.deck,
+    required this.drawn,
+    required this.t,
+  });
+
+  final SpreadPosition position;
+  final TarotDeck deck;
+  final DrawnCard drawn;
+  final double t;
+
+  @override
+  Widget build(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+    final scheme = Theme.of(context).colorScheme;
+    final card = deck.byId(drawn.cardId)!;
+    final reading = card.reading(drawn.reversed);
+    final shown = ((t - 0.6) / 0.4).clamp(0.0, 1.0);
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 14, 14, 16),
+      decoration: BoxDecoration(
+        color: scheme.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: scheme.shadow.withValues(alpha: 0.06),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Text(
+            '${position.label} · ${position.meaning}',
+            style: text.labelLarge?.copyWith(color: scheme.primary),
+          ),
+          const SizedBox(height: 10),
+          Expanded(
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: scheme.surfaceContainerHigh,
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Center(
+                child: AspectRatio(
+                  aspectRatio: tarotAspect,
+                  child: FlippingCard(
+                    t: t,
+                    card: card,
+                    reversed: drawn.reversed,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
           Opacity(
-            opacity: ((t(pos.index) - 0.6) / 0.4).clamp(0.0, 1.0),
-            child: Builder(
+            opacity: shown,
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        card.name,
+                        style: text.titleMedium?.copyWith(
+                          color: scheme.primary,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    OrientationBadge(reversed: drawn.reversed),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  reading.keywords.join(', '),
+                  style: text.bodyMedium,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 통합 점괘: 세 장을 작게 모아 보여주고 자리별 해석을 이어서 읽게 한다.
+/// 이미지로 저장·공유할 때 이 영역을 찍는다.
+class _Summary extends StatelessWidget {
+  const _Summary({
+    required this.deck,
+    required this.topic,
+    required this.cards,
+  });
+
+  final TarotDeck deck;
+  final TarotTopic topic;
+  final List<DrawnCard> cards;
+
+  @override
+  Widget build(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+    final scheme = Theme.of(context).colorScheme;
+    final flow = [
+      for (final c in cards)
+        deck.byId(c.cardId)!.reading(c.reversed).keywords.first,
+    ];
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: scheme.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (final pos in SpreadPosition.values) ...[
+                if (pos.index > 0) const SizedBox(width: 10),
+                Column(
+                  children: [
+                    SizedBox(
+                      width: 56,
+                      child: TarotCardFace(
+                        card: deck.byId(cards[pos.index].cardId)!,
+                        reversed: cards[pos.index].reversed,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(pos.label, style: text.labelMedium),
+                  ],
+                ),
+              ],
+            ],
+          ),
+          const SizedBox(height: 14),
+          Text(
+            keepWords('${topic.label} 고민의 흐름: ${flow.join(' → ')}'),
+            textAlign: TextAlign.center,
+            style: text.titleSmall?.copyWith(color: scheme.primary),
+          ),
+          for (final pos in SpreadPosition.values) ...[
+            const SizedBox(height: 16),
+            Builder(
               builder: (context) {
                 final drawn = cards[pos.index];
                 final card = deck.byId(drawn.cardId)!;
-                final reading = card.reading(drawn.reversed);
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: scheme.primaryContainer.withValues(alpha: 0.45),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '${pos.label} · ${pos.meaning}',
-                        style: text.labelLarge?.copyWith(color: scheme.primary),
-                      ),
-                      const SizedBox(height: 6),
-                      Row(
-                        children: [
-                          Flexible(
-                            child: Text(card.name, style: text.titleMedium),
-                          ),
-                          const SizedBox(width: 8),
-                          OrientationBadge(reversed: drawn.reversed),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      KeywordRow(keywords: reading.keywords, center: false),
-                      const SizedBox(height: 10),
-                      Text(
-                        keepWords(reading.topics[topic]!),
-                        style: text.bodyLarge?.copyWith(height: 1.55),
-                      ),
-                    ],
-                  ),
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${pos.label} · ${pos.meaning}  |  ${card.name}'
+                      '${drawn.reversed ? ' (역)' : ''}',
+                      style: text.labelLarge?.copyWith(color: scheme.primary),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      keepWords(card.reading(drawn.reversed).topics[topic]!),
+                      style: text.bodyLarge?.copyWith(height: 1.55),
+                    ),
+                  ],
                 );
               },
             ),
-          ),
-      ],
+          ],
+        ],
+      ),
     );
   }
 }

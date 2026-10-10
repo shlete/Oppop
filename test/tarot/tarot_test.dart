@@ -133,9 +133,12 @@ void main() {
     await tester.tap(button);
     await tester.pumpAndSettle();
 
-    expect(find.text('과거 · 원인'), findsOneWidget);
-    expect(find.text('현재 · 상황'), findsOneWidget);
-    expect(find.text('미래 · 조언'), findsOneWidget);
+    expect(find.text('타로 결과'), findsOneWidget);
+    expect(find.text('통합 점괘'), findsOneWidget);
+    // 통합 점괘에는 세 자리 해석이 모두 있다.
+    for (final label in ['과거 · 원인  |', '현재 · 상황  |', '미래 · 조언  |']) {
+      expect(find.textContaining(label), findsOneWidget);
+    }
 
     await tester.tap(find.text('저장'));
     await tester.pump();
