@@ -272,7 +272,7 @@ class _DailyInfo extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(card.name, style: text.headlineSmall),
+            Text(card.name, style: text.titleLarge?.copyWith(fontSize: 20)),
             const SizedBox(width: 8),
             OrientationBadge(reversed: fortune.card.reversed),
           ],
