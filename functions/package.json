@@ -1,0 +1,21 @@
+{
+  "name": "oneul-ppopgi-functions",
+  "private": true,
+  "main": "lib/index.js",
+  "engines": { "node": "22" },
+  "scripts": {
+    "copy-cards": "node -e \"require('fs').copyFileSync('../assets/tarot/cards.json','src/cards.json')\"",
+    "build": "npm run copy-cards && tsc",
+    "serve": "npm run build && firebase emulators:start --only functions",
+    "deploy": "firebase deploy --only functions"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "latest",
+    "firebase-admin": "latest",
+    "firebase-functions": "latest",
+    "zod": "latest"
+  },
+  "devDependencies": {
+    "typescript": "latest"
+  }
+}

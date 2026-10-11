@@ -210,6 +210,7 @@ class SavedReadingView extends StatelessWidget {
                   deck: deck,
                   topic: reading.topic!,
                   cards: reading.cards,
+                  ai: reading.ai,
                 ),
             ],
           ),

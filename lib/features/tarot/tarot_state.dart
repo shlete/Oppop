@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'ai_reading.dart';
 import 'tarot_cards.dart';
 import 'tarot_logic.dart';
 
@@ -54,6 +55,7 @@ class SavedReading {
     this.topic,
     this.luckyColor,
     this.luckyNumber,
+    this.ai,
   });
 
   final String id;
@@ -69,6 +71,9 @@ class SavedReading {
   final String? luckyColor;
   final int? luckyNumber;
 
+  /// 고민상담 결과를 AI가 써 줬을 때의 통합 점괘. 없으면 미리 써 둔 점괘를 보여준다.
+  final AiReading? ai;
+
   bool get isDaily => topic == null;
 
   String get title => isDaily ? '오늘의 운세' : '고민상담 · ${topic!.label}';
@@ -80,6 +85,7 @@ class SavedReading {
     'topic': ?topic?.name,
     'luckyColor': ?luckyColor,
     'luckyNumber': ?luckyNumber,
+    'ai': ?ai?.toJson(),
   };
 
   factory SavedReading.fromJson(Map<String, dynamic> json) => SavedReading(
@@ -94,6 +100,7 @@ class SavedReading {
         : TarotTopic.values.byName(json['topic'] as String),
     luckyColor: json['luckyColor'] as String?,
     luckyNumber: json['luckyNumber'] as int?,
+    ai: AiReading.tryParse(json['ai']),
   );
 }
 
