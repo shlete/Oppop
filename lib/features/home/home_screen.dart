@@ -4,15 +4,14 @@ import 'package:flutter/material.dart';
 
 import '../../core/theme.dart';
 import '../../core/widgets/dream_icon.dart';
-import '../daily/daily_screen.dart';
-import '../dream/dream_screen.dart';
+import '../../shell/nav_tabs.dart';
 
 /// 홈: 오늘의 뽑기를 가장 크게, 그 아래 타로·해몽·로또·랜덤 바로가기.
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key, required this.onOpenTab});
+  const HomeScreen({super.key, required this.onOpen});
 
-  /// 하단 탭 인덱스로 이동 (1 타로, 2 로또, 3 랜덤).
-  final ValueChanged<int> onOpenTab;
+  /// 메뉴 열기. 하단 탭에 있는 메뉴면 그 탭으로 옮겨 간다.
+  final ValueChanged<NavItem> onOpen;
 
   @override
   Widget build(BuildContext context) {
@@ -21,11 +20,7 @@ class HomeScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          _DailyHero(
-            today: DateTime.now(),
-            onTap: () => Navigator.of(context)
-                .push(MaterialPageRoute(builder: (_) => const DailyScreen())),
-          ),
+          _DailyHero(today: DateTime.now(), onTap: () => onOpen(NavItem.daily)),
           const SizedBox(height: 12),
           Row(
             children: [
@@ -33,7 +28,7 @@ class HomeScreen extends StatelessWidget {
                 child: _MenuTile(
                   title: '타로뽑기',
                   icon: Icons.style,
-                  onTap: () => onOpenTab(1),
+                  onTap: () => onOpen(NavItem.tarot),
                 ),
               ),
               const SizedBox(width: 12),
@@ -45,9 +40,7 @@ class HomeScreen extends StatelessWidget {
                     color: AppPalette.of(context).tileIcon,
                     animate: hovered,
                   ),
-                  onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const DreamScreen()),
-                  ),
+                  onTap: () => onOpen(NavItem.dream),
                 ),
               ),
             ],
@@ -59,7 +52,7 @@ class HomeScreen extends StatelessWidget {
                 child: _MenuTile(
                   title: '로또뽑기',
                   icon: Icons.casino,
-                  onTap: () => onOpenTab(2),
+                  onTap: () => onOpen(NavItem.lotto),
                 ),
               ),
               const SizedBox(width: 12),
@@ -67,7 +60,7 @@ class HomeScreen extends StatelessWidget {
                 child: _MenuTile(
                   title: '랜덤뽑기',
                   icon: Icons.shuffle,
-                  onTap: () => onOpenTab(3),
+                  onTap: () => onOpen(NavItem.random),
                 ),
               ),
             ],
