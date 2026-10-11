@@ -16,7 +16,7 @@ class MyScreen extends ConsumerWidget {
   const MyScreen({super.key});
 
   /// 최근 기록에 보여줄 개수.
-  static const recentCount = 10;
+  static const recentCount = 3;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
