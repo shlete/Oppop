@@ -96,7 +96,11 @@ class PhraseCard extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(24, 22, 24, 18),
                       child: CustomMultiChildLayout(
-                        delegate: _CardLayout(decorated: !empty),
+                        delegate: _CardLayout(
+                          // 명언은 예전처럼 칩과 날짜 사이 가운데에 둔다.
+                          centerText:
+                              !empty && category != PhraseCategory.quote,
+                        ),
                         children: [
                           LayoutId(
                             id: _Slot.pill,
@@ -143,14 +147,14 @@ class PhraseCard extends StatelessWidget {
 
 enum _Slot { pill, body, footer }
 
-/// 칩은 위, 날짜는 아래에 두고, 글귀는 카드 정중앙에 온다.
-/// 따옴표(위)와 짧은 선(아래)의 높이 차이만큼 묶음을 올려서 글귀 자체가 가운데 오게 하고,
-/// 문구가 길어 자리가 모자라면 칩과 날짜 사이 안에서만 움직인다.
+/// 칩은 위, 날짜는 아래에 두고 그 사이에 글귀 묶음을 둔다.
 class _CardLayout extends MultiChildLayoutDelegate {
-  _CardLayout({required this.decorated});
+  _CardLayout({required this.centerText});
 
-  /// 따옴표와 선이 붙은 글귀인지 (뽑기 전 안내 문구는 장식 없이 그대로 가운데).
-  final bool decorated;
+  /// true면 글귀 자체를 카드 정중앙에 맞춘다. 따옴표(위)와 짧은 선(아래)의
+  /// 높이 차이만큼 묶음을 올리고, 자리가 모자라면 칩과 날짜 사이 안에서만 움직인다.
+  /// false면 묶음을 칩과 날짜 사이 가운데에 둔다 (명언, 뽑기 전 안내).
+  final bool centerText;
 
   @override
   void performLayout(Size size) {
@@ -167,16 +171,23 @@ class _CardLayout extends MultiChildLayoutDelegate {
       _Slot.body,
       BoxConstraints(maxWidth: size.width, maxHeight: room),
     );
-    // 묶음 안에서 글귀 중심은 위 장식 높이와 아래 장식 높이의 차이 절반만큼 아래에 있다.
-    final shift = decorated ? (_PhraseBody.top - _PhraseBody.bottom) / 2 : 0;
-    final top = (size.height - body.height) / 2 - shift;
-    final y = top.clamp(pill.height, size.height - footer.height - body.height);
+    double y;
+    if (centerText) {
+      // 묶음 안에서 글귀 중심은 위 장식과 아래 장식 높이 차이의 절반만큼 아래에 있다.
+      const shift = (_PhraseBody.top - _PhraseBody.bottom) / 2;
+      y = ((size.height - body.height) / 2 - shift).clamp(
+        pill.height,
+        size.height - footer.height - body.height,
+      );
+    } else {
+      y = pill.height + (room - body.height) / 2;
+    }
     positionChild(_Slot.body, Offset((size.width - body.width) / 2, y));
   }
 
   @override
   bool shouldRelayout(_CardLayout oldDelegate) =>
-      oldDelegate.decorated != decorated;
+      oldDelegate.centerText != centerText;
 }
 
 class _CategoryPill extends StatelessWidget {
