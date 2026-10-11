@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/ads/interstitial.dart';
+import '../../core/theme.dart';
 import '../../core/widgets/primary_button.dart';
 import 'consult_result_screen.dart';
 import 'tarot_card_view.dart';
@@ -353,6 +354,36 @@ class _FanState extends State<_Fan> with SingleTickerProviderStateMixin {
     );
   }
 
+  /// 10장마다 카드 왼쪽 위(겹쳐도 보이는 쪽)에 몇 번째 장인지 작게 붙인다.
+  Widget _numbered(int i, Widget card) {
+    if ((i + 1) % 10 != 0) return card;
+    return Stack(
+      children: [
+        Positioned.fill(child: card),
+        Positioned(
+          left: 5,
+          top: 6,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+            decoration: BoxDecoration(
+              color: AppColors.point,
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Text(
+              '${i + 1}',
+              style: const TextStyle(
+                fontSize: 11,
+                height: 1.2,
+                fontWeight: FontWeight.w800,
+                color: AppColors.main,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   /// 펼치는 중인 [i]번째 카드 자리. 덱이 왼쪽([first])에서 오른쪽([last])으로
   /// 미끄러지며 지나간 자리마다 맨 아래 카드를 한 장씩 내려놓는다.
   ({Offset center, double angle}) _dealt(
@@ -489,8 +520,11 @@ class _FanState extends State<_Fan> with SingleTickerProviderStateMixin {
                             offset: picked.contains(c.index)
                                 ? Offset(0, -_lift / _ch)
                                 : Offset.zero,
-                            child: TarotCardBack(
-                              highlight: picked.contains(c.index),
+                            child: _numbered(
+                              c.index,
+                              TarotCardBack(
+                                highlight: picked.contains(c.index),
+                              ),
                             ),
                           ),
                         ),
