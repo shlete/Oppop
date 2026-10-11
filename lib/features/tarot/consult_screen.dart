@@ -354,29 +354,24 @@ class _FanState extends State<_Fan> with SingleTickerProviderStateMixin {
     );
   }
 
-  /// 10장마다 카드 왼쪽 위(겹쳐도 보이는 쪽)에 몇 번째 장인지 작게 붙인다.
+  /// 10장마다 카드 위쪽 바깥(겹쳐도 보이는 왼쪽 부분 위)에 몇 번째 장인지 작게 붙인다.
   Widget _numbered(int i, Widget card) {
     if ((i + 1) % 10 != 0) return card;
     return Stack(
+      clipBehavior: Clip.none,
       children: [
         Positioned.fill(child: card),
         Positioned(
-          left: 5,
-          top: 6,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-            decoration: BoxDecoration(
-              color: AppColors.point,
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Text(
-              '${i + 1}',
-              style: const TextStyle(
-                fontSize: 11,
-                height: 1.2,
-                fontWeight: FontWeight.w800,
-                color: AppColors.main,
-              ),
+          left: 0,
+          width: _cw * _step,
+          bottom: _ch + 4,
+          child: Text(
+            '${i + 1}',
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: AppColors.main,
             ),
           ),
         ),
