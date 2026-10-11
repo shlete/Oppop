@@ -30,8 +30,9 @@ class _MainShellState extends State<MainShell> {
     setState(() {
       // 홈으로 가면 다른 탭들은 새로 만들어 처음 상태로 되돌린다
       // (안쪽 화면은 닫히고, 로또에서 뽑아 둔 번호 같은 첫 화면 상태도 비워짐).
+      // 홈 탭 안에서 열어 둔 화면(오늘의 뽑기 등)도 닫아서 홈 첫 화면이 나오게 한다.
       if (index == 0) {
-        for (var i = 1; i < _navigators.length; i++) {
+        for (var i = 0; i < _navigators.length; i++) {
           _navigators[i] = GlobalKey<NavigatorState>();
         }
       }

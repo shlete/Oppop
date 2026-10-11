@@ -70,6 +70,19 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('번호 뽑기'), findsOneWidget);
     expect(find.text('다시 뽑기'), findsNothing);
+
+    // 홈에서 연 오늘의 뽑기도 다른 탭에 갔다가 홈을 누르면 닫힌다.
+    await tester.tap(find.text('홈'));
+    await tester.pump(const Duration(seconds: 1));
+    await tester.tap(find.text('뽑으러 가기 ›'));
+    await tester.pumpAndSettle();
+    expect(find.text('응원 한마디'), findsOneWidget);
+    await tester.tap(find.text('마이'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('홈'));
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.text('응원 한마디'), findsNothing);
+    expect(find.text('뽑으러 가기 ›'), findsOneWidget);
   });
 
   testWidgets('넓은 화면에서는 가운데 480px 폭으로 제한된다', (tester) async {
