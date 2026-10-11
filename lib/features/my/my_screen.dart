@@ -58,7 +58,7 @@ class MyScreen extends ConsumerWidget {
       for (final p in phrases)
         _Record(
           at: p.savedAt,
-          icon: Icons.format_quote,
+          icon: Icons.auto_awesome,
           kind: p.category.label,
           title: p.text.replaceAll('\n', ' '),
           detail: p.by == null ? null : '— ${p.by}',
@@ -95,7 +95,7 @@ class MyScreen extends ConsumerWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: _CountTile(
-                  icon: Icons.format_quote,
+                  icon: Icons.auto_awesome,
                   label: '오늘의 뽑기',
                   count: phrases.length,
                   onTap: () => open(const SavedPhrasesScreen()),
