@@ -119,7 +119,12 @@ class _DreamScreenState extends ConsumerState<DreamScreen> {
                         const SizedBox(height: 8),
                         Row(
                           children: [
-                            Text('꿈 속 장면', style: text.titleMedium),
+                            Flexible(
+                              child: Text(
+                                '꿈에 나온 장면 ${DreamScreen.maxPicks}가지를 골라주세요',
+                                style: text.titleMedium,
+                              ),
+                            ),
                             const SizedBox(width: 8),
                             Text(
                               '${_picked.length}/${DreamScreen.maxPicks}',
