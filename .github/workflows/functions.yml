@@ -1,0 +1,23 @@
+# 점괘 서버(functions/)가 배포 전에 문제없이 빌드되는지 확인한다.
+name: Functions build
+
+on:
+  push:
+    branches: [main, "claude/**"]
+    paths: ["functions/**", "assets/tarot/cards.json", "assets/dream/symbols.json"]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: functions
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: npm install
+      - run: npm run build

@@ -2,8 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/theme.dart';
+import '../../core/widgets/dream_icon.dart';
 
 import '../daily/daily_state.dart';
+import '../dream/dream_book.dart';
+import '../dream/dream_result_screen.dart';
+import '../dream/dream_state.dart';
+import '../dream/saved_dreams_screen.dart';
 import '../daily/saved_phrase_view.dart';
 import '../daily/saved_phrases_screen.dart';
 import '../lotto/saved_lotto.dart';
@@ -27,6 +32,8 @@ class MyScreen extends ConsumerWidget {
     final readings = ref.watch(savedReadingsProvider);
     final games = ref.watch(savedLottoProvider);
     final phrases = ref.watch(savedPhrasesProvider);
+    final dreams = ref.watch(savedDreamsProvider);
+    final dreamBook = ref.watch(dreamBookProvider).value;
     final deck = ref.watch(tarotDeckProvider).value;
 
     void open(Widget screen) =>
@@ -67,6 +74,15 @@ class MyScreen extends ConsumerWidget {
           detail: p.by == null ? null : '— ${p.by}',
           onTap: () => open(SavedPhraseView(phrase: p)),
         ),
+      for (final d in dreams)
+        _Record(
+          at: d.savedAt,
+          icon: Icons.hotel,
+          kind: '해몽뽑기',
+          title: savedDreamTitle(d, dreamBook),
+          detail: savedDreamDetail(d, dreamBook),
+          onTap: () => open(DreamResultScreen.saved(d)),
+        ),
     ]..sort((a, b) => b.at.compareTo(a.at));
 
     return Scaffold(
@@ -104,6 +120,19 @@ class MyScreen extends ConsumerWidget {
                   onTap: () => open(const SavedPhrasesScreen()),
                 ),
               ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _CountTile(
+                  icon: Icons.hotel,
+                  art: DreamIcon(
+                    color: AppPalette.of(context).tileIcon,
+                    size: 24,
+                  ),
+                  label: '해몽뽑기',
+                  count: dreams.length,
+                  onTap: () => open(const SavedDreamsScreen()),
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 24),
@@ -117,7 +146,7 @@ class MyScreen extends ConsumerWidget {
                   vertical: 28,
                 ),
                 child: Text(
-                  '아직 저장한 기록이 없어요\n타로 · 로또 · 오늘의 뽑기에서 저장하면 여기에 모여요',
+                  '아직 저장한 기록이 없어요\n타로 · 로또 · 오늘의 뽑기 · 해몽뽑기에서\n저장하면 여기에 모여요',
                   textAlign: TextAlign.center,
                   style: text.bodyMedium,
                 ),
@@ -174,9 +203,11 @@ class _CountTile extends StatelessWidget {
     required this.label,
     required this.count,
     required this.onTap,
+    this.art,
   });
 
   final IconData icon;
+  final Widget? art;
   final String label;
   final int count;
   final VoidCallback onTap;
@@ -197,7 +228,7 @@ class _CountTile extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 24, color: palette.tileIcon),
+              art ?? Icon(icon, size: 24, color: palette.tileIcon),
               const SizedBox(height: 6),
               Text(label, style: text.labelLarge),
               const SizedBox(height: 2),

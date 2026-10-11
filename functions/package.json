@@ -4,7 +4,7 @@
   "main": "lib/index.js",
   "engines": { "node": "22" },
   "scripts": {
-    "copy-cards": "node -e \"require('fs').copyFileSync('../assets/tarot/cards.json','src/cards.json')\"",
+    "copy-cards": "node -e \"const fs=require('fs');fs.copyFileSync('../assets/tarot/cards.json','src/cards.json');fs.copyFileSync('../assets/dream/symbols.json','src/dream_symbols.json')\"",
     "build": "npm run copy-cards && tsc",
     "serve": "npm run build && firebase emulators:start --only functions",
     "deploy": "firebase deploy --only functions"

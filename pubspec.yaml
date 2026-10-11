@@ -68,6 +68,7 @@ flutter:
 
   assets:
     - assets/phrases/daily.json
+    - assets/dream/symbols.json
     - assets/tarot/cards.json
     - assets/tarot/cards/
     - assets/fonts/suit/OFL.txt

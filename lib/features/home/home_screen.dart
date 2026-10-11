@@ -3,9 +3,11 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 import '../../core/theme.dart';
+import '../../core/widgets/dream_icon.dart';
 import '../daily/daily_screen.dart';
+import '../dream/dream_screen.dart';
 
-/// 홈: 오늘의 뽑기를 가장 크게, 그 아래 타로·로또·랜덤 바로가기.
+/// 홈: 오늘의 뽑기를 가장 크게, 그 아래 타로·해몽·로또·랜덤 바로가기.
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key, required this.onOpenTab});
 
@@ -35,6 +37,24 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
+              Expanded(
+                child: _MenuTile(
+                  title: '해몽뽑기',
+                  icon: Icons.hotel,
+                  art: (hovered) => DreamIcon(
+                    color: AppPalette.of(context).tileIcon,
+                    animate: hovered,
+                  ),
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const DreamScreen()),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
               Expanded(
                 child: _MenuTile(
                   title: '로또뽑기',
@@ -294,16 +314,27 @@ class _Twinkle extends StatelessWidget {
   }
 }
 
-class _MenuTile extends StatelessWidget {
+class _MenuTile extends StatefulWidget {
   const _MenuTile({
     required this.title,
     required this.icon,
     required this.onTap,
+    this.art,
   });
 
   final String title;
   final IconData icon;
   final VoidCallback onTap;
+
+  /// 아이콘 대신 그릴 그림 (같은 높이). 마우스를 올리면 움직인다.
+  final Widget Function(bool hovered)? art;
+
+  @override
+  State<_MenuTile> createState() => _MenuTileState();
+}
+
+class _MenuTileState extends State<_MenuTile> {
+  bool _hovered = false;
 
   @override
   Widget build(BuildContext context) {
@@ -312,15 +343,26 @@ class _MenuTile extends StatelessWidget {
       color: palette.tile,
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: onTap,
+        onTap: widget.onTap,
+        onHover: (v) => setState(() => _hovered = v),
         child: SizedBox(
-          height: 120,
+          height: 100,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 28, color: palette.tileIcon),
+              if (widget.art case final art?)
+                // 구름이 위로 솟은 만큼 글자 쪽으로 조금 내린다.
+                Transform.translate(
+                  offset: const Offset(0, 4),
+                  child: art(_hovered),
+                )
+              else
+                Icon(widget.icon, size: 28, color: palette.tileIcon),
               const SizedBox(height: 8),
-              Text(title, style: Theme.of(context).textTheme.titleMedium),
+              Text(
+                widget.title,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
             ],
           ),
         ),
