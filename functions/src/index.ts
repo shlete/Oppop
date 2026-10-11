@@ -42,9 +42,12 @@ const RequestSchema = z.object({
     .length(3),
 });
 
+// 자리별 글을 배열 대신 칸 3개로 받아야 늘 3개가 온다.
 const ReadingSchema = z.object({
   flow: z.string(),
-  positions: z.array(z.string()),
+  past: z.string(),
+  present: z.string(),
+  future: z.string(),
   advice: z.string(),
 });
 
@@ -52,7 +55,7 @@ const system = `너는 '오늘의 뽑기' 앱의 타로 상담가야. 출퇴근�
 규칙:
 - 카드 뜻은 함께 주는 설명을 바탕으로 하되, 세 장이 하나의 이야기로 이어지게 풀어 쓴다.
 - flow: 세 장의 흐름을 한 문장으로 (40자 안팎).
-- positions: 과거·현재·미래 순서로 정확히 3개, 각 2~3문장 (90~140자).
+- past, present, future: 과거·현재·미래 자리 해석, 각 2~3문장 (90~140자).
 - advice: 오늘 해 볼 만한 작은 행동 하나를 담은 한 문장.
 - 겁주거나 단정하지 않는다. 죽음, 질병 진단, 투자 종목, 법률 판단 같은 말은 하지 않는다.
 - 건강 주제는 생활 습관 수준으로만 말하고, 걱정되면 전문가와 상담하라고 부드럽게 권한다.
@@ -96,7 +99,7 @@ export const tarotReading = onRequest(
     try {
       const response = await client.messages.parse({
         model: "claude-haiku-5-5",
-        max_tokens: 1500,
+        max_tokens: 3000,
         thinking: { type: "disabled" },
         system,
         messages: [
@@ -108,13 +111,25 @@ export const tarotReading = onRequest(
         output_config: { effort: "low", format: zodOutputFormat(ReadingSchema) },
       });
       const out = response.parsed_output;
-      if (response.stop_reason === "refusal" || !out || out.positions.length !== 3) {
+      if (response.stop_reason === "refusal" || !out) {
         // 앱은 이 경우 미리 써 둔 점괘를 보여준다.
-        logger.warn("no reading", { stop: response.stop_reason });
+        const text = response.content
+          .map((b) => (b.type === "text" ? b.text : `[${b.type}]`))
+          .join("")
+          .slice(0, 500);
+        logger.warn("no reading", {
+          stop: response.stop_reason,
+          usage: response.usage,
+          text,
+        });
         res.status(502).json({ error: "no_reading" });
         return;
       }
-      res.json(out);
+      res.json({
+        flow: out.flow,
+        positions: [out.past, out.present, out.future],
+        advice: out.advice,
+      });
     } catch (e) {
       logger.error("claude failed", e);
       res.status(502).json({ error: "upstream" });
