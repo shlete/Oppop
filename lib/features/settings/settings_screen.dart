@@ -61,10 +61,8 @@ class SettingsScreen extends ConsumerWidget {
             ListTile(
               title: const Text('오픈소스 라이선스'),
               trailing: const Icon(Icons.chevron_right),
-              onTap: () => showLicensePage(
-                context: context,
-                applicationName: '오늘의 뽑기',
-                applicationVersion: appVersion,
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(builder: (_) => const _Licenses()),
               ),
             ),
             const ListTile(
@@ -106,5 +104,24 @@ class SettingsScreen extends ConsumerWidget {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(const SnackBar(content: Text('저장 기록을 모두 지웠어요')));
+  }
+}
+
+/// 라이선스 목록은 길어서 이 화면만 글자를 조금 작게 보여준다.
+class _Licenses extends StatelessWidget {
+  const _Licenses();
+
+  @override
+  Widget build(BuildContext context) {
+    final media = MediaQuery.of(context);
+    return MediaQuery(
+      data: media.copyWith(
+        textScaler: TextScaler.linear(media.textScaler.scale(1) * 0.85),
+      ),
+      child: const LicensePage(
+        applicationName: '오늘의 뽑기',
+        applicationVersion: appVersion,
+      ),
+    );
   }
 }
