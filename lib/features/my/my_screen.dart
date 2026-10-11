@@ -6,6 +6,7 @@ import '../daily/saved_phrase_view.dart';
 import '../daily/saved_phrases_screen.dart';
 import '../lotto/saved_lotto.dart';
 import '../lotto/saved_lotto_screen.dart';
+import '../settings/settings_screen.dart';
 import '../tarot/saved_readings_screen.dart';
 import '../tarot/tarot_cards.dart';
 import '../tarot/tarot_state.dart';
@@ -125,10 +126,16 @@ class MyScreen extends ConsumerWidget {
           const SizedBox(height: 24),
           Text('기타', style: text.titleMedium),
           const SizedBox(height: 8),
-          for (final item in ['설정', '문의하기'])
-            Card(
-              child: ListTile(title: Text(item), trailing: const Text('준비 중')),
+          Card(
+            child: ListTile(
+              title: const Text('설정'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => open(const SettingsScreen()),
             ),
+          ),
+          const Card(
+            child: ListTile(title: Text('문의하기'), trailing: Text('준비 중')),
+          ),
           const SizedBox(height: 12),
           Text(
             '기록은 지금 이 기기에만 저장돼요.\n로그인 기능이 생기면 계정으로 옮길 수 있어요.',

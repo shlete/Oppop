@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../../core/image_save/image_save.dart';
+import '../../core/haptics.dart';
 
 bool _saving = false;
 
@@ -11,7 +11,7 @@ Future<void> saveCardImage(BuildContext context, GlobalKey cardKey) async {
   if (_saving) return;
   _saving = true;
   try {
-    HapticFeedback.mediumImpact();
+    AppHaptics.medium();
     final messenger = ScaffoldMessenger.of(context);
     final bytes = await captureBoundary(cardKey);
     final result = bytes == null

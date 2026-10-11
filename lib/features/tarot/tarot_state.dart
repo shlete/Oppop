@@ -137,6 +137,12 @@ class SavedReadingsNotifier extends Notifier<List<SavedReading>> {
     await _persist();
   }
 
+  /// 저장한 타로 결과를 모두 지운다 (설정의 전체 삭제).
+  Future<void> clear() async {
+    state = const [];
+    await _persist();
+  }
+
   Future<void> remove(String id) async {
     state = [
       for (final r in state)

@@ -48,12 +48,6 @@ class TarotScreen extends ConsumerWidget {
             color: scheme.surfaceContainerLowest,
             builder: (_) => const ConsultScreen(),
           ),
-          const SizedBox(height: 16),
-          Text(
-            '카드 그림: 1909년 라이더-웨이트-스미스 덱 (퍼블릭 도메인)',
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
         ],
       ),
     );

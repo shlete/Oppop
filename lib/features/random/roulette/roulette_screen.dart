@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../palette.dart';
 import '../presets.dart';
@@ -9,6 +8,7 @@ import '../widgets/item_list_editor.dart';
 import '../widgets/preset_buttons.dart';
 import 'roulette_logic.dart';
 import '../../../core/widgets/primary_button.dart';
+import '../../../core/haptics.dart';
 
 class RouletteScreen extends StatefulWidget {
   const RouletteScreen({super.key, this.random});
@@ -64,7 +64,7 @@ class _RouletteScreenState extends State<RouletteScreen>
     if (!mounted) return;
     setState(() => _rotation = target % (2 * pi));
     _spin = null;
-    HapticFeedback.mediumImpact();
+    AppHaptics.medium();
     await _showResult(index);
   }
 
