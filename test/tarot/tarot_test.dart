@@ -122,6 +122,22 @@ void main() {
 
     final button = find.widgetWithText(FilledButton, '결과 보기');
     expect(tester.widget<FilledButton>(button).onPressed, isNull);
+
+    // 좌우 화살표로 넘겼다가 되돌아온다.
+    final x0 = tester.getRect(find.byKey(const ValueKey('spread-39'))).left;
+    await tester.tap(find.byIcon(Icons.chevron_right));
+    await tester.pumpAndSettle();
+    final moved = find.byKey(const ValueKey('spread-39'));
+    expect(
+      moved.evaluate().isEmpty || tester.getRect(moved).left < x0 - 50,
+      isTrue,
+    );
+    await tester.tap(find.byIcon(Icons.chevron_left));
+    await tester.pumpAndSettle();
+    expect(
+      tester.getRect(find.byKey(const ValueKey('spread-39'))).left,
+      closeTo(x0, 1),
+    );
     // 처음에는 가운데쯤이 보인다.
     for (final i in [36, 39, 42]) {
       // 카드가 겹쳐 있어 왼쪽 가장자리 쪽이 보인다.

@@ -75,6 +75,10 @@ class AppTheme {
         titleLarge: heading(t.titleLarge),
       ),
       scaffoldBackgroundColor: AppColors.background,
+      // 눌렀을 때 퍼지는 물결과 눌린 동안의 음영을 회색 대신 연보라로.
+      splashColor: AppColors.soft.withValues(alpha: 0.6),
+      highlightColor: AppColors.soft.withValues(alpha: 0.4),
+      hoverColor: AppColors.soft.withValues(alpha: 0.25),
       appBarTheme: const AppBarTheme(
         backgroundColor: AppColors.background,
         surfaceTintColor: Colors.transparent,

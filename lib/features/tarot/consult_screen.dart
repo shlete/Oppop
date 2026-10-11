@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/ads/interstitial.dart';
+import '../../core/theme.dart';
 import '../../core/widgets/primary_button.dart';
 import 'consult_result_screen.dart';
 import 'tarot_card_view.dart';
@@ -353,6 +354,31 @@ class _FanState extends State<_Fan> with SingleTickerProviderStateMixin {
     );
   }
 
+  /// 10장마다 카드 위쪽 바깥(겹쳐도 보이는 왼쪽 부분 위)에 몇 번째 장인지 작게 붙인다.
+  Widget _numbered(int i, Widget card) {
+    if ((i + 1) % 10 != 0) return card;
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Positioned.fill(child: card),
+        Positioned(
+          left: 0,
+          width: _cw * _step,
+          bottom: _ch + 4,
+          child: Text(
+            '${i + 1}',
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: AppColors.main,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   /// 펼치는 중인 [i]번째 카드 자리. 덱이 왼쪽([first])에서 오른쪽([last])으로
   /// 미끄러지며 지나간 자리마다 맨 아래 카드를 한 장씩 내려놓는다.
   ({Offset center, double angle}) _dealt(
@@ -375,6 +401,51 @@ class _FanState extends State<_Fan> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final picked = widget.picked;
+    // 다 펼친 뒤 좌우 화살표를 띄운다. 화면 끝 카드 높이에 맞춘다.
+    final arrowY = _top + _ch / 2 + _radius * (1 - cos(_edgeAngle)) - 20;
+    return Stack(
+      children: [
+        Positioned.fill(child: _fan(context, picked)),
+        Positioned(
+          left: 6,
+          top: arrowY,
+          child: _ScrollArrow(
+            scroll: _scroll!,
+            deal: _deal,
+            forward: false,
+            onTap: () => _page(-1),
+          ),
+        ),
+        Positioned(
+          right: 6,
+          top: arrowY,
+          child: _ScrollArrow(
+            scroll: _scroll!,
+            deal: _deal,
+            forward: true,
+            onTap: () => _page(1),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// 화살표를 누르면 화면의 2/3만큼 옆으로 넘긴다.
+  void _page(int dir) {
+    final s = _scroll!;
+    if (!s.hasClients) return;
+    final target = (s.offset + dir * widget.size.width * 0.66).clamp(
+      0.0,
+      s.position.maxScrollExtent,
+    );
+    s.animateTo(
+      target,
+      duration: const Duration(milliseconds: 450),
+      curve: Curves.easeOutCubic,
+    );
+  }
+
+  Widget _fan(BuildContext context, List<int> picked) {
     // 웹 미리보기에서 마우스로 끌어도 넘어가게.
     return ScrollConfiguration(
       behavior: ScrollConfiguration.of(context)
@@ -444,8 +515,11 @@ class _FanState extends State<_Fan> with SingleTickerProviderStateMixin {
                             offset: picked.contains(c.index)
                                 ? Offset(0, -_lift / _ch)
                                 : Offset.zero,
-                            child: TarotCardBack(
-                              highlight: picked.contains(c.index),
+                            child: _numbered(
+                              c.index,
+                              TarotCardBack(
+                                highlight: picked.contains(c.index),
+                              ),
                             ),
                           ),
                         ),
@@ -457,6 +531,65 @@ class _FanState extends State<_Fan> with SingleTickerProviderStateMixin {
           },
         ),
       ),
+    );
+  }
+}
+
+/// 부채꼴 좌우의 넘기기 화살표. 다 펼친 뒤에 나타나고, 그 방향 끝에 닿으면 사라진다.
+class _ScrollArrow extends StatelessWidget {
+  const _ScrollArrow({
+    required this.scroll,
+    required this.deal,
+    required this.forward,
+    required this.onTap,
+  });
+
+  final ScrollController scroll;
+  final AnimationController deal;
+  final bool forward;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return AnimatedBuilder(
+      animation: Listenable.merge([scroll, deal]),
+      builder: (context, _) {
+        var canGo = false;
+        if (scroll.hasClients && scroll.position.hasContentDimensions) {
+          final p = scroll.position;
+          canGo = forward
+              ? p.pixels < p.maxScrollExtent - 1
+              : p.pixels > p.minScrollExtent + 1;
+        }
+        final show = deal.isCompleted && canGo;
+        return IgnorePointer(
+          ignoring: !show,
+          child: AnimatedOpacity(
+            opacity: show ? 1 : 0,
+            duration: const Duration(milliseconds: 250),
+            child: Material(
+              color: scheme.surfaceContainerLowest.withValues(alpha: 0.9),
+              shape: const CircleBorder(),
+              elevation: 2,
+              shadowColor: scheme.primary.withValues(alpha: 0.3),
+              child: InkWell(
+                customBorder: const CircleBorder(),
+                onTap: onTap,
+                child: SizedBox(
+                  width: 40,
+                  height: 40,
+                  child: Icon(
+                    forward ? Icons.chevron_right : Icons.chevron_left,
+                    color: scheme.primary,
+                    semanticLabel: forward ? '다음 카드' : '이전 카드',
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
