@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/ads/interstitial.dart';
 import '../../core/widgets/primary_button.dart';
+import '../../core/widgets/smooth_slide.dart';
 import 'consult_result_screen.dart';
 import 'tarot_card_view.dart';
 import 'tarot_cards.dart';
@@ -233,21 +234,20 @@ class _Slot extends StatelessWidget {
       children: [
         SizedBox(
           width: 56,
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 200),
-            child: filled
-                ? const TarotCardBack(key: ValueKey('back'))
-                : AspectRatio(
-                    key: const ValueKey('empty'),
-                    aspectRatio: tarotAspect,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(6),
-                        border: Border.all(color: scheme.outlineVariant),
-                        color: scheme.surfaceContainerLow,
-                      ),
-                    ),
+          child: Stack(
+            children: [
+              AspectRatio(
+                aspectRatio: tarotAspect,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: scheme.outlineVariant),
+                    color: scheme.surfaceContainerLow,
                   ),
+                ),
+              ),
+              Positioned.fill(child: _SlotCard(filled: filled)),
+            ],
           ),
         ),
         const SizedBox(height: 4),
@@ -256,6 +256,58 @@ class _Slot extends StatelessWidget {
       ],
     );
   }
+}
+
+/// 자리에 들어오는 카드. 고르면 위에서 미끄러져 내려오며 나타나고, 취소하면 반대로 사라진다.
+/// 기기의 '애니메이션 줄이기' 설정에도 빨라지지 않게 preserve.
+class _SlotCard extends StatefulWidget {
+  const _SlotCard({required this.filled});
+
+  final bool filled;
+
+  @override
+  State<_SlotCard> createState() => _SlotCardState();
+}
+
+class _SlotCardState extends State<_SlotCard>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 360),
+    animationBehavior: AnimationBehavior.preserve,
+    value: widget.filled ? 1 : 0,
+  );
+
+  @override
+  void didUpdateWidget(_SlotCard old) {
+    super.didUpdateWidget(old);
+    if (widget.filled != old.filled) {
+      widget.filled ? _c.forward() : _c.reverse();
+    }
+  }
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => AnimatedBuilder(
+    animation: _c,
+    builder: (context, child) {
+      final t = Curves.easeOutCubic.transform(_c.value);
+      if (t == 0) return const SizedBox.shrink();
+      return Opacity(
+        opacity: t,
+        child: FractionalTranslation(
+          translation: Offset(0, -0.35 * (1 - t)),
+          child: child,
+        ),
+      );
+    },
+    child: const TarotCardBack(),
+  );
 }
 
 /// 78장을 한 줄 부채꼴로 길게 펼친다. 옆으로 넘기면 화면 가운데 카드가 가장 높이 오고
@@ -526,9 +578,7 @@ class _FanState extends State<_Fan> with SingleTickerProviderStateMixin {
                         height: _ch,
                         child: Transform.rotate(
                           angle: c.p.angle,
-                          child: AnimatedSlide(
-                            duration: const Duration(milliseconds: 220),
-                            curve: Curves.easeOutCubic,
+                          child: SmoothSlide(
                             // 고른 카드는 위로 올라오고, 양옆 카드는 살짝 비켜난다.
                             offset: Offset(
                               _push(c.index, picked),
