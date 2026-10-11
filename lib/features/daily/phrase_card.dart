@@ -95,29 +95,38 @@ class PhraseCard extends StatelessWidget {
                     ),
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(24, 22, 24, 18),
-                      child: Column(
+                      child: CustomMultiChildLayout(
+                        delegate: _CardLayout(decorated: !empty),
                         children: [
-                          _CategoryPill(label: category.label, accent: accent),
-                          Expanded(
-                            child: Center(
-                              child: empty
-                                  ? Text(
-                                      '뽑기 버튼을 누르면\n오늘의 문구가 나와요',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        height: 1.6,
-                                        color: _ink.withValues(alpha: 0.45),
-                                      ),
-                                    )
-                                  : _PhraseBody(
-                                      text: text!,
-                                      by: by,
-                                      accent: accent,
-                                    ),
+                          LayoutId(
+                            id: _Slot.pill,
+                            child: _CategoryPill(
+                              label: category.label,
+                              accent: accent,
                             ),
                           ),
-                          _Footer(date: date, accent: accent),
+                          LayoutId(
+                            id: _Slot.body,
+                            child: empty
+                                ? Text(
+                                    '뽑기 버튼을 누르면\n오늘의 문구가 나와요',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      height: 1.6,
+                                      color: _ink.withValues(alpha: 0.45),
+                                    ),
+                                  )
+                                : _PhraseBody(
+                                    text: text!,
+                                    by: by,
+                                    accent: accent,
+                                  ),
+                          ),
+                          LayoutId(
+                            id: _Slot.footer,
+                            child: _Footer(date: date, accent: accent),
+                          ),
                         ],
                       ),
                     ),
@@ -130,6 +139,44 @@ class PhraseCard extends StatelessWidget {
       ),
     );
   }
+}
+
+enum _Slot { pill, body, footer }
+
+/// 칩은 위, 날짜는 아래에 두고, 글귀는 카드 정중앙에 온다.
+/// 따옴표(위)와 짧은 선(아래)의 높이 차이만큼 묶음을 올려서 글귀 자체가 가운데 오게 하고,
+/// 문구가 길어 자리가 모자라면 칩과 날짜 사이 안에서만 움직인다.
+class _CardLayout extends MultiChildLayoutDelegate {
+  _CardLayout({required this.decorated});
+
+  /// 따옴표와 선이 붙은 글귀인지 (뽑기 전 안내 문구는 장식 없이 그대로 가운데).
+  final bool decorated;
+
+  @override
+  void performLayout(Size size) {
+    final loose = BoxConstraints.loose(size);
+    final pill = layoutChild(_Slot.pill, loose);
+    final footer = layoutChild(_Slot.footer, loose);
+    positionChild(_Slot.pill, Offset((size.width - pill.width) / 2, 0));
+    positionChild(
+      _Slot.footer,
+      Offset((size.width - footer.width) / 2, size.height - footer.height),
+    );
+    final room = size.height - pill.height - footer.height;
+    final body = layoutChild(
+      _Slot.body,
+      BoxConstraints(maxWidth: size.width, maxHeight: room),
+    );
+    // 묶음 안에서 글귀 중심은 위 장식 높이와 아래 장식 높이의 차이 절반만큼 아래에 있다.
+    final shift = decorated ? (_PhraseBody.top - _PhraseBody.bottom) / 2 : 0;
+    final top = (size.height - body.height) / 2 - shift;
+    final y = top.clamp(pill.height, size.height - footer.height - body.height);
+    positionChild(_Slot.body, Offset((size.width - body.width) / 2, y));
+  }
+
+  @override
+  bool shouldRelayout(_CardLayout oldDelegate) =>
+      oldDelegate.decorated != decorated;
 }
 
 class _CategoryPill extends StatelessWidget {
@@ -166,6 +213,10 @@ class _PhraseBody extends StatelessWidget {
   final String? by;
   final Color accent;
 
+  /// 글귀 위 따옴표 자리와 아래 짧은 선 자리의 높이.
+  static const top = 54.0;
+  static const bottom = 25.0;
+
   @override
   Widget build(BuildContext context) {
     final split = text.indexOf('\n');
@@ -174,16 +225,18 @@ class _PhraseBody extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          '“',
-          style: TextStyle(
-            fontSize: 56,
-            height: 0.9,
-            fontWeight: FontWeight.w800,
-            color: accent.withValues(alpha: 0.55),
+        SizedBox(
+          height: top,
+          child: Text(
+            '“',
+            style: TextStyle(
+              fontSize: 56,
+              height: 0.9,
+              fontWeight: FontWeight.w800,
+              color: accent.withValues(alpha: 0.55),
+            ),
           ),
         ),
-        const SizedBox(height: 4),
         // 고사성어처럼 첫 줄이 따로 있는 문구는 제목 줄로 띄운다.
         if (title != null) ...[
           Text(
@@ -219,7 +272,7 @@ class _PhraseBody extends StatelessWidget {
             ),
           ),
         ],
-        const SizedBox(height: 22),
+        const SizedBox(height: bottom - 3),
         Container(
           width: 28,
           height: 3,
