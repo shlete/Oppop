@@ -107,7 +107,7 @@ class SettingsScreen extends ConsumerWidget {
   }
 }
 
-/// 라이선스 목록은 길어서 이 화면만 글자를 조금 작게 보여준다.
+/// 라이선스 목록은 길어서 이 화면만 글자와 줄 간격을 줄여 스크롤을 줄인다.
 class _Licenses extends StatelessWidget {
   const _Licenses();
 
@@ -118,9 +118,18 @@ class _Licenses extends StatelessWidget {
       data: media.copyWith(
         textScaler: TextScaler.linear(media.textScaler.scale(1) * 0.85),
       ),
-      child: const LicensePage(
-        applicationName: '오늘의 뽑기',
-        applicationVersion: appVersion,
+      child: Theme(
+        data: Theme.of(context).copyWith(
+          visualDensity: const VisualDensity(vertical: -4),
+          listTileTheme: const ListTileThemeData(
+            dense: true,
+            minVerticalPadding: 2,
+          ),
+        ),
+        child: const LicensePage(
+          applicationName: '오늘의 뽑기',
+          applicationVersion: appVersion,
+        ),
       ),
     );
   }
