@@ -8,7 +8,7 @@ import 'saved_readings_screen.dart';
 import 'tarot_card_view.dart';
 import 'tarot_state.dart';
 
-/// 타로 메뉴: 오늘의 운세(1장) / 고민상담(3장).
+/// 타로 메뉴: 오늘의 운세(1장) / 오늘의 고민(3장).
 class TarotScreen extends ConsumerWidget {
   const TarotScreen({super.key});
 
@@ -42,7 +42,7 @@ class TarotScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 12),
           _Entry(
-            title: '고민상담',
+            title: '오늘의 고민',
             subtitle: '연애 · 학업 · 진로 · 금전 · 건강',
             cards: 3,
             color: scheme.surfaceContainerLowest,

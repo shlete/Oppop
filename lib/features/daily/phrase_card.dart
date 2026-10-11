@@ -63,11 +63,11 @@ class PhraseCard extends StatelessWidget {
     // 늘 같은 크기로 그린 뒤 화면에 맞게 줄이고 늘린다.
     // 기기 크기와 상관없이 글자 줄바꿈과 저장 이미지 모양이 똑같다.
     return AspectRatio(
-      aspectRatio: 4 / 5,
+      aspectRatio: 3 / 4,
       child: FittedBox(
         child: SizedBox(
           width: designWidth,
-          height: designWidth * 5 / 4,
+          height: designWidth * 4 / 3,
           child: DecoratedBox(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(28),

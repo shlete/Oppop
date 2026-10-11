@@ -221,7 +221,7 @@ class _DailyTarotScreenState extends ConsumerState<DailyTarotScreen>
                       ),
                       const SizedBox(height: 12),
                       PrimaryButton(
-                        label: done ? '고민상담 하러 가기' : '카드 뒤집기',
+                        label: done ? '오늘의 고민 보러 가기' : '카드 뒤집기',
                         onPressed: _flip.isAnimating
                             ? null
                             : done

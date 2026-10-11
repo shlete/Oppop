@@ -7,7 +7,7 @@ import '../../core/firebase/app_check.dart';
 import 'tarot_cards.dart';
 import 'tarot_logic.dart';
 
-/// AI가 쓴 고민상담 통합 점괘. 저장할 때 같이 남겨서 다시 만들지 않는다.
+/// AI가 쓴 오늘의 고민 통합 점괘. 저장할 때 같이 남겨서 다시 만들지 않는다.
 class AiReading {
   const AiReading({
     required this.flow,

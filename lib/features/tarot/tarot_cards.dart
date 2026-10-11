@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// 고민상담 주제.
+/// 오늘의 고민 주제.
 enum TarotTopic {
   love('연애'),
   study('학업'),
@@ -16,7 +16,7 @@ enum TarotTopic {
   final String label;
 }
 
-/// 고민상담 3장 자리.
+/// 오늘의 고민 3장 자리.
 enum SpreadPosition {
   past('과거', '원인'),
   present('현재', '상황'),
@@ -41,7 +41,7 @@ class CardReading {
   /// 오늘의 운세 한 줄.
   final String today;
 
-  /// 고민상담 주제별 한 줄.
+  /// 오늘의 고민 주제별 한 줄.
   final Map<TarotTopic, String> topics;
 
   factory CardReading.fromJson(Map<String, dynamic> json) => CardReading(

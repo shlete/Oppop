@@ -115,18 +115,17 @@ void main() {
     await tester.pumpWidget(
       const ProviderScope(child: MaterialApp(home: DailyScreen())),
     );
-    // 다른 카테고리에서는 별자리 줄이 보이지 않지만 자리는 차지해서
-    // 카드 크기와 위치가 주의할 점과 똑같다.
-    expect(find.text('내 별자리 고르기 (선택)').hitTestable(), findsNothing);
+    // 별자리 버튼은 카드 아래 줄에 있어서 카테고리를 바꿔도 카드 크기와 위치가 똑같다.
+    expect(find.text('별자리 고르기'), findsNothing);
     final quoteCard = tester.getRect(find.byType(PhraseCard));
     await tester.tap(find.text('오늘 주의할 점'));
     await tester.pumpAndSettle();
     expect(tester.getRect(find.byType(PhraseCard)), quoteCard);
-    await tester.tap(find.text('내 별자리 고르기 (선택)'));
+    await tester.tap(find.text('별자리 고르기'));
     await tester.pumpAndSettle();
     await tester.tap(find.textContaining('사자자리'));
     await tester.pumpAndSettle();
-    expect(find.text('내 별자리: 사자자리 · 바꾸기'), findsOneWidget);
+    expect(find.text('사자자리'), findsOneWidget);
   });
 
   test('카드 문구는 띄어쓰기에서만 줄이 바뀌도록 단어 안 글자를 붙여 둔다', () {

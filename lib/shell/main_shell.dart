@@ -18,6 +18,7 @@ class MainShell extends StatefulWidget {
 }
 
 class _MainShellState extends State<MainShell> {
+  static const _myTab = 4;
   int _index = 0;
   final _navigators = List.generate(5, (_) => GlobalKey<NavigatorState>());
 
@@ -26,6 +27,10 @@ class _MainShellState extends State<MainShell> {
       // 지금 탭을 한 번 더 누르면 그 탭의 첫 화면으로.
       _navigators[index].currentState?.popUntil((r) => r.isFirst);
       return;
+    }
+    // 마이 탭(설정 등)은 다른 탭으로 나가면 첫 화면으로 돌려 둔다.
+    if (_index == _myTab) {
+      _navigators[_myTab].currentState?.popUntil((r) => r.isFirst);
     }
     setState(() {
       // 홈으로 가면 다른 탭들은 새로 만들어 처음 상태로 되돌린다
