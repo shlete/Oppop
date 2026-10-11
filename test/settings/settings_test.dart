@@ -80,4 +80,20 @@ void main() {
     expect(prefs.getString(AppThemeMode.key), 'dark');
     AppThemeMode.initial = ThemeMode.system;
   });
+
+  testWidgets('개인정보처리방침을 열면 본문이 보인다', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    await openSettings(tester);
+    await tester.ensureVisible(find.text('개인정보처리방침'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('개인정보처리방침'));
+    await tester.pumpAndSettle();
+    // 본문은 실제 파일에서 읽으므로 그 시간을 기다린다.
+    await tester.runAsync(
+      () => Future.delayed(const Duration(milliseconds: 200)),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('오늘의 뽑기 개인정보처리방침'), findsOneWidget);
+    expect(find.text('1. 수집하는 개인정보와 이용 목적'), findsOneWidget);
+  });
 }

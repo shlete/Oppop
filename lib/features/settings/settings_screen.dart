@@ -6,6 +6,7 @@ import '../../core/theme_mode.dart';
 import '../daily/daily_state.dart';
 import '../lotto/saved_lotto.dart';
 import '../tarot/tarot_state.dart';
+import 'privacy_screen.dart';
 
 const appVersion = '1.0.0';
 
@@ -27,7 +28,10 @@ class SettingsScreen extends ConsumerWidget {
           padding: const EdgeInsets.only(left: 4, bottom: 8),
           child: Text(title, style: text.titleMedium),
         ),
-        Card(child: Column(children: rows)),
+        Card(
+          clipBehavior: Clip.antiAlias,
+          child: Column(children: rows),
+        ),
       ],
     );
 
@@ -72,7 +76,13 @@ class SettingsScreen extends ConsumerWidget {
               title: Text('카드 그림 출처'),
               subtitle: Text('1909년 라이더-웨이트-스미스 덱 (퍼블릭 도메인)'),
             ),
-            const ListTile(title: Text('개인정보처리방침'), trailing: Text('준비 중')),
+            ListTile(
+              title: const Text('개인정보처리방침'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(builder: (_) => const PrivacyScreen()),
+              ),
+            ),
           ]),
         ],
       ),
