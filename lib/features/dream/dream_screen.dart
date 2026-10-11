@@ -95,7 +95,7 @@ class _DreamScreenState extends ConsumerState<DreamScreen> {
                         Text('어떤 꿈을 꾸셨나요?', style: text.headlineSmall),
                         const SizedBox(height: 4),
                         Text(
-                          '꿈 이야기를 적거나 꿈에 나온 장면을 골라 주세요. 하나만 해도 돼요.',
+                          '꿈 이야기를 적거나 꿈에 나온 장면 ${DreamScreen.maxPicks}가지를 골라주세요. 하나만 해도 돼요.',
                           style: text.bodyMedium,
                         ),
                         const SizedBox(height: 16),
@@ -119,12 +119,7 @@ class _DreamScreenState extends ConsumerState<DreamScreen> {
                         const SizedBox(height: 8),
                         Row(
                           children: [
-                            Flexible(
-                              child: Text(
-                                '꿈에 나온 장면 ${DreamScreen.maxPicks}가지를 골라주세요',
-                                style: text.titleMedium,
-                              ),
-                            ),
+                            Text('꿈 속 장면', style: text.titleMedium),
                             const SizedBox(width: 8),
                             Text(
                               '${_picked.length}/${DreamScreen.maxPicks}',
