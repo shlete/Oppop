@@ -1,19 +1,23 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/theme.dart';
+import 'core/theme_mode.dart';
 import 'shell/main_shell.dart';
 
-class OneulPpopgiApp extends StatelessWidget {
+class OneulPpopgiApp extends ConsumerWidget {
   const OneulPpopgiApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp(
       title: '오늘의 뽑기',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
+      themeMode: ref.watch(themeModeProvider),
       builder: (context, child) => PhoneFrame(child: child!),
       home: const MainShell(),
     );

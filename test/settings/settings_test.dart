@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oneul_ppopgi/core/haptics.dart';
+import 'package:oneul_ppopgi/core/theme_mode.dart';
 import 'package:oneul_ppopgi/features/my/my_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -62,5 +63,21 @@ void main() {
     final prefs = await SharedPreferences.getInstance();
     expect(prefs.getBool(AppHaptics.key), isFalse);
     AppHaptics.enabled = true;
+  });
+
+  testWidgets('테마를 다크로 고르면 저장되고 화면에 표시된다', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    AppThemeMode.initial = ThemeMode.system;
+    await openSettings(tester);
+    expect(find.text('휴대폰 설정 따라가기'), findsOneWidget);
+
+    await tester.tap(find.text('테마'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('다크'));
+    await tester.pumpAndSettle();
+    expect(find.text('다크'), findsOneWidget);
+    final prefs = await SharedPreferences.getInstance();
+    expect(prefs.getString(AppThemeMode.key), 'dark');
+    AppThemeMode.initial = ThemeMode.system;
   });
 }

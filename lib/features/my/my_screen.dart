@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/theme.dart';
+
 import '../daily/daily_state.dart';
 import '../daily/saved_phrase_view.dart';
 import '../daily/saved_phrases_screen.dart';
@@ -183,9 +185,10 @@ class _CountTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
+    final palette = AppPalette.of(context);
     return Card(
       // 홈의 메뉴 칸과 같은 연보라.
-      color: const Color(0xFFD3CEF4),
+      color: palette.tile,
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
@@ -194,7 +197,7 @@ class _CountTile extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 24, color: scheme.primary),
+              Icon(icon, size: 24, color: palette.tileIcon),
               const SizedBox(height: 6),
               Text(label, style: text.labelLarge),
               const SizedBox(height: 2),

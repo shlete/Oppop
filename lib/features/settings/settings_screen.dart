@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/haptics.dart';
+import '../../core/theme_mode.dart';
 import '../daily/daily_state.dart';
 import '../lotto/saved_lotto.dart';
 import '../tarot/tarot_state.dart';
@@ -16,6 +17,7 @@ class SettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final text = Theme.of(context).textTheme;
     final haptics = ref.watch(hapticsProvider);
+    final themeMode = ref.watch(themeModeProvider);
 
     Widget section(String title, List<Widget> rows) => Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -34,11 +36,12 @@ class SettingsScreen extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
         children: [
-          section('화면', const [
+          section('화면', [
             ListTile(
-              title: Text('테마'),
-              subtitle: Text('다크 모드를 준비하고 있어요'),
-              trailing: Text('준비 중'),
+              title: const Text('테마'),
+              subtitle: Text(_themeLabel(themeMode)),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => _pickTheme(context, ref, themeMode),
             ),
           ]),
           section('뽑기', [
@@ -74,6 +77,38 @@ class SettingsScreen extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  static String _themeLabel(ThemeMode mode) => switch (mode) {
+    ThemeMode.system => '휴대폰 설정 따라가기',
+    ThemeMode.light => '라이트',
+    ThemeMode.dark => '다크',
+  };
+
+  Future<void> _pickTheme(
+    BuildContext context,
+    WidgetRef ref,
+    ThemeMode current,
+  ) async {
+    final picked = await showModalBottomSheet<ThemeMode>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => SafeArea(
+        child: RadioGroup<ThemeMode>(
+          groupValue: current,
+          onChanged: (m) => Navigator.pop(context, m),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (final m in ThemeMode.values)
+                RadioListTile<ThemeMode>(value: m, title: Text(_themeLabel(m))),
+              const SizedBox(height: 8),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (picked != null) await ref.read(themeModeProvider.notifier).set(picked);
   }
 
   Future<void> _confirmClear(BuildContext context, WidgetRef ref) async {

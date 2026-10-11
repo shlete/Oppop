@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/ads/interstitial.dart';
-import '../../core/theme.dart';
 import '../../core/widgets/primary_button.dart';
 import 'consult_result_screen.dart';
 import 'tarot_card_view.dart';
@@ -368,10 +367,10 @@ class _FanState extends State<_Fan> with SingleTickerProviderStateMixin {
           child: Text(
             '${i + 1}',
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w700,
-              color: AppColors.main,
+              color: Theme.of(context).colorScheme.primary,
             ),
           ),
         ),
