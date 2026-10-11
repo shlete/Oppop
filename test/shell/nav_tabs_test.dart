@@ -68,10 +68,18 @@ void main() {
     await tester.tap(find.text('해몽').last);
     await tester.pumpAndSettle();
     expect(find.text('해몽'), findsWidgets);
+
+    // 저장 전에는 하단 탭이 그대로다.
+    final bar = find.byType(NavigationBar).last;
+    expect(find.descendant(of: bar, matching: find.text('해몽')), findsNothing);
+    await tester.tap(find.text('저장'));
+    await tester.pumpAndSettle();
+    expect(find.text('하단 메뉴를 저장했어요'), findsOneWidget);
+    await tester.pump(const Duration(seconds: 2)); // 안내 문구가 사라질 때까지
+    await tester.pumpAndSettle();
     expect(find.text('로또'), findsNothing);
 
-    // 탭바에 해몽이 생겼다.
-    final bar = find.byType(NavigationBar).last;
+    // 저장하면 탭바에 해몽이 생긴다.
     expect(find.descendant(of: bar, matching: find.text('해몽')), findsOneWidget);
 
     // 홈의 해몽뽑기 타일은 해몽 탭으로 옮겨 간다 (탭바에서 해몽이 선택됨).

@@ -39,6 +39,19 @@ abstract final class AppNavTabs {
     }
     return List.unmodifiable(items);
   }
+
+  /// [slot]번째 칸을 [item]으로 바꾼 목록. 이미 다른 칸에 있던 메뉴면 두 칸을 맞바꾼다.
+  static List<NavItem> withSlot(List<NavItem> tabs, int slot, NavItem item) {
+    final next = [...tabs];
+    final from = next.indexOf(item);
+    if (from >= 0) next[from] = next[slot];
+    next[slot] = item;
+    return List.unmodifiable(next);
+  }
+
+  static bool same(List<NavItem> a, List<NavItem> b) =>
+      a.length == b.length &&
+      [for (var i = 0; i < a.length; i++) a[i] == b[i]].every((e) => e);
 }
 
 final navTabsProvider = NotifierProvider<NavTabsNotifier, List<NavItem>>(
@@ -50,18 +63,12 @@ class NavTabsNotifier extends Notifier<List<NavItem>> {
   List<NavItem> build() => AppNavTabs.initial;
 
   /// [slot]번째 칸을 [item]으로 바꾼다. 이미 다른 칸에 있던 메뉴면 두 칸을 맞바꾼다.
-  Future<void> setSlot(int slot, NavItem item) async {
-    final next = [...state];
-    final from = next.indexOf(item);
-    if (from == slot) return;
-    if (from >= 0) next[from] = next[slot];
-    next[slot] = item;
-    await _save(next);
-  }
+  Future<void> setSlot(int slot, NavItem item) =>
+      save(AppNavTabs.withSlot(state, slot, item));
 
-  Future<void> reset() => _save(AppNavTabs.defaults);
+  Future<void> reset() => save(AppNavTabs.defaults);
 
-  Future<void> _save(List<NavItem> items) async {
+  Future<void> save(List<NavItem> items) async {
     state = List.unmodifiable(items);
     AppNavTabs.initial = state;
     final prefs = await SharedPreferences.getInstance();
