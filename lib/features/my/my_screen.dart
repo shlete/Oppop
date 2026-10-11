@@ -4,6 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme.dart';
 
 import '../daily/daily_state.dart';
+import '../dream/dream_book.dart';
+import '../dream/dream_result_screen.dart';
+import '../dream/dream_state.dart';
+import '../dream/saved_dreams_screen.dart';
 import '../daily/saved_phrase_view.dart';
 import '../daily/saved_phrases_screen.dart';
 import '../lotto/saved_lotto.dart';
@@ -27,6 +31,8 @@ class MyScreen extends ConsumerWidget {
     final readings = ref.watch(savedReadingsProvider);
     final games = ref.watch(savedLottoProvider);
     final phrases = ref.watch(savedPhrasesProvider);
+    final dreams = ref.watch(savedDreamsProvider);
+    final dreamBook = ref.watch(dreamBookProvider).value;
     final deck = ref.watch(tarotDeckProvider).value;
 
     void open(Widget screen) =>
@@ -67,6 +73,15 @@ class MyScreen extends ConsumerWidget {
           detail: p.by == null ? null : '— ${p.by}',
           onTap: () => open(SavedPhraseView(phrase: p)),
         ),
+      for (final d in dreams)
+        _Record(
+          at: d.savedAt,
+          icon: Icons.nights_stay,
+          kind: '꿈해몽',
+          title: savedDreamTitle(d, dreamBook),
+          detail: savedDreamDetail(d, dreamBook),
+          onTap: () => open(DreamResultScreen.saved(d)),
+        ),
     ]..sort((a, b) => b.at.compareTo(a.at));
 
     return Scaffold(
@@ -104,6 +119,15 @@ class MyScreen extends ConsumerWidget {
                   onTap: () => open(const SavedPhrasesScreen()),
                 ),
               ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _CountTile(
+                  icon: Icons.nights_stay,
+                  label: '꿈해몽',
+                  count: dreams.length,
+                  onTap: () => open(const SavedDreamsScreen()),
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 24),
@@ -117,7 +141,7 @@ class MyScreen extends ConsumerWidget {
                   vertical: 28,
                 ),
                 child: Text(
-                  '아직 저장한 기록이 없어요\n타로 · 로또 · 오늘의 뽑기에서 저장하면 여기에 모여요',
+                  '아직 저장한 기록이 없어요\n타로 · 로또 · 오늘의 뽑기 · 꿈해몽에서 저장하면 여기에 모여요',
                   textAlign: TextAlign.center,
                   style: text.bodyMedium,
                 ),
