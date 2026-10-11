@@ -1,13 +1,13 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../palette.dart';
 import '../widgets/item_list_editor.dart';
 import '../widgets/preset_buttons.dart';
 import 'ladder.dart';
 import '../../../core/widgets/primary_button.dart';
+import '../../../core/haptics.dart';
 
 class LadderScreen extends StatefulWidget {
   const LadderScreen({super.key, this.random});
@@ -89,7 +89,7 @@ class _LadderScreenState extends State<LadderScreen>
     setState(() => _tracing.addAll(players));
     await _controller.forward(from: 0);
     if (!mounted) return;
-    HapticFeedback.lightImpact();
+    AppHaptics.light();
     setState(() {
       _revealed.addAll(_tracing);
       _tracing.clear();

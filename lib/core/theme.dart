@@ -28,6 +28,53 @@ abstract final class AppFonts {
   static const heading = 'IBMPlexSansKR';
 }
 
+/// 다크 모드 팔레트: 미드나잇 인디고와 블랙 퍼플 반반 (검정에 가까운 남보라).
+/// 홈 히어로, 금색 포인트, 타로 카드, 문구 카드 색은 라이트와 같다.
+abstract final class AppDarkColors {
+  static const main = Color(0xFF9286F8);
+  static const background = Color(0xFF100E1E);
+  static const soft = Color(0xFF383263);
+  static const surface = Color(0xFF1C1A32);
+  static const ink = Color(0xFFECEAF8);
+}
+
+/// 테마마다 달라지는 앱 전용 색 (ColorScheme에 없는 것).
+@immutable
+class AppPalette extends ThemeExtension<AppPalette> {
+  const AppPalette({required this.tile, required this.tileIcon});
+
+  /// 홈·마이의 연보라 칸.
+  final Color tile;
+
+  /// 그 칸 안의 아이콘.
+  final Color tileIcon;
+
+  static const light = AppPalette(
+    tile: Color(0xFFD3CEF4),
+    tileIcon: AppColors.main,
+  );
+  static const dark = AppPalette(
+    tile: Color(0xFF272444),
+    tileIcon: Color(0xFFB6ACFF),
+  );
+
+  static AppPalette of(BuildContext context) =>
+      Theme.of(context).extension<AppPalette>() ?? light;
+
+  @override
+  AppPalette copyWith({Color? tile, Color? tileIcon}) =>
+      AppPalette(tile: tile ?? this.tile, tileIcon: tileIcon ?? this.tileIcon);
+
+  @override
+  AppPalette lerp(AppPalette? other, double t) {
+    if (other == null) return this;
+    return AppPalette(
+      tile: Color.lerp(tile, other.tile, t)!,
+      tileIcon: Color.lerp(tileIcon, other.tileIcon, t)!,
+    );
+  }
+}
+
 class AppTheme {
   static const seed = AppColors.main;
 
@@ -54,6 +101,63 @@ class AppTheme {
       outline: const Color(0xFF7C78A0),
       outlineVariant: const Color(0xFFBDB8E0),
     );
+    return _build(
+      scheme,
+      background: AppColors.background,
+      surface: AppColors.surface,
+      soft: AppColors.soft,
+      ink: AppColors.ink,
+      palette: AppPalette.light,
+    );
+  }
+
+  static ThemeData get dark {
+    final scheme =
+        ColorScheme.fromSeed(
+          seedColor: seed,
+          brightness: Brightness.dark,
+        ).copyWith(
+          primary: AppDarkColors.main,
+          onPrimary: AppDarkColors.background,
+          primaryContainer: AppDarkColors.soft,
+          onPrimaryContainer: AppDarkColors.ink,
+          secondary: AppDarkColors.main,
+          secondaryContainer: AppDarkColors.soft,
+          onSecondaryContainer: AppDarkColors.ink,
+          tertiary: AppColors.point,
+          tertiaryContainer: const Color(0xFF4A3A10),
+          onTertiaryContainer: const Color(0xFFF6E2B3),
+          surface: AppDarkColors.background,
+          onSurface: AppDarkColors.ink,
+          onSurfaceVariant: const Color(0xFFA6A2C4),
+          surfaceContainerLowest: AppDarkColors.surface,
+          surfaceContainerLow: const Color(0xFF18162A),
+          surfaceContainer: AppDarkColors.surface,
+          surfaceContainerHigh: const Color(0xFF24213E),
+          surfaceContainerHighest: const Color(0xFF2C2949),
+          outline: const Color(0xFF7A76A0),
+          outlineVariant: const Color(0xFF3A365E),
+        );
+    return _build(
+      scheme,
+      background: AppDarkColors.background,
+      surface: AppDarkColors.surface,
+      soft: AppDarkColors.soft,
+      ink: AppDarkColors.ink,
+      palette: AppPalette.dark,
+      navBar: const Color(0xFF18162A),
+    );
+  }
+
+  static ThemeData _build(
+    ColorScheme scheme, {
+    required Color background,
+    required Color surface,
+    required Color soft,
+    required Color ink,
+    required AppPalette palette,
+    Color? navBar,
+  }) {
     final base = ThemeData(
       // 본문 글꼴 SUIT. 무료 상업 이용 가능 (SIL OFL 1.1).
       fontFamily: AppFonts.body,
@@ -74,26 +178,27 @@ class AppTheme {
         headlineSmall: heading(t.headlineSmall),
         titleLarge: heading(t.titleLarge),
       ),
-      scaffoldBackgroundColor: AppColors.background,
+      extensions: [palette],
+      scaffoldBackgroundColor: background,
       // 눌렀을 때 퍼지는 물결과 눌린 동안의 음영을 회색 대신 연보라로.
-      splashColor: AppColors.soft.withValues(alpha: 0.6),
-      highlightColor: AppColors.soft.withValues(alpha: 0.4),
-      hoverColor: AppColors.soft.withValues(alpha: 0.25),
-      appBarTheme: const AppBarTheme(
-        backgroundColor: AppColors.background,
+      splashColor: soft.withValues(alpha: 0.6),
+      highlightColor: soft.withValues(alpha: 0.4),
+      hoverColor: soft.withValues(alpha: 0.25),
+      appBarTheme: AppBarTheme(
+        backgroundColor: background,
         surfaceTintColor: Colors.transparent,
-        foregroundColor: AppColors.ink,
+        foregroundColor: ink,
       ),
-      navigationBarTheme: const NavigationBarThemeData(
-        backgroundColor: AppColors.surface,
-        indicatorColor: AppColors.soft,
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: navBar ?? surface,
+        indicatorColor: soft,
         surfaceTintColor: Colors.transparent,
       ),
-      listTileTheme: const ListTileThemeData(iconColor: AppColors.main),
-      cardTheme: const CardThemeData(
+      listTileTheme: ListTileThemeData(iconColor: scheme.primary),
+      cardTheme: CardThemeData(
         elevation: 0,
-        color: AppColors.surface,
-        shape: RoundedRectangleBorder(
+        color: surface,
+        shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(20)),
         ),
       ),

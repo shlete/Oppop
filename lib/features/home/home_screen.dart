@@ -307,9 +307,9 @@ class _MenuTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final palette = AppPalette.of(context);
     return Card(
-      color: const Color(0xFFD3CEF4),
+      color: palette.tile,
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
@@ -318,7 +318,7 @@ class _MenuTile extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 28, color: scheme.primary),
+              Icon(icon, size: 28, color: palette.tileIcon),
               const SizedBox(height: 8),
               Text(title, style: Theme.of(context).textTheme.titleMedium),
             ],

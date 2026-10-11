@@ -10,6 +10,7 @@ import '../../core/widgets/primary_button.dart';
 import '../../core/widgets/small_action_button.dart';
 import '../daily/phrase_card.dart' show keepWords;
 import '../daily/save_card_image.dart';
+import 'ai_reading.dart';
 import 'saved_readings_screen.dart';
 import 'tarot_card_view.dart';
 import 'tarot_cards.dart';
@@ -55,6 +56,25 @@ class _ConsultResultScreenState extends ConsumerState<ConsultResultScreen>
 
   late final String _id = 'consult-${DateTime.now().millisecondsSinceEpoch}';
 
+  /// AI 통합 점괘. 서버가 없거나 실패하면 null로 남고 미리 써 둔 점괘를 보여준다.
+  AiReading? _ai;
+  bool _aiPending = AiReadingClient.enabled;
+
+  @override
+  void initState() {
+    super.initState();
+    if (_aiPending) {
+      const AiReadingClient().fetch(widget.topic, widget.cards).then((ai) {
+        if (mounted) {
+          setState(() {
+            _ai = ai;
+            _aiPending = false;
+          });
+        }
+      });
+    }
+  }
+
   @override
   void dispose() {
     _flip.dispose();
@@ -83,6 +103,7 @@ class _ConsultResultScreenState extends ConsumerState<ConsultResultScreen>
         cards: widget.cards,
         topic: widget.topic,
         savedAt: DateTime.now(),
+        ai: _ai,
       ),
     );
     messenger.showSnackBar(
@@ -135,7 +156,8 @@ class _ConsultResultScreenState extends ConsumerState<ConsultResultScreen>
             : AnimatedBuilder(
                 animation: _flip,
                 builder: (context, _) {
-                  final done = _flip.value == 1;
+                  // 점괘 글이 다 나와야 저장·공유할 수 있다.
+                  final done = _flip.value == 1 && !_aiPending;
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
@@ -187,6 +209,8 @@ class _ConsultResultScreenState extends ConsumerState<ConsultResultScreen>
                                         cards: widget.cards,
                                         flipT: _cardT,
                                         shotKey: _shotKey,
+                                        ai: _ai,
+                                        aiPending: _aiPending,
                                       ),
                                     ),
                                     // 통합 점괘 맨 끝. 이미지 저장에는 들어가지 않는다.
@@ -266,6 +290,8 @@ class ConsultReading extends StatefulWidget {
     required this.cards,
     this.flipT,
     this.shotKey,
+    this.ai,
+    this.aiPending = false,
   });
 
   final TarotDeck deck;
@@ -277,6 +303,12 @@ class ConsultReading extends StatefulWidget {
 
   /// 이미지 저장·공유 때 찍을 통합 점괘 영역.
   final GlobalKey? shotKey;
+
+  /// AI 통합 점괘. null이면 미리 써 둔 점괘.
+  final AiReading? ai;
+
+  /// AI 점괘를 기다리는 중.
+  final bool aiPending;
 
   @override
   State<ConsultReading> createState() => _ConsultReadingState();
@@ -380,11 +412,14 @@ class _ConsultReadingState extends State<ConsultReading> {
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: RepaintBoundary(
               key: widget.shotKey,
-              child: _Summary(
-                deck: widget.deck,
-                topic: widget.topic,
-                cards: widget.cards,
-              ),
+              child: widget.aiPending
+                  ? const _SummaryLoading()
+                  : _Summary(
+                      deck: widget.deck,
+                      topic: widget.topic,
+                      cards: widget.cards,
+                      ai: widget.ai,
+                    ),
             ),
           ),
         ),
@@ -518,16 +553,19 @@ class _Summary extends StatelessWidget {
     required this.deck,
     required this.topic,
     required this.cards,
+    this.ai,
   });
 
   final TarotDeck deck;
   final TarotTopic topic;
   final List<DrawnCard> cards;
+  final AiReading? ai;
 
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
     final scheme = Theme.of(context).colorScheme;
+    final ai = this.ai;
     final flow = [
       for (final c in cards)
         deck.byId(c.cardId)!.reading(c.reversed).keywords.first,
@@ -542,7 +580,7 @@ class _Summary extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            keepWords('${topic.label} 고민의 흐름: ${flow.join(' → ')}'),
+            keepWords(ai?.flow ?? '${topic.label} 고민의 흐름: ${flow.join(' → ')}'),
             textAlign: TextAlign.center,
             style: text.titleSmall?.copyWith(color: scheme.primary),
           ),
@@ -562,7 +600,10 @@ class _Summary extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      keepWords(card.reading(drawn.reversed).topics[topic]!),
+                      keepWords(
+                        ai?.positions[pos.index] ??
+                            card.reading(drawn.reversed).topics[topic]!,
+                      ),
                       style: text.bodyLarge?.copyWith(height: 1.55),
                     ),
                   ],
@@ -570,6 +611,62 @@ class _Summary extends StatelessWidget {
               },
             ),
           ],
+          if (ai != null && ai.advice.isNotEmpty) ...[
+            const SizedBox(height: 18),
+            Text(
+              keepWords(ai.advice),
+              textAlign: TextAlign.center,
+              style: text.bodyLarge?.copyWith(
+                height: 1.55,
+                color: scheme.primary,
+              ),
+            ),
+          ],
+          if (ai?.code case final code?) ...[
+            const SizedBox(height: 10),
+            Text(
+              '#$code',
+              textAlign: TextAlign.right,
+              style: text.labelSmall?.copyWith(
+                // 눈에 띄지 않게, 흰색에 가까운 회색.
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? const Color(0xFF4A4766)
+                    : const Color(0xFFCCCAD6),
+                letterSpacing: 0.5,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// AI 점괘를 기다리는 동안 통합 점괘 자리에 보여준다.
+class _SummaryLoading extends StatelessWidget {
+  const _SummaryLoading();
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 36),
+      decoration: BoxDecoration(
+        color: scheme.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        children: [
+          SizedBox(
+            width: 28,
+            height: 28,
+            child: CircularProgressIndicator(
+              strokeWidth: 2.5,
+              color: scheme.primary,
+            ),
+          ),
+          const SizedBox(height: 14),
+          Text('카드를 읽고 있어요', style: Theme.of(context).textTheme.bodyMedium),
         ],
       ),
     );

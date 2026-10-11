@@ -159,6 +159,12 @@ class SavedPhrasesNotifier extends Notifier<List<SavedPhrase>> {
     await _persist();
   }
 
+  /// 저장한 문구를 모두 지운다 (설정의 전체 삭제).
+  Future<void> clear() async {
+    state = const [];
+    await _persist();
+  }
+
   Future<void> remove(String id) async {
     state = [
       for (final p in state)

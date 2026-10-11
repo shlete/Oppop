@@ -87,6 +87,12 @@ class SavedLottoNotifier extends Notifier<List<SavedGame>> {
     await _persist();
   }
 
+  /// 저장한 번호를 모두 지운다 (설정의 전체 삭제).
+  Future<void> clear() async {
+    state = const [];
+    await _persist();
+  }
+
   Future<void> _persist() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(

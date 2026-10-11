@@ -53,7 +53,7 @@ class _SavedTile extends ConsumerWidget {
       child: InkWell(
         onTap: () => Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (_) => _SavedReadingView(reading: reading, deck: deck),
+            builder: (_) => SavedReadingView(reading: reading, deck: deck),
           ),
         ),
         child: Padding(
@@ -120,8 +120,12 @@ class _SavedTile extends ConsumerWidget {
 }
 
 /// 저장한 결과를 다시 펼쳐 보기.
-class _SavedReadingView extends StatelessWidget {
-  const _SavedReadingView({required this.reading, required this.deck});
+class SavedReadingView extends StatelessWidget {
+  const SavedReadingView({
+    super.key,
+    required this.reading,
+    required this.deck,
+  });
 
   final SavedReading reading;
   final TarotDeck deck;
@@ -206,6 +210,7 @@ class _SavedReadingView extends StatelessWidget {
                   deck: deck,
                   topic: reading.topic!,
                   cards: reading.cards,
+                  ai: reading.ai,
                 ),
             ],
           ),

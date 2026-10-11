@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../palette.dart';
 import '../presets.dart';
@@ -9,6 +8,7 @@ import '../widgets/item_list_editor.dart';
 import '../widgets/preset_buttons.dart';
 import 'roulette_logic.dart';
 import '../../../core/widgets/primary_button.dart';
+import '../../../core/haptics.dart';
 
 class RouletteScreen extends StatefulWidget {
   const RouletteScreen({super.key, this.random});
@@ -28,7 +28,7 @@ class _RouletteScreenState extends State<RouletteScreen>
   late final Random _random = widget.random ?? Random();
   late final AnimationController _controller = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 4000),
+    duration: const Duration(milliseconds: 6000),
     // 이 애니메이션이 곧 결과 연출이라, 기기의 '애니메이션 줄이기' 설정에서도
     // 20배 빨라지지 않고 정해진 시간 그대로 재생한다.
     animationBehavior: AnimationBehavior.preserve,
@@ -52,7 +52,7 @@ class _RouletteScreenState extends State<RouletteScreen>
       current: _rotation,
       index: index,
       count: _items.length,
-      extraTurns: 2,
+      extraTurns: 3,
       jitter: _random.nextDouble() * 2 - 1,
     );
     _spin = Tween(
@@ -64,7 +64,7 @@ class _RouletteScreenState extends State<RouletteScreen>
     if (!mounted) return;
     setState(() => _rotation = target % (2 * pi));
     _spin = null;
-    HapticFeedback.mediumImpact();
+    AppHaptics.medium();
     await _showResult(index);
   }
 

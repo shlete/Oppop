@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/ads/interstitial.dart';
@@ -11,6 +10,7 @@ import 'saved_lotto.dart';
 import 'saved_lotto_screen.dart';
 import '../../core/widgets/primary_button.dart';
 import '../../core/widgets/saved_list_button.dart';
+import '../../core/haptics.dart';
 
 class LottoScreen extends ConsumerStatefulWidget {
   const LottoScreen({super.key, this.random});
@@ -60,7 +60,7 @@ class _LottoScreenState extends ConsumerState<LottoScreen>
     });
     await _reveal.forward(from: 0);
     if (!mounted) return;
-    HapticFeedback.lightImpact();
+    AppHaptics.light();
     setState(() => _drawing = false);
   }
 
