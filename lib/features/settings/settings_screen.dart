@@ -6,12 +6,14 @@ import '../../core/theme_mode.dart';
 import '../daily/daily_state.dart';
 import '../dream/dream_state.dart';
 import '../lotto/saved_lotto.dart';
+import '../../shell/nav_tabs.dart';
 import '../tarot/tarot_state.dart';
+import 'nav_tabs_screen.dart';
 import 'privacy_screen.dart';
 
 const appVersion = '1.0.0';
 
-/// 설정: 진동, 기록 삭제, 앱 정보.
+/// 설정: 테마, 하단 메뉴, 진동, 기록 삭제, 앱 정보.
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
@@ -20,6 +22,7 @@ class SettingsScreen extends ConsumerWidget {
     final text = Theme.of(context).textTheme;
     final haptics = ref.watch(hapticsProvider);
     final themeMode = ref.watch(themeModeProvider);
+    final navTabs = ref.watch(navTabsProvider);
 
     Widget section(String title, List<Widget> rows) => Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -47,6 +50,16 @@ class SettingsScreen extends ConsumerWidget {
               subtitle: Text(_themeLabel(themeMode)),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => _pickTheme(context, ref, themeMode),
+            ),
+            ListTile(
+              title: const Text('하단 메뉴'),
+              subtitle: Text(
+                ['홈', for (final i in navTabs) i.label, '마이'].join(' · '),
+              ),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(builder: (_) => const NavTabsScreen()),
+              ),
             ),
           ]),
           section('뽑기', [

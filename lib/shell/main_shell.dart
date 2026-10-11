@@ -1,26 +1,70 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/ads/banner_ad_bar.dart';
+import '../core/widgets/dream_icon.dart';
+import '../features/daily/daily_screen.dart';
+import '../features/dream/dream_screen.dart';
 import '../features/home/home_screen.dart';
 import '../features/lotto/lotto_screen.dart';
 import '../features/my/my_screen.dart';
 import '../features/random/random_screen.dart';
 import '../features/tarot/tarot_screen.dart';
+import 'nav_tabs.dart';
 
-/// 하단 탭: 홈 · 타로 · 로또 · 랜덤 · 마이. 배너 광고는 탭바 바로 위에 고정.
+/// 하단 탭: 홈 · (설정에서 고른 메뉴 3개) · 마이. 배너 광고는 탭바 바로 위에 고정.
 /// 탭마다 화면 이동 기록(Navigator)을 따로 두어, 안쪽 화면으로 들어가도
 /// 탭바와 배너가 늘 보이고 탭을 바꿨다 돌아와도 보던 화면이 그대로 남는다.
-class MainShell extends StatefulWidget {
+class MainShell extends ConsumerStatefulWidget {
   const MainShell({super.key});
 
   @override
-  State<MainShell> createState() => _MainShellState();
+  ConsumerState<MainShell> createState() => _MainShellState();
 }
 
-class _MainShellState extends State<MainShell> {
-  static const _myTab = 4;
+/// 메뉴 첫 화면.
+Widget navItemScreen(NavItem item) => switch (item) {
+  NavItem.tarot => const TarotScreen(),
+  NavItem.dream => const DreamScreen(),
+  NavItem.lotto => const LottoScreen(),
+  NavItem.random => const RandomScreen(),
+  NavItem.daily => const DailyScreen(),
+};
+
+/// 탭바에 쓰는 메뉴 아이콘 (고르기 전 / 고른 뒤).
+Widget navItemIcon(NavItem item, {bool selected = false}) => switch (item) {
+  NavItem.tarot => Icon(selected ? Icons.style : Icons.style_outlined),
+  NavItem.dream => Builder(
+    builder: (context) =>
+        DreamIcon(color: IconTheme.of(context).color ?? Colors.black, size: 22),
+  ),
+  NavItem.lotto => Icon(selected ? Icons.casino : Icons.casino_outlined),
+  NavItem.random => const Icon(Icons.shuffle),
+  NavItem.daily => Icon(
+    selected ? Icons.auto_awesome : Icons.auto_awesome_outlined,
+  ),
+};
+
+class _MainShellState extends ConsumerState<MainShell> {
+  /// 마이는 늘 맨 끝 (홈 + 가운데 칸들 다음).
+  static const _myTab = AppNavTabs.slots + 1;
   int _index = 0;
-  final _navigators = List.generate(5, (_) => GlobalKey<NavigatorState>());
+  final _navigators = List.generate(
+    AppNavTabs.slots + 2,
+    (_) => GlobalKey<NavigatorState>(),
+  );
+
+  /// 홈 타일에서 메뉴를 열 때: 하단 탭에 있으면 그 탭으로, 없으면 홈 안에서 연다.
+  void _open(NavItem item) {
+    final slot = ref.read(navTabsProvider).indexOf(item);
+    if (slot >= 0) {
+      _goTo(slot + 1);
+    } else {
+      _navigators[0].currentState?.push(
+        MaterialPageRoute(builder: (_) => navItemScreen(item)),
+      );
+    }
+  }
 
   void _goTo(int index) {
     if (index == _index) {
@@ -56,12 +100,19 @@ class _MainShellState extends State<MainShell> {
 
   @override
   Widget build(BuildContext context) {
+    final tabs = ref.watch(navTabsProvider);
+    // 하단 메뉴를 바꾸면 가운데 탭들을 새로 만든다 (설정은 마이 탭 안이라 보던 화면은 그대로).
+    ref.listen(navTabsProvider, (_, _) {
+      setState(() {
+        for (var i = 1; i <= AppNavTabs.slots; i++) {
+          _navigators[i] = GlobalKey<NavigatorState>();
+        }
+      });
+    });
     final pages = [
-      _tab(0, HomeScreen(onOpenTab: _goTo)),
-      _tab(1, const TarotScreen()),
-      _tab(2, const LottoScreen()),
-      _tab(3, const RandomScreen()),
-      _tab(4, const MyScreen()),
+      _tab(0, HomeScreen(onOpen: _open)),
+      for (var i = 0; i < tabs.length; i++) _tab(i + 1, navItemScreen(tabs[i])),
+      _tab(_myTab, const MyScreen()),
     ];
     // 뒤로가기는 지금 탭 안에서 먼저 한 칸 돌아가고, 첫 화면이면 앱을 닫는다.
     return NavigatorPopHandler(
@@ -75,24 +126,19 @@ class _MainShellState extends State<MainShell> {
             NavigationBar(
               selectedIndex: _index,
               onDestinationSelected: _goTo,
-              destinations: const [
-                NavigationDestination(
+              destinations: [
+                const NavigationDestination(
                   icon: Icon(Icons.home_outlined),
                   selectedIcon: Icon(Icons.home),
                   label: '홈',
                 ),
-                NavigationDestination(
-                  icon: Icon(Icons.style_outlined),
-                  selectedIcon: Icon(Icons.style),
-                  label: '타로',
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.casino_outlined),
-                  selectedIcon: Icon(Icons.casino),
-                  label: '로또',
-                ),
-                NavigationDestination(icon: Icon(Icons.shuffle), label: '랜덤'),
-                NavigationDestination(
+                for (final item in tabs)
+                  NavigationDestination(
+                    icon: navItemIcon(item),
+                    selectedIcon: navItemIcon(item, selected: true),
+                    label: item.label,
+                  ),
+                const NavigationDestination(
                   icon: Icon(Icons.person_outline),
                   selectedIcon: Icon(Icons.person),
                   label: '마이',

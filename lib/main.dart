@@ -8,6 +8,7 @@ import 'core/ads/ads.dart';
 import 'core/firebase/app_check.dart';
 import 'core/haptics.dart';
 import 'core/theme_mode.dart';
+import 'shell/nav_tabs.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,6 +16,7 @@ Future<void> main() async {
   await AppCheck.init();
   await AppHaptics.load();
   await AppThemeMode.load();
+  await AppNavTabs.load();
   // 설정 > 오픈소스 라이선스에 앱 글꼴 라이선스도 보이게.
   LicenseRegistry.addLicense(() async* {
     for (final (name, path) in [
