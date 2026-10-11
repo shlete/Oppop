@@ -2,14 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/widgets/saved_list_button.dart';
-import '../dream/dream_screen.dart';
 import 'consult_screen.dart';
 import 'daily_tarot_screen.dart';
 import 'saved_readings_screen.dart';
 import 'tarot_card_view.dart';
 import 'tarot_state.dart';
 
-/// 타로 메뉴: 오늘의 운세(1장) / 오늘의 고민(3장) / 꿈해몽.
+/// 타로 메뉴: 오늘의 운세(1장) / 오늘의 고민(3장).
 class TarotScreen extends ConsumerWidget {
   const TarotScreen({super.key});
 
@@ -49,15 +48,6 @@ class TarotScreen extends ConsumerWidget {
             color: scheme.surfaceContainerLowest,
             builder: (_) => const ConsultScreen(),
           ),
-          const SizedBox(height: 12),
-          _Entry(
-            title: '꿈해몽',
-            subtitle: '꿈 이야기와 장면으로 풀어 보기',
-            cards: 0,
-            art: const _DreamArt(),
-            color: scheme.surfaceContainerLowest,
-            builder: (_) => const DreamScreen(),
-          ),
         ],
       ),
     );
@@ -71,7 +61,6 @@ class _Entry extends StatelessWidget {
     required this.cards,
     required this.color,
     required this.builder,
-    this.art,
   });
 
   final String title;
@@ -79,9 +68,6 @@ class _Entry extends StatelessWidget {
   final int cards;
   final Color color;
   final WidgetBuilder builder;
-
-  /// 카드 대신 보여줄 그림.
-  final Widget? art;
 
   @override
   Widget build(BuildContext context) {
@@ -99,24 +85,22 @@ class _Entry extends StatelessWidget {
               SizedBox(
                 width: 76,
                 height: 64,
-                child:
-                    art ??
-                    Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        for (var i = 0; i < cards; i++)
-                          Transform.translate(
-                            offset: Offset((i - (cards - 1) / 2) * 16, 0),
-                            child: Transform.rotate(
-                              angle: (i - (cards - 1) / 2) * 0.18,
-                              child: const SizedBox(
-                                width: 36,
-                                child: TarotCardBack(),
-                              ),
-                            ),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    for (var i = 0; i < cards; i++)
+                      Transform.translate(
+                        offset: Offset((i - (cards - 1) / 2) * 16, 0),
+                        child: Transform.rotate(
+                          angle: (i - (cards - 1) / 2) * 0.18,
+                          child: const SizedBox(
+                            width: 36,
+                            child: TarotCardBack(),
                           ),
-                      ],
-                    ),
+                        ),
+                      ),
+                  ],
+                ),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -132,34 +116,6 @@ class _Entry extends StatelessWidget {
               const Icon(Icons.chevron_right),
             ],
           ),
-        ),
-      ),
-    );
-  }
-}
-
-/// 꿈해몽 메뉴 그림: 밤하늘 카드에 달과 구름.
-class _DreamArt extends StatelessWidget {
-  const _DreamArt();
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Container(
-        width: 52,
-        height: 52,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Color(0xFF2E2A7A), Color(0xFF4A3FA8)],
-          ),
-        ),
-        child: const Icon(
-          Icons.nights_stay,
-          color: Color(0xFFF2C94C),
-          size: 28,
         ),
       ),
     );

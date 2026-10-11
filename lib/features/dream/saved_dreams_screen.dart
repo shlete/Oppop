@@ -5,7 +5,7 @@ import 'dream_book.dart';
 import 'dream_result_screen.dart';
 import 'dream_state.dart';
 
-/// 저장한 꿈해몽 목록.
+/// 저장한 해몽 목록.
 class SavedDreamsScreen extends ConsumerWidget {
   const SavedDreamsScreen({super.key});
 
@@ -14,9 +14,9 @@ class SavedDreamsScreen extends ConsumerWidget {
     final dreams = ref.watch(savedDreamsProvider);
     final book = ref.watch(dreamBookProvider).value;
     return Scaffold(
-      appBar: AppBar(title: const Text('저장한 꿈해몽')),
+      appBar: AppBar(title: const Text('저장한 해몽')),
       body: dreams.isEmpty
-          ? const Center(child: Text('아직 저장한 꿈해몽이 없어요'))
+          ? const Center(child: Text('아직 저장한 해몽이 없어요'))
           : ListView.builder(
               padding: const EdgeInsets.all(16),
               itemCount: dreams.length,
@@ -32,7 +32,7 @@ String savedDreamTitle(SavedDream dream, DreamBook? book) {
   if (dream.ai != null) return dream.ai!.title;
   final picked = [for (final id in dream.symbolIds) ?book?.byId(id)];
   if (picked.isNotEmpty) return DreamBook.summary(picked);
-  return '꿈해몽';
+  return '해몽뽑기';
 }
 
 /// 저장 목록과 마이 탭에서 쓰는 키워드 줄 (없으면 꿈 이야기 앞부분).

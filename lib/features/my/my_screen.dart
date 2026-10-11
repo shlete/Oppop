@@ -77,7 +77,7 @@ class MyScreen extends ConsumerWidget {
         _Record(
           at: d.savedAt,
           icon: Icons.nights_stay,
-          kind: '꿈해몽',
+          kind: '해몽뽑기',
           title: savedDreamTitle(d, dreamBook),
           detail: savedDreamDetail(d, dreamBook),
           onTap: () => open(DreamResultScreen.saved(d)),
@@ -123,7 +123,7 @@ class MyScreen extends ConsumerWidget {
               Expanded(
                 child: _CountTile(
                   icon: Icons.nights_stay,
-                  label: '꿈해몽',
+                  label: '해몽뽑기',
                   count: dreams.length,
                   onTap: () => open(const SavedDreamsScreen()),
                 ),
@@ -141,7 +141,7 @@ class MyScreen extends ConsumerWidget {
                   vertical: 28,
                 ),
                 child: Text(
-                  '아직 저장한 기록이 없어요\n타로 · 로또 · 오늘의 뽑기 · 꿈해몽에서 저장하면 여기에 모여요',
+                  '아직 저장한 기록이 없어요\n타로 · 로또 · 오늘의 뽑기 · 해몽뽑기에서\n저장하면 여기에 모여요',
                   textAlign: TextAlign.center,
                   style: text.bodyMedium,
                 ),

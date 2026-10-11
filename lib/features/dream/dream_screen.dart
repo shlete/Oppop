@@ -9,7 +9,7 @@ import 'dream_result_screen.dart';
 import 'dream_state.dart';
 import 'saved_dreams_screen.dart';
 
-/// 꿈해몽: 꿈 속 장면을 고르거나 꿈 이야기를 직접 적는다. 둘 중 하나만 해도 된다.
+/// 해몽뽑기: 꿈 속 장면을 고르거나 꿈 이야기를 직접 적는다. 둘 중 하나만 해도 된다.
 class DreamScreen extends ConsumerStatefulWidget {
   const DreamScreen({super.key});
 
@@ -72,11 +72,11 @@ class _DreamScreenState extends ConsumerState<DreamScreen> {
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('꿈해몽'),
+        title: const Text('해몽뽑기'),
         actions: [
           SavedListButton(
             count: saved.length,
-            tooltip: '저장한 꿈해몽',
+            tooltip: '저장한 해몽',
             onPressed: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const SavedDreamsScreen()),
             ),

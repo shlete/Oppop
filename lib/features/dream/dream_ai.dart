@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 
 import '../../core/firebase/app_check.dart';
 
-/// AI가 쓴 꿈해몽. 저장할 때 같이 남겨서 다시 만들지 않는다.
+/// AI가 쓴 해몽뽑기. 저장할 때 같이 남겨서 다시 만들지 않는다.
 class DreamAi {
   const DreamAi({
     required this.title,
@@ -41,7 +41,7 @@ class DreamAi {
   }
 }
 
-/// 꿈해몽 서버 (functions/의 dreamReading). 빌드할 때
+/// 해몽뽑기 서버 (functions/의 dreamReading). 빌드할 때
 /// `--dart-define=DREAM_READING_URL=...`로 바꾸거나 빈 값으로 끌 수 있다.
 /// 실패하면 null을 돌려주고, 화면은 키워드 해몽을 보여준다.
 class DreamAiClient {

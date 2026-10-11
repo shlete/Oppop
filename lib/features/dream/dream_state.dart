@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'dream_ai.dart';
 
-/// 저장한 꿈해몽. 쓴 꿈 이야기는 이 기기에만 남는다.
+/// 저장한 해몽. 쓴 꿈 이야기는 이 기기에만 남는다.
 class SavedDream {
   const SavedDream({
     required this.id,
@@ -45,7 +45,7 @@ final savedDreamsProvider =
       SavedDreamsNotifier.new,
     );
 
-/// 기기에 저장한 꿈해몽 (최신순).
+/// 기기에 저장한 해몽 (최신순).
 class SavedDreamsNotifier extends Notifier<List<SavedDream>> {
   static const _key = 'dream.saved';
 

@@ -60,7 +60,7 @@ class SettingsScreen extends ConsumerWidget {
           section('기록', [
             ListTile(
               title: const Text('저장 기록 전체 삭제'),
-              subtitle: const Text('타로 · 로또 · 오늘의 뽑기 · 꿈해몽 저장 기록을 모두 지워요'),
+              subtitle: const Text('타로 · 로또 · 오늘의 뽑기 · 해몽뽑기 저장 기록을 모두 지워요'),
               onTap: () => _confirmClear(context, ref),
             ),
           ]),
@@ -128,7 +128,7 @@ class SettingsScreen extends ConsumerWidget {
       builder: (context) => AlertDialog(
         title: const Text('기록을 모두 지울까요?'),
         content: const Text(
-          '타로 · 로또 · 오늘의 뽑기 · 꿈해몽 저장 기록이\n모두 지워지고 되돌릴 수 없어요.',
+          '타로 · 로또 · 오늘의 뽑기 · 해몽뽑기 저장 기록이\n모두 지워지고 되돌릴 수 없어요.',
         ),
         actions: [
           TextButton(

@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 
 import '../../core/theme.dart';
 import '../daily/daily_screen.dart';
+import '../dream/dream_screen.dart';
 
-/// 홈: 오늘의 뽑기를 가장 크게, 그 아래 타로·로또·랜덤 바로가기.
+/// 홈: 오늘의 뽑기를 가장 크게, 그 아래 타로·해몽·로또·랜덤 바로가기.
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key, required this.onOpenTab});
 
@@ -35,6 +36,20 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
+              Expanded(
+                child: _MenuTile(
+                  title: '해몽뽑기',
+                  icon: Icons.nights_stay,
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const DreamScreen()),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
               Expanded(
                 child: _MenuTile(
                   title: '로또뽑기',
@@ -314,7 +329,7 @@ class _MenuTile extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: SizedBox(
-          height: 120,
+          height: 100,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

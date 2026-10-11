@@ -11,7 +11,7 @@ import 'dream_book.dart';
 import 'dream_state.dart';
 import 'saved_dreams_screen.dart';
 
-/// 꿈해몽 결과. 꿈 이야기를 적었으면 AI 해몽을 받아 오고, 고른 키워드의 해몽을 함께 보여준다.
+/// 해몽뽑기 결과. 꿈 이야기를 적었으면 AI 해몽을 받아 오고, 고른 키워드의 해몽을 함께 보여준다.
 /// [saved]를 넘기면 저장해 둔 결과를 다시 연다 (서버를 다시 부르지 않는다).
 class DreamResultScreen extends ConsumerStatefulWidget {
   const DreamResultScreen({
@@ -78,7 +78,7 @@ class _DreamResultScreenState extends ConsumerState<DreamResultScreen> {
     await saved.add(_record);
     messenger.showSnackBar(
       SnackBar(
-        content: const Text('꿈해몽을 저장했어요'),
+        content: const Text('해몽을 저장했어요'),
         action: SnackBarAction(
           label: '보기',
           onPressed: () => Navigator.of(
@@ -92,7 +92,7 @@ class _DreamResultScreenState extends ConsumerState<DreamResultScreen> {
   Future<void> _share(List<DreamSymbol> picked) async {
     final ai = _ai;
     final lines = [
-      '꿈해몽 · ${ai?.title ?? DreamBook.summary(picked)}',
+      '해몽뽑기 · ${ai?.title ?? DreamBook.summary(picked)}',
       if (ai != null) ai.reading,
       for (final s in picked) '${s.name}: ${s.meaning}',
       ai?.advice ?? DreamBook.advice(picked),
@@ -116,7 +116,7 @@ class _DreamResultScreenState extends ConsumerState<DreamResultScreen> {
     final empty = !_pending && ai == null && picked.isEmpty;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('꿈해몽')),
+      appBar: AppBar(title: const Text('해몽뽑기')),
       body: SafeArea(
         child: book == null
             ? const Center(child: CircularProgressIndicator())

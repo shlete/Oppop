@@ -73,7 +73,7 @@ void main() {
     expect(await client(200, {'title': 'x'}).fetch([], '꿈'), isNull);
   });
 
-  test('저장한 꿈해몽은 AI 해몽까지 되살아난다', () {
+  test('저장한 해몽은 AI 해몽까지 되살아난다', () {
     final dream = SavedDream(
       id: 'dream-1',
       symbolIds: const ['snake'],
