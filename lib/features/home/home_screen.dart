@@ -350,8 +350,14 @@ class _MenuTileState extends State<_MenuTile> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              widget.art?.call(_hovered) ??
-                  Icon(widget.icon, size: 28, color: palette.tileIcon),
+              if (widget.art case final art?)
+                // 구름이 위로 솟은 만큼 글자 쪽으로 조금 내린다.
+                Transform.translate(
+                  offset: const Offset(0, 4),
+                  child: art(_hovered),
+                )
+              else
+                Icon(widget.icon, size: 28, color: palette.tileIcon),
               const SizedBox(height: 8),
               Text(
                 widget.title,

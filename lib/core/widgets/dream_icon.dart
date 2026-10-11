@@ -109,8 +109,8 @@ class _DreamIconState extends State<DreamIcon>
               puff(s * 0.40, s * 0.12, s * 0.12, _bloom(t, 0.0, 0.16)),
               puff(s * 0.56, -s * 0.06, s * 0.18, _bloom(t, 0.16, 0.32)),
               Positioned(
-                left: s * 0.70,
-                top: -s * 0.50,
+                left: s * 0.68,
+                top: -s * 0.34,
                 child: Opacity(
                   opacity: cloud.clamp(0.0, 1.0),
                   child: Transform.scale(
@@ -118,7 +118,7 @@ class _DreamIconState extends State<DreamIcon>
                     alignment: Alignment.bottomLeft,
                     child: Icon(
                       Icons.cloud,
-                      size: s * 0.78,
+                      size: s * 0.62,
                       color: widget.color,
                     ),
                   ),
