@@ -17,7 +17,7 @@ import 'tarot_cards.dart';
 import 'tarot_logic.dart';
 import 'tarot_state.dart';
 
-/// 고민상담 결과: 과거·현재·미래 3장을 차례로 뒤집고 주제별 해석을 보여준다.
+/// 오늘의 고민 결과: 과거·현재·미래 3장을 차례로 뒤집고 주제별 해석을 보여준다.
 class ConsultResultScreen extends ConsumerStatefulWidget {
   const ConsultResultScreen({
     super.key,
@@ -39,7 +39,7 @@ class _ConsultResultScreenState extends ConsumerState<ConsultResultScreen>
     with SingleTickerProviderStateMixin {
   late final AnimationController _flip = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 1800),
+    duration: const Duration(milliseconds: 1100),
     // 결과 연출이라 '애니메이션 줄이기' 설정에서도 정해진 시간 그대로 재생한다.
     animationBehavior: AnimationBehavior.preserve,
   )..forward();
@@ -130,7 +130,7 @@ class _ConsultResultScreenState extends ConsumerState<ConsultResultScreen>
     await SharePlus.instance.share(
       ShareParams(
         text:
-            '타로 고민상담 · ${widget.topic.label}\n${lines.join('\n')}'
+            '타로 오늘의 고민 · ${widget.topic.label}\n${lines.join('\n')}'
             '\n\n- 오늘의 뽑기',
         files: [
           XFile.fromData(
@@ -149,7 +149,7 @@ class _ConsultResultScreenState extends ConsumerState<ConsultResultScreen>
     final isSaved = ref.watch(savedReadingsProvider).any((r) => r.id == _id);
     final text = Theme.of(context).textTheme;
     return Scaffold(
-      appBar: AppBar(title: Text('고민상담 · ${widget.topic.label}')),
+      appBar: AppBar(title: Text('오늘의 고민 · ${widget.topic.label}')),
       body: SafeArea(
         child: deck == null
             ? const Center(child: CircularProgressIndicator())
@@ -280,7 +280,7 @@ class _ConsultResultScreenState extends ConsumerState<ConsultResultScreen>
   }
 }
 
-/// 고민상담 결과 화면 본문. 큰 카드 3장을 옆으로 넘겨 보고, 아래에 통합 점괘를 보여준다.
+/// 오늘의 고민 결과 화면 본문. 큰 카드 3장을 옆으로 넘겨 보고, 아래에 통합 점괘를 보여준다.
 /// 결과 화면과 저장 목록 상세에서 같이 쓴다.
 class ConsultReading extends StatefulWidget {
   const ConsultReading({

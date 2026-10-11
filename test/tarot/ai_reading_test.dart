@@ -21,14 +21,21 @@ const _good = {
   'code': 'A3F9K2',
 };
 
-AiReadingClient _client(int status, Object body, {List<Object?>? sent}) =>
-    AiReadingClient(
-      endpoint: 'https://example.test/reading',
-      client: MockClient((req) async {
-        sent?.add(jsonDecode(req.body));
-        return http.Response.bytes(utf8.encode(jsonEncode(body)), status);
-      }),
-    );
+AiReadingClient _client(
+  int status,
+  Object body, {
+  List<Object?>? sent,
+  List<String?>? tokens,
+  String? token,
+}) => AiReadingClient(
+  endpoint: 'https://example.test/reading',
+  appCheckToken: () async => token,
+  client: MockClient((req) async {
+    sent?.add(jsonDecode(req.body));
+    tokens?.add(req.headers['x-firebase-appcheck']);
+    return http.Response.bytes(utf8.encode(jsonEncode(body)), status);
+  }),
+);
 
 void main() {
   test('주소가 없으면 부르지 않고 null', () async {
@@ -54,6 +61,18 @@ void main() {
         {'id': 'major-02', 'reversed': false},
       ],
     });
+  });
+
+  test('App Check 토큰이 있으면 헤더에 실어 보낸다', () async {
+    final tokens = <String?>[];
+    await _client(
+      200,
+      _good,
+      tokens: tokens,
+      token: 'tok',
+    ).fetch(TarotTopic.love, _cards);
+    await _client(200, _good, tokens: tokens).fetch(TarotTopic.love, _cards);
+    expect(tokens, ['tok', null]);
   });
 
   test('실패하거나 모양이 틀리면 null', () async {

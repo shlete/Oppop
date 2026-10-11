@@ -7,12 +7,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/ads/interstitial.dart';
 import '../../core/widgets/primary_button.dart';
+import '../../core/widgets/smooth_slide.dart';
 import 'consult_result_screen.dart';
 import 'tarot_card_view.dart';
 import 'tarot_cards.dart';
 import 'tarot_logic.dart';
 
-/// 고민상담: 주제를 고르고, 펼친 카드 중 3장을 직접 고른다.
+/// 오늘의 고민: 주제를 고르고, 펼친 카드 중 3장을 직접 고른다.
 class ConsultScreen extends ConsumerStatefulWidget {
   const ConsultScreen({super.key, this.random});
 
@@ -87,7 +88,7 @@ class _ConsultScreenState extends ConsumerState<ConsultScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text(topic == null ? '고민상담' : '고민상담 · ${topic.label}'),
+          title: Text(topic == null ? '오늘의 고민' : '오늘의 고민 · ${topic.label}'),
         ),
         body: SafeArea(
           child: deck == null
@@ -233,21 +234,20 @@ class _Slot extends StatelessWidget {
       children: [
         SizedBox(
           width: 56,
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 200),
-            child: filled
-                ? const TarotCardBack(key: ValueKey('back'))
-                : AspectRatio(
-                    key: const ValueKey('empty'),
-                    aspectRatio: tarotAspect,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(6),
-                        border: Border.all(color: scheme.outlineVariant),
-                        color: scheme.surfaceContainerLow,
-                      ),
-                    ),
+          child: Stack(
+            children: [
+              AspectRatio(
+                aspectRatio: tarotAspect,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: scheme.outlineVariant),
+                    color: scheme.surfaceContainerLow,
                   ),
+                ),
+              ),
+              Positioned.fill(child: _SlotCard(filled: filled)),
+            ],
           ),
         ),
         const SizedBox(height: 4),
@@ -256,6 +256,58 @@ class _Slot extends StatelessWidget {
       ],
     );
   }
+}
+
+/// 자리에 들어오는 카드. 고르면 위에서 미끄러져 내려오며 나타나고, 취소하면 반대로 사라진다.
+/// 기기의 '애니메이션 줄이기' 설정에도 빨라지지 않게 preserve.
+class _SlotCard extends StatefulWidget {
+  const _SlotCard({required this.filled});
+
+  final bool filled;
+
+  @override
+  State<_SlotCard> createState() => _SlotCardState();
+}
+
+class _SlotCardState extends State<_SlotCard>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 360),
+    animationBehavior: AnimationBehavior.preserve,
+    value: widget.filled ? 1 : 0,
+  );
+
+  @override
+  void didUpdateWidget(_SlotCard old) {
+    super.didUpdateWidget(old);
+    if (widget.filled != old.filled) {
+      widget.filled ? _c.forward() : _c.reverse();
+    }
+  }
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => AnimatedBuilder(
+    animation: _c,
+    builder: (context, child) {
+      final t = Curves.easeOutCubic.transform(_c.value);
+      if (t == 0) return const SizedBox.shrink();
+      return Opacity(
+        opacity: t,
+        child: FractionalTranslation(
+          translation: Offset(0, -0.35 * (1 - t)),
+          child: child,
+        ),
+      );
+    },
+    child: const TarotCardBack(),
+  );
 }
 
 /// 78장을 한 줄 부채꼴로 길게 펼친다. 옆으로 넘기면 화면 가운데 카드가 가장 높이 오고
@@ -287,6 +339,20 @@ class _FanState extends State<_Fan> with SingleTickerProviderStateMixin {
 
   /// 옆 카드와의 간격 (카드 폭 대비).
   static const _step = 0.36;
+
+  /// 고른 카드 양옆이 비켜나는 거리 (카드 폭 대비). 바로 옆, 그 옆 순.
+  static const _nudge = [0.2, 0.08];
+
+  /// [i]번째 카드가 고른 카드에 밀려 옆으로 비켜나는 거리 (카드 폭 대비, 오른쪽이 +).
+  double _push(int i, List<int> picked) {
+    if (picked.contains(i)) return 0;
+    var push = 0.0;
+    for (final p in picked) {
+      final d = (i - p).abs();
+      if (d >= 1 && d <= _nudge.length) push += _nudge[d - 1] * (i - p).sign;
+    }
+    return push;
+  }
 
   late double _cw;
   late double _ch;
@@ -479,7 +545,10 @@ class _FanState extends State<_Fan> with SingleTickerProviderStateMixin {
               for (final c in cards.reversed) {
                 final d = p - c.p.center;
                 final a = -c.p.angle;
-                final x = d.dx * cos(a) - d.dy * sin(a);
+                final x =
+                    d.dx * cos(a) -
+                    d.dy * sin(a) -
+                    _push(c.index, picked) * _cw;
                 var y = d.dx * sin(a) + d.dy * cos(a);
                 if (picked.contains(c.index)) y += _lift;
                 if (x.abs() <= _cw / 2 && y.abs() <= _ch / 2) return c.index;
@@ -509,11 +578,12 @@ class _FanState extends State<_Fan> with SingleTickerProviderStateMixin {
                         height: _ch,
                         child: Transform.rotate(
                           angle: c.p.angle,
-                          child: AnimatedSlide(
-                            duration: const Duration(milliseconds: 150),
-                            offset: picked.contains(c.index)
-                                ? Offset(0, -_lift / _ch)
-                                : Offset.zero,
+                          child: SmoothSlide(
+                            // 고른 카드는 위로 올라오고, 양옆 카드는 살짝 비켜난다.
+                            offset: Offset(
+                              _push(c.index, picked),
+                              picked.contains(c.index) ? -_lift / _ch : 0,
+                            ),
                             child: _numbered(
                               c.index,
                               TarotCardBack(

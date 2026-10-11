@@ -44,7 +44,7 @@ void main() {
 
     await tester.tap(find.text('타로'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('고민상담'));
+    await tester.tap(find.text('오늘의 고민'));
     await tester.pumpAndSettle();
     expect(find.text('어떤 고민이 있나요?'), findsOneWidget);
 
@@ -55,7 +55,7 @@ void main() {
     await tester.tap(find.text('타로'));
     await tester.pumpAndSettle();
     expect(find.text('어떤 고민이 있나요?'), findsNothing);
-    expect(find.text('고민상담'), findsOneWidget);
+    expect(find.text('오늘의 고민'), findsOneWidget);
 
     // 로또에서 뽑아 둔 번호도 홈을 다녀오면 비워진다.
     await tester.tap(find.text('로또'));
@@ -93,5 +93,23 @@ void main() {
     final nav = tester.getRect(find.byType(NavigationBar));
     expect(nav.width, 480);
     expect(nav.left, 360);
+  });
+
+  testWidgets('마이 탭은 다른 탭에 다녀오면 첫 화면으로 돌아간다', (tester) async {
+    await tester.pumpWidget(const ProviderScope(child: OneulPpopgiApp()));
+    await tester.pump(const Duration(seconds: 1));
+
+    await tester.tap(find.text('마이').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('설정'));
+    await tester.pumpAndSettle();
+    expect(find.text('진동'), findsOneWidget);
+
+    await tester.tap(find.text('랜덤').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('마이').last);
+    await tester.pumpAndSettle();
+    expect(find.text('진동'), findsNothing);
+    expect(find.text('설정'), findsOneWidget);
   });
 }

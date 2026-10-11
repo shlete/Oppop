@@ -60,23 +60,23 @@ class SavedReading {
 
   final String id;
 
-  /// 오늘의 운세면 1장, 고민상담이면 과거·현재·미래 순 3장.
+  /// 오늘의 운세면 1장, 오늘의 고민이면 과거·현재·미래 순 3장.
   final List<DrawnCard> cards;
   final DateTime savedAt;
 
-  /// 고민상담 주제. 오늘의 운세면 null.
+  /// 오늘의 고민 주제. 오늘의 운세면 null.
   final TarotTopic? topic;
 
   /// 오늘의 운세에만 있다.
   final String? luckyColor;
   final int? luckyNumber;
 
-  /// 고민상담 결과를 AI가 써 줬을 때의 통합 점괘. 없으면 미리 써 둔 점괘를 보여준다.
+  /// 오늘의 고민 결과를 AI가 써 줬을 때의 통합 점괘. 없으면 미리 써 둔 점괘를 보여준다.
   final AiReading? ai;
 
   bool get isDaily => topic == null;
 
-  String get title => isDaily ? '오늘의 운세' : '고민상담 · ${topic!.label}';
+  String get title => isDaily ? '오늘의 운세' : '오늘의 고민 · ${topic!.label}';
 
   Map<String, Object> toJson() => {
     'id': id,

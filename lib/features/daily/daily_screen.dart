@@ -142,7 +142,7 @@ class _DailyScreenState extends ConsumerState<DailyScreen>
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -155,26 +155,7 @@ class _DailyScreenState extends ConsumerState<DailyScreen>
                 selected: {_category},
                 onSelectionChanged: (s) => _selectCategory(s.first),
               ),
-              const SizedBox(height: 8),
-              // 별자리 줄은 주의할 점에서만 보이지만, 자리는 늘 차지해서
-              // 세 카테고리의 카드 크기와 위치가 똑같게 한다.
-              Visibility(
-                visible: _category == PhraseCategory.caution,
-                maintainSize: true,
-                maintainAnimation: true,
-                maintainState: true,
-                child: Center(
-                  child: TextButton(
-                    onPressed: _pickZodiac,
-                    child: Text(
-                      zodiac == null
-                          ? '내 별자리 고르기 (선택)'
-                          : '내 별자리: ${zodiac.label} · 바꾸기',
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               Expanded(
                 child: Center(
                   child: AnimatedBuilder(
@@ -208,35 +189,45 @@ class _DailyScreenState extends ConsumerState<DailyScreen>
                   ),
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
+              // 카드 아래 작은 버튼 줄. 주의할 점에서는 별자리 고르기도 여기 둬서
+              // 카드 위 자리를 비우고 카드를 크게 보여준다.
               SizedBox(
                 height: 36,
-                child: phrase == null
-                    ? null
-                    : Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SmallActionButton(
-                            label: isSaved ? '저장됨' : '저장',
-                            filled: isSaved,
-                            tooltip: isSaved ? '저장 취소' : '저장',
-                            onPressed: () => _toggleSave(phrase),
-                          ),
-                          const SizedBox(width: 12),
-                          SmallActionButton(
-                            label: '공유',
-                            tooltip: '이미지로 공유',
-                            onPressed: () => _share(phrase),
-                          ),
-                        ],
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (_category == PhraseCategory.caution) ...[
+                      SmallActionButton(
+                        label: zodiac == null ? '별자리 고르기' : zodiac.label,
+                        tooltip: '내 별자리 (선택)',
+                        onPressed: _pickZodiac,
                       ),
+                      if (phrase != null) const SizedBox(width: 12),
+                    ],
+                    if (phrase != null) ...[
+                      SmallActionButton(
+                        label: isSaved ? '저장됨' : '저장',
+                        filled: isSaved,
+                        tooltip: isSaved ? '저장 취소' : '저장',
+                        onPressed: () => _toggleSave(phrase),
+                      ),
+                      const SizedBox(width: 12),
+                      SmallActionButton(
+                        label: '공유',
+                        tooltip: '이미지로 공유',
+                        onPressed: () => _share(phrase),
+                      ),
+                    ],
+                  ],
+                ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
               PrimaryButton(
                 label: phrase == null ? '뽑기' : '다시 뽑기',
                 onPressed: _draw,
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               Text(
                 phrase == null
                     ? '재미로 보는 문구예요. 가볍게 즐겨주세요.'
