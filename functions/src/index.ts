@@ -3,6 +3,8 @@
 // 그래서 앱에서 보낸 글이 프롬프트에 섞이지 않는다.
 import Anthropic from "@anthropic-ai/sdk";
 import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
+import { initializeApp } from "firebase-admin/app";
+import { FieldValue, getFirestore } from "firebase-admin/firestore";
 import { defineSecret } from "firebase-functions/params";
 import { logger } from "firebase-functions";
 import { onRequest } from "firebase-functions/v2/https";
@@ -11,6 +13,25 @@ import { z } from "zod";
 import cards from "./cards.json";
 
 const anthropicKey = defineSecret("ANTHROPIC_API_KEY");
+
+initializeApp();
+
+// 뽑힌 결과를 콘솔에서 볼 수 있게 남긴다. 기기나 사람을 알 수 있는 정보는 넣지 않는다.
+// 저장이 실패해도 점괘는 그대로 돌려준다.
+async function record(data: Record<string, unknown>) {
+  try {
+    await getFirestore()
+      .collection("readings")
+      .add({
+        ...data,
+        createdAt: FieldValue.serverTimestamp(),
+        // 개인정보처리방침대로 1년 뒤 지운다 (Firestore TTL 정책을 이 칸에 건다).
+        expireAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+      });
+  } catch (e) {
+    logger.warn("record failed", e);
+  }
+}
 
 type Reading = {
   keywords: string[];
@@ -96,6 +117,8 @@ export const tarotReading = onRequest(
     }
 
     const client = new Anthropic({ apiKey: anthropicKey.value() });
+    const started = Date.now();
+    const base = { topic: body.data.topic, cards: body.data.cards };
     try {
       const response = await client.messages.parse({
         model: "claude-haiku-5-5",
@@ -122,16 +145,27 @@ export const tarotReading = onRequest(
           usage: response.usage,
           text,
         });
+        await record({ ...base, ok: false, stop: response.stop_reason, ms: Date.now() - started });
         res.status(502).json({ error: "no_reading" });
         return;
       }
-      res.json({
+      const reading = {
         flow: out.flow,
         positions: [out.past, out.present, out.future],
         advice: out.advice,
+      };
+      await record({
+        ...base,
+        ok: true,
+        reading,
+        ms: Date.now() - started,
+        inputTokens: response.usage.input_tokens,
+        outputTokens: response.usage.output_tokens,
       });
+      res.json(reading);
     } catch (e) {
       logger.error("claude failed", e);
+      await record({ ...base, ok: false, stop: "error", ms: Date.now() - started });
       res.status(502).json({ error: "upstream" });
     }
   },
