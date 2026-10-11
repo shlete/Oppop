@@ -32,7 +32,7 @@ AiReadingClient _client(int status, Object body, {List<Object?>? sent}) =>
 void main() {
   test('주소가 없으면 부르지 않고 null', () async {
     expect(
-      await const AiReadingClient().fetch(TarotTopic.love, _cards),
+      await const AiReadingClient(endpoint: '').fetch(TarotTopic.love, _cards),
       isNull,
     );
   });

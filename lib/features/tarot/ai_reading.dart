@@ -49,12 +49,17 @@ class AiReading {
   }
 }
 
-/// 통합 점괘 서버. 주소는 빌드할 때 `--dart-define=AI_READING_URL=...`로 넣는다.
-/// 주소가 없거나 실패하면 null을 돌려주고, 화면은 미리 써 둔 점괘를 보여준다.
+/// 통합 점괘 서버 (functions/의 tarotReading). 빌드할 때
+/// `--dart-define=AI_READING_URL=...`로 바꾸거나 빈 값으로 끌 수 있다.
+/// 실패하면 null을 돌려주고, 화면은 미리 써 둔 점괘를 보여준다.
 class AiReadingClient {
   const AiReadingClient({this.client, this.endpoint = url});
 
-  static const url = String.fromEnvironment('AI_READING_URL');
+  static const url = String.fromEnvironment(
+    'AI_READING_URL',
+    defaultValue:
+        'https://asia-northeast3-oppop-34243.cloudfunctions.net/tarotReading',
+  );
   static const timeout = Duration(seconds: 12);
 
   /// 테스트에서 바꿔 끼우는 HTTP 클라이언트.
