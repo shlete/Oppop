@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 
 /// 해몽뽑기 아이콘: 침대에서 자는 사람 머리 위로 생각구름이 뭉게뭉게 피어오른다.
-/// [animate]가 꺼져 있으면 구름이 다 피어난 모습으로 멈춰 있다.
+/// 평소에는 구름이 다 피어난 모습으로 멈춰 있고, [animate]가 켜진 동안만
+/// (홈 타일에 마우스를 올렸을 때) 점과 구름이 차례로 피어오르기를 되풀이한다.
 /// 바깥 크기는 [size] 정사각형이고, 구름은 그 위쪽으로 조금 넘친다.
 class DreamIcon extends StatefulWidget {
   const DreamIcon({
     super.key,
     required this.color,
     this.size = 28,
-    this.animate = true,
+    this.animate = false,
   });
 
   final Color color;
@@ -28,13 +29,28 @@ class _DreamIconState extends State<DreamIcon>
     animationBehavior: AnimationBehavior.preserve,
   );
 
+  /// 다 피어난 채로 멈춰 있을 때의 값.
+  static const _rest = 0.6;
+
   @override
   void initState() {
     super.initState();
+    _sync();
+  }
+
+  @override
+  void didUpdateWidget(DreamIcon old) {
+    super.didUpdateWidget(old);
+    if (old.animate != widget.animate) _sync();
+  }
+
+  void _sync() {
     if (widget.animate) {
+      _c.value = 0;
       _c.repeat();
     } else {
-      _c.value = 0.6;
+      _c.stop();
+      _c.value = _rest;
     }
   }
 

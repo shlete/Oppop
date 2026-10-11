@@ -127,7 +127,6 @@ class MyScreen extends ConsumerWidget {
                   art: DreamIcon(
                     color: AppPalette.of(context).tileIcon,
                     size: 24,
-                    animate: false,
                   ),
                   label: '해몽뽑기',
                   count: dreams.length,

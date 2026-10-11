@@ -41,7 +41,10 @@ class HomeScreen extends StatelessWidget {
                 child: _MenuTile(
                   title: '해몽뽑기',
                   icon: Icons.hotel,
-                  art: DreamIcon(color: AppPalette.of(context).tileIcon),
+                  art: (hovered) => DreamIcon(
+                    color: AppPalette.of(context).tileIcon,
+                    animate: hovered,
+                  ),
                   onTap: () => Navigator.of(context).push(
                     MaterialPageRoute(builder: (_) => const DreamScreen()),
                   ),
@@ -311,7 +314,7 @@ class _Twinkle extends StatelessWidget {
   }
 }
 
-class _MenuTile extends StatelessWidget {
+class _MenuTile extends StatefulWidget {
   const _MenuTile({
     required this.title,
     required this.icon,
@@ -323,8 +326,15 @@ class _MenuTile extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
 
-  /// 아이콘 대신 그릴 그림 (같은 높이).
-  final Widget? art;
+  /// 아이콘 대신 그릴 그림 (같은 높이). 마우스를 올리면 움직인다.
+  final Widget Function(bool hovered)? art;
+
+  @override
+  State<_MenuTile> createState() => _MenuTileState();
+}
+
+class _MenuTileState extends State<_MenuTile> {
+  bool _hovered = false;
 
   @override
   Widget build(BuildContext context) {
@@ -333,15 +343,20 @@ class _MenuTile extends StatelessWidget {
       color: palette.tile,
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: onTap,
+        onTap: widget.onTap,
+        onHover: (v) => setState(() => _hovered = v),
         child: SizedBox(
           height: 100,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              art ?? Icon(icon, size: 28, color: palette.tileIcon),
+              widget.art?.call(_hovered) ??
+                  Icon(widget.icon, size: 28, color: palette.tileIcon),
               const SizedBox(height: 8),
-              Text(title, style: Theme.of(context).textTheme.titleMedium),
+              Text(
+                widget.title,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
             ],
           ),
         ),
