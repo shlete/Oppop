@@ -107,6 +107,7 @@ class _DreamScreenState extends ConsumerState<DreamScreen> {
                           textInputAction: TextInputAction.newline,
                           decoration: InputDecoration(
                             hintText: '예) 맑은 바다에서 커다란 물고기를 두 손으로 잡았어요',
+                            helperText: '이름이나 연락처 같은 개인정보는 적지 말아 주세요',
                             filled: true,
                             fillColor: scheme.surfaceContainerLowest,
                             border: OutlineInputBorder(

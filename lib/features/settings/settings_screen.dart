@@ -127,7 +127,9 @@ class SettingsScreen extends ConsumerWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('기록을 모두 지울까요?'),
-        content: const Text('타로 · 로또 · 오늘의 뽑기 · 꿈해몽 저장 기록이\n모두 지워지고 되돌릴 수 없어요.'),
+        content: const Text(
+          '타로 · 로또 · 오늘의 뽑기 · 꿈해몽 저장 기록이\n모두 지워지고 되돌릴 수 없어요.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
