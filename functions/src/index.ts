@@ -4,6 +4,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
 import { initializeApp } from "firebase-admin/app";
+import { getAppCheck } from "firebase-admin/app-check";
 import { FieldValue, getFirestore } from "firebase-admin/firestore";
 import { defineSecret } from "firebase-functions/params";
 import { logger } from "firebase-functions";
@@ -15,6 +16,20 @@ import cards from "./cards.json";
 const anthropicKey = defineSecret("ANTHROPIC_API_KEY");
 
 initializeApp();
+
+// App Check: true면 우리 앱 토큰이 없는 요청을 거절한다.
+// 지금은 앱이 아직 스토어에 없어서 기록만 하고 통과시킨다. 출시 직전에 true로 바꾼다.
+const enforceAppCheck = false;
+
+async function appCheckState(token: string | undefined): Promise<"ok" | "missing" | "invalid"> {
+  if (!token) return "missing";
+  try {
+    await getAppCheck().verifyToken(token);
+    return "ok";
+  } catch {
+    return "invalid";
+  }
+}
 
 // 점괘 번호. 문의할 때 이 번호로 기록을 찾는다. 헷갈리는 글자(0 O 1 I L)는 뺐다.
 const codeChars = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
@@ -118,6 +133,11 @@ export const tarotReading = onRequest(
       res.status(405).end();
       return;
     }
+    const appCheck = await appCheckState(req.header("X-Firebase-AppCheck"));
+    if (enforceAppCheck && appCheck !== "ok") {
+      res.status(401).json({ error: "app_check" });
+      return;
+    }
     const body = RequestSchema.safeParse(req.body);
     if (!body.success) {
       res.status(400).json({ error: "bad_request" });
@@ -131,7 +151,7 @@ export const tarotReading = onRequest(
 
     const client = new Anthropic({ apiKey: anthropicKey.value() });
     const started = Date.now();
-    const base = { topic: body.data.topic, cards: body.data.cards };
+    const base = { topic: body.data.topic, cards: body.data.cards, appCheck };
     try {
       const response = await client.messages.parse({
         model: "claude-haiku-5-5",

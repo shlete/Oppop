@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
+import '../../core/firebase/app_check.dart';
+
 import 'tarot_cards.dart';
 import 'tarot_logic.dart';
 
@@ -59,7 +61,11 @@ class AiReading {
 /// `--dart-define=AI_READING_URL=...`로 바꾸거나 빈 값으로 끌 수 있다.
 /// 실패하면 null을 돌려주고, 화면은 미리 써 둔 점괘를 보여준다.
 class AiReadingClient {
-  const AiReadingClient({this.client, this.endpoint = url});
+  const AiReadingClient({
+    this.client,
+    this.endpoint = url,
+    this.appCheckToken = AppCheck.token,
+  });
 
   static const url = String.fromEnvironment(
     'AI_READING_URL',
@@ -72,16 +78,23 @@ class AiReadingClient {
   final http.Client? client;
   final String endpoint;
 
+  /// 서버가 우리 앱인지 확인하는 App Check 토큰.
+  final Future<String?> Function() appCheckToken;
+
   static bool get enabled => url.isNotEmpty;
 
   Future<AiReading?> fetch(TarotTopic topic, List<DrawnCard> cards) async {
     if (endpoint.isEmpty) return null;
     final c = client ?? http.Client();
     try {
+      final token = await appCheckToken();
       final res = await c
           .post(
             Uri.parse(endpoint),
-            headers: {'content-type': 'application/json'},
+            headers: {
+              'content-type': 'application/json',
+              'x-firebase-appcheck': ?token,
+            },
             body: jsonEncode({
               'topic': topic.name,
               'cards': [for (final c in cards) c.toJson()],
