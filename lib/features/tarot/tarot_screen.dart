@@ -52,7 +52,7 @@ class TarotScreen extends ConsumerWidget {
           const SizedBox(height: 12),
           _Entry(
             title: '꿈해몽',
-            subtitle: '꿈 이야기를 적거나 장면을 골라 풀어 보기',
+            subtitle: '꿈 이야기와 장면으로 풀어 보기',
             cards: 0,
             art: const _DreamArt(),
             color: scheme.surfaceContainerLowest,

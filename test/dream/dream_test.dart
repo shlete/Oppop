@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
+import 'package:oneul_ppopgi/features/daily/phrase_card.dart' show keepWords;
 import 'package:oneul_ppopgi/features/dream/dream_ai.dart';
 import 'package:oneul_ppopgi/features/dream/dream_book.dart';
 import 'package:oneul_ppopgi/features/dream/dream_result_screen.dart';
@@ -110,7 +111,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.textContaining('재물과 복을 부르는'), findsOneWidget);
-    expect(find.text('좋은 기운이 가득한 길몽이에요'), findsOneWidget);
+    expect(find.text(keepWords('좋은 기운이 가득한 길몽이에요')), findsOneWidget);
 
     await tester.tap(find.text('저장'));
     await tester.pumpAndSettle();

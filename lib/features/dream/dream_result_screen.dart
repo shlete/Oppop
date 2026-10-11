@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../core/widgets/balanced_text.dart';
 import '../../core/widgets/primary_button.dart';
 import '../../core/widgets/small_action_button.dart';
+import '../daily/phrase_card.dart' show keepWords;
 import 'dream_ai.dart';
 import 'dream_book.dart';
 import 'dream_state.dart';
@@ -155,10 +157,9 @@ class _DreamResultScreenState extends ConsumerState<DreamResultScreen> {
                       ),
                     )
                   else ...[
-                    Text(
-                      ai?.title ?? DreamBook.summary(picked),
-                      textAlign: TextAlign.center,
-                      style: text.titleLarge?.copyWith(color: scheme.primary),
+                    BalancedText(
+                      keepWords(ai?.title ?? DreamBook.summary(picked)),
+                      style: text.titleLarge!.copyWith(color: scheme.primary),
                     ),
                     if (ai != null) ...[
                       const SizedBox(height: 16),
@@ -176,10 +177,9 @@ class _DreamResultScreenState extends ConsumerState<DreamResultScreen> {
                       for (final s in picked) _SymbolCard(symbol: s),
                     ],
                     const SizedBox(height: 20),
-                    Text(
-                      ai?.advice ?? DreamBook.advice(picked),
-                      textAlign: TextAlign.center,
-                      style: text.bodyLarge?.copyWith(
+                    BalancedText(
+                      keepWords(ai?.advice ?? DreamBook.advice(picked)),
+                      style: text.bodyLarge!.copyWith(
                         color: scheme.primary,
                         fontWeight: FontWeight.w600,
                       ),
