@@ -16,21 +16,34 @@ const anthropicKey = defineSecret("ANTHROPIC_API_KEY");
 
 initializeApp();
 
+// 점괘 번호. 문의할 때 이 번호로 기록을 찾는다. 헷갈리는 글자(0 O 1 I L)는 뺐다.
+const codeChars = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+function newCode() {
+  let code = "";
+  for (let i = 0; i < 6; i++) code += codeChars[Math.floor(Math.random() * codeChars.length)];
+  return code;
+}
+
 // 뽑힌 결과를 콘솔에서 볼 수 있게 남긴다. 기기나 사람을 알 수 있는 정보는 넣지 않는다.
-// 저장이 실패해도 점괘는 그대로 돌려준다.
-async function record(data: Record<string, unknown>) {
-  try {
-    await getFirestore()
-      .collection("readings")
-      .add({
-        ...data,
-        createdAt: FieldValue.serverTimestamp(),
-        // 개인정보처리방침대로 1년 뒤 지운다 (Firestore TTL 정책을 이 칸에 건다).
-        expireAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
-      });
-  } catch (e) {
-    logger.warn("record failed", e);
+// 문서 이름이 점괘 번호다. 저장이 실패해도 점괘는 그대로 돌려주고, 번호만 null이 된다.
+async function record(data: Record<string, unknown>): Promise<string | null> {
+  const doc = {
+    ...data,
+    createdAt: FieldValue.serverTimestamp(),
+    // 개인정보처리방침대로 1년 뒤 지운다 (Firestore TTL 정책을 이 칸에 건다).
+    expireAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+  };
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const code = newCode();
+    try {
+      // create는 같은 번호가 이미 있으면 실패해서 다른 번호로 다시 해 본다.
+      await getFirestore().collection("readings").doc(code).create(doc);
+      return code;
+    } catch (e) {
+      logger.warn("record failed", e);
+    }
   }
+  return null;
 }
 
 type Reading = {
@@ -154,7 +167,7 @@ export const tarotReading = onRequest(
         positions: [out.past, out.present, out.future],
         advice: out.advice,
       };
-      await record({
+      const code = await record({
         ...base,
         ok: true,
         reading,
@@ -162,7 +175,7 @@ export const tarotReading = onRequest(
         inputTokens: response.usage.input_tokens,
         outputTokens: response.usage.output_tokens,
       });
-      res.json(reading);
+      res.json({ ...reading, code });
     } catch (e) {
       logger.error("claude failed", e);
       await record({ ...base, ok: false, stop: "error", ms: Date.now() - started });

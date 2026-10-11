@@ -622,6 +622,20 @@ class _Summary extends StatelessWidget {
               ),
             ),
           ],
+          if (ai?.code case final code?) ...[
+            const SizedBox(height: 10),
+            Text(
+              '#$code',
+              textAlign: TextAlign.right,
+              style: text.labelSmall?.copyWith(
+                // 눈에 띄지 않게, 흰색에 가까운 회색.
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? const Color(0xFF4A4766)
+                    : const Color(0xFFCCCAD6),
+                letterSpacing: 0.5,
+              ),
+            ),
+          ],
         ],
       ),
     );

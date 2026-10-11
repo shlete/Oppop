@@ -18,6 +18,7 @@ const _good = {
   'flow': '흐름',
   'positions': ['과거 글', '현재 글', '미래 글'],
   'advice': '조언',
+  'code': 'A3F9K2',
 };
 
 AiReadingClient _client(int status, Object body, {List<Object?>? sent}) =>
@@ -80,5 +81,6 @@ void main() {
     );
     expect(back.ai!.advice, '조언');
     expect(back.ai!.positions[2], '미래 글');
+    expect(back.ai!.code, 'A3F9K2');
   });
 }

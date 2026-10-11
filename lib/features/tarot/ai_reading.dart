@@ -11,6 +11,7 @@ class AiReading {
     required this.flow,
     required this.positions,
     required this.advice,
+    this.code,
   });
 
   /// 세 장을 잇는 한 줄 요약.
@@ -22,10 +23,14 @@ class AiReading {
   /// 마무리 조언.
   final String advice;
 
+  /// 점괘 번호. 문의할 때 이 번호로 서버 기록을 찾는다.
+  final String? code;
+
   Map<String, Object> toJson() => {
     'flow': flow,
     'positions': positions,
     'advice': advice,
+    'code': ?code,
   };
 
   /// 모양이 맞지 않으면 null.
@@ -45,6 +50,7 @@ class AiReading {
       flow: flow,
       positions: positions.cast<String>(),
       advice: advice,
+      code: json['code'] is String ? json['code'] as String : null,
     );
   }
 }
