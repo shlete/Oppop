@@ -11,18 +11,24 @@ import 'firebase_options.dart';
 class AppCheck {
   static bool _ready = false;
 
+  /// 테스트용 빌드에 넣는 디버그 토큰 (GitHub 비밀값 APP_CHECK_DEBUG_TOKEN).
+  static const _debugToken = String.fromEnvironment('APP_CHECK_DEBUG_TOKEN');
+
   static Future<void> init() async {
     final options = FirebaseConfig.current;
     if (options == null) return;
     try {
       await Firebase.initializeApp(options: options);
+      // 개발 중이거나 테스트용 APK에는 디버그 토큰을 쓴다. 콘솔에 등록한 토큰이어야 통과한다.
+      // 스토어로 받은 앱만 Play Integrity / App Attest로 확인할 수 있다.
+      final debug = kDebugMode || _debugToken.isNotEmpty;
+      final token = _debugToken.isEmpty ? null : _debugToken;
       await FirebaseAppCheck.instance.activate(
-        // 개발 중에는 디버그 토큰을 쓴다. 기기 로그에 나오는 토큰을 콘솔에 등록해야 통과한다.
-        providerAndroid: kDebugMode
-            ? const AndroidDebugProvider()
+        providerAndroid: debug
+            ? AndroidDebugProvider(debugToken: token)
             : const AndroidPlayIntegrityProvider(),
-        providerApple: kDebugMode
-            ? const AppleDebugProvider()
+        providerApple: debug
+            ? AppleDebugProvider(debugToken: token)
             : const AppleAppAttestWithDeviceCheckFallbackProvider(),
       );
       _ready = true;
