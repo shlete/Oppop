@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 import '../../core/theme.dart';
+import '../../core/widgets/dream_icon.dart';
 import '../daily/daily_screen.dart';
 import '../dream/dream_screen.dart';
 
@@ -39,7 +40,8 @@ class HomeScreen extends StatelessWidget {
               Expanded(
                 child: _MenuTile(
                   title: '해몽뽑기',
-                  icon: Icons.nights_stay,
+                  icon: Icons.hotel,
+                  art: DreamIcon(color: AppPalette.of(context).tileIcon),
                   onTap: () => Navigator.of(context).push(
                     MaterialPageRoute(builder: (_) => const DreamScreen()),
                   ),
@@ -314,11 +316,15 @@ class _MenuTile extends StatelessWidget {
     required this.title,
     required this.icon,
     required this.onTap,
+    this.art,
   });
 
   final String title;
   final IconData icon;
   final VoidCallback onTap;
+
+  /// 아이콘 대신 그릴 그림 (같은 높이).
+  final Widget? art;
 
   @override
   Widget build(BuildContext context) {
@@ -333,7 +339,7 @@ class _MenuTile extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 28, color: palette.tileIcon),
+              art ?? Icon(icon, size: 28, color: palette.tileIcon),
               const SizedBox(height: 8),
               Text(title, style: Theme.of(context).textTheme.titleMedium),
             ],

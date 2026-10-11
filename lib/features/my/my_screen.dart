@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/theme.dart';
+import '../../core/widgets/dream_icon.dart';
 
 import '../daily/daily_state.dart';
 import '../dream/dream_book.dart';
@@ -76,7 +77,7 @@ class MyScreen extends ConsumerWidget {
       for (final d in dreams)
         _Record(
           at: d.savedAt,
-          icon: Icons.nights_stay,
+          icon: Icons.hotel,
           kind: '해몽뽑기',
           title: savedDreamTitle(d, dreamBook),
           detail: savedDreamDetail(d, dreamBook),
@@ -122,7 +123,12 @@ class MyScreen extends ConsumerWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: _CountTile(
-                  icon: Icons.nights_stay,
+                  icon: Icons.hotel,
+                  art: DreamIcon(
+                    color: AppPalette.of(context).tileIcon,
+                    size: 24,
+                    animate: false,
+                  ),
                   label: '해몽뽑기',
                   count: dreams.length,
                   onTap: () => open(const SavedDreamsScreen()),
@@ -198,9 +204,11 @@ class _CountTile extends StatelessWidget {
     required this.label,
     required this.count,
     required this.onTap,
+    this.art,
   });
 
   final IconData icon;
+  final Widget? art;
   final String label;
   final int count;
   final VoidCallback onTap;
@@ -221,7 +229,7 @@ class _CountTile extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 24, color: palette.tileIcon),
+              art ?? Icon(icon, size: 24, color: palette.tileIcon),
               const SizedBox(height: 6),
               Text(label, style: text.labelLarge),
               const SizedBox(height: 2),
