@@ -31,3 +31,38 @@ jobs:
           name: oneul-ppopgi-apk
           path: build/app/outputs/flutter-apk/app-release.apk
           retention-days: 14
+
+  # 에뮬레이터에 깔아 켜 보고, 바로 꺼지면 그 원인(logcat)을 남긴다.
+  smoke:
+    needs: apk
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: oneul-ppopgi-apk
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          disable-animations: true
+          script: |
+            adb install -r app-release.apk
+            adb logcat -c
+            adb shell monkey -p com.shlete.oneul_ppopgi -c android.intent.category.LAUNCHER 1
+            sleep 25
+            adb logcat -d > logcat.txt || true
+            grep -E "FATAL EXCEPTION|AndroidRuntime|E flutter" -A 40 logcat.txt | head -200 || true
+            adb shell pidof com.shlete.oneul_ppopgi
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: logcat
+          path: logcat.txt
+          retention-days: 14
