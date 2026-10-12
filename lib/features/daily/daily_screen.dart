@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../core/image_save/image_save.dart';
+import '../../core/widgets/save_share_row.dart';
 import '../../core/widgets/primary_button.dart';
 import '../../core/widgets/saved_list_button.dart';
 import '../../core/widgets/small_action_button.dart';
@@ -192,37 +193,20 @@ class _DailyScreenState extends ConsumerState<DailyScreen>
               const SizedBox(height: 10),
               // 카드 아래 작은 버튼 줄. 주의할 점에서는 별자리 고르기도 여기 둬서
               // 카드 위 자리를 비우고 카드를 크게 보여준다.
-              SizedBox(
-                height: 36,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    if (_category == PhraseCategory.caution) ...[
-                      SmallActionButton(
+              SaveShareRow(
+                visible: phrase != null,
+                saved: isSaved,
+                onSave: () => _toggleSave(phrase!),
+                onShare: () => _share(phrase!),
+                leading: _category == PhraseCategory.caution
+                    ? SmallActionButton(
                         label: zodiac == null ? '별자리 고르기' : zodiac.label,
                         tooltip: '내 별자리 (선택)',
                         onPressed: _pickZodiac,
-                      ),
-                      if (phrase != null) const SizedBox(width: 12),
-                    ],
-                    if (phrase != null) ...[
-                      SmallActionButton(
-                        label: isSaved ? '저장됨' : '저장',
-                        filled: isSaved,
-                        tooltip: isSaved ? '저장 취소' : '저장',
-                        onPressed: () => _toggleSave(phrase),
-                      ),
-                      const SizedBox(width: 12),
-                      SmallActionButton(
-                        label: '공유',
-                        tooltip: '이미지로 공유',
-                        onPressed: () => _share(phrase),
-                      ),
-                    ],
-                  ],
-                ),
+                      )
+                    : null,
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: SaveShareRow.gap),
               PrimaryButton(
                 label: phrase == null ? '뽑기' : '다시 뽑기',
                 onPressed: _draw,

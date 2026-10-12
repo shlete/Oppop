@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024"><g transform="translate(512 512) scale(0.66) translate(-512 -512)"><defs>
+<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3A2DA6"/><stop offset="1" stop-color="#1B1460"/></linearGradient>
+<linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F6D27A"/><stop offset="1" stop-color="#DFA220"/></linearGradient>
+<linearGradient id="card" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#E9E6FA"/></linearGradient>
+<linearGradient id="back" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#D9D4F6"/><stop offset="1" stop-color="#B9B2EC"/></linearGradient>
+<filter id="sh" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="18" stdDeviation="22" flood-color="#0B0830" flood-opacity="0.45"/></filter>
+</defs><path d="M220 184 Q220 230 266 230 Q220 230 220 276 Q220 230 174 230 Q220 230 220 184Z" fill="#F6E2B3"/><path d="M820 220 Q820 250 850 250 Q820 250 820 280 Q820 250 790 250 Q820 250 820 220Z" fill="#F6E2B3"/><path d="M800 760 Q800 800 840 800 Q800 800 800 840 Q800 800 760 800 Q800 800 800 760Z" fill="#F6E2B3"/><path d="M250 766 Q250 790 274 790 Q250 790 250 814 Q250 790 226 790 Q250 790 250 766Z" fill="#C5C0EF"/>
+<g filter="url(#sh)">
+ <g transform="rotate(-12 470 530)"><rect x="270" y="230" width="380" height="560" rx="50" fill="url(#back)"/>
+  <rect x="304" y="264" width="312" height="492" rx="32" fill="none" stroke="#9A90E0" stroke-width="10"/></g>
+ <g transform="rotate(10 580 540)"><rect x="390" y="250" width="380" height="560" rx="50" fill="url(#card)"/>
+  <text x="580" y="650" text-anchor="middle" font-family="Plex" font-size="360" fill="url(#gold)">?</text></g>
+</g></g></svg>
