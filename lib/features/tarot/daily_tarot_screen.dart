@@ -4,6 +4,7 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../core/image_save/image_save.dart';
 import '../../core/widgets/primary_button.dart';
+import '../../core/widgets/scroll_fade.dart';
 import '../../core/widgets/small_action_button.dart';
 import '../../core/widgets/balanced_text.dart';
 import '../daily/phrase_card.dart' show keepWords;
@@ -145,47 +146,49 @@ class _DailyTarotScreenState extends ConsumerState<DailyTarotScreen>
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                    child: GestureDetector(
-                      onLongPress: done
-                          ? () => saveCardImage(context, _shotKey)
-                          : null,
-                      child: RepaintBoundary(
-                        key: _shotKey,
-                        child: ColoredBox(
-                          color: Theme.of(context).colorScheme.surface,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8),
-                            child: Column(
-                              children: [
-                                Text(
-                                  '${_now.month}월 ${_now.day}일 오늘의 카드',
-                                  style: text.titleMedium,
-                                ),
-                                const SizedBox(height: 16),
-                                GestureDetector(
-                                  onTap: _doFlip,
-                                  child: SizedBox(
-                                    // 해석이 나타나면서 카드는 조금 작아져 한 화면에 다 보이게.
-                                    width: 150 - 30 * infoOpacity,
-                                    child: FlippingCard(
-                                      t: t,
-                                      card: card,
-                                      reversed: fortune.card.reversed,
+                  child: ScrollFade(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                      child: GestureDetector(
+                        onLongPress: done
+                            ? () => saveCardImage(context, _shotKey)
+                            : null,
+                        child: RepaintBoundary(
+                          key: _shotKey,
+                          child: ColoredBox(
+                            color: Theme.of(context).colorScheme.surface,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              child: Column(
+                                children: [
+                                  Text(
+                                    '${_now.month}월 ${_now.day}일 오늘의 카드',
+                                    style: text.titleMedium,
+                                  ),
+                                  const SizedBox(height: 16),
+                                  GestureDetector(
+                                    onTap: _doFlip,
+                                    child: SizedBox(
+                                      // 해석이 나타나면서 카드는 조금 작아져 한 화면에 다 보이게.
+                                      width: 150 - 30 * infoOpacity,
+                                      child: FlippingCard(
+                                        t: t,
+                                        card: card,
+                                        reversed: fortune.card.reversed,
+                                      ),
                                     ),
                                   ),
-                                ),
-                                const SizedBox(height: 20),
-                                Opacity(
-                                  opacity: infoOpacity,
-                                  child: _DailyInfo(
-                                    card: card,
-                                    reading: reading,
-                                    fortune: fortune,
+                                  const SizedBox(height: 20),
+                                  Opacity(
+                                    opacity: infoOpacity,
+                                    child: _DailyInfo(
+                                      card: card,
+                                      reading: reading,
+                                      fortune: fortune,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         ),

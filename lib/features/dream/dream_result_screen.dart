@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../core/widgets/balanced_text.dart';
+import '../../core/widgets/scroll_fade.dart';
 import '../../core/widgets/primary_button.dart';
 import '../../core/widgets/small_action_button.dart';
 import '../daily/phrase_card.dart' show keepWords;
@@ -120,103 +121,105 @@ class _DreamResultScreenState extends ConsumerState<DreamResultScreen> {
       body: SafeArea(
         child: book == null
             ? const Center(child: CircularProgressIndicator())
-            : ListView(
-                padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-                children: [
-                  if (widget.story.isNotEmpty) ...[
-                    Text('내 꿈', style: text.labelLarge),
-                    const SizedBox(height: 6),
-                    Container(
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: scheme.surfaceContainerLowest,
-                        borderRadius: BorderRadius.circular(16),
+            : ScrollFade(
+                child: ListView(
+                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+                  children: [
+                    if (widget.story.isNotEmpty) ...[
+                      Text('내 꿈', style: text.labelLarge),
+                      const SizedBox(height: 6),
+                      Container(
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: scheme.surfaceContainerLowest,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Text(widget.story, style: text.bodyMedium),
                       ),
-                      child: Text(widget.story, style: text.bodyMedium),
-                    ),
-                    const SizedBox(height: 24),
-                  ],
-                  if (_pending)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 40),
-                      child: Column(
+                      const SizedBox(height: 24),
+                    ],
+                    if (_pending)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 40),
+                        child: Column(
+                          children: [
+                            const CircularProgressIndicator(),
+                            const SizedBox(height: 16),
+                            Text('꿈을 읽고 있어요', style: text.bodyMedium),
+                          ],
+                        ),
+                      )
+                    else if (empty)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 32),
+                        child: Text(
+                          '지금은 꿈 이야기를 읽지 못했어요.\n잠시 뒤 다시 해 보거나, 꿈 속 장면을 골라 보세요.',
+                          textAlign: TextAlign.center,
+                          style: text.bodyMedium,
+                        ),
+                      )
+                    else ...[
+                      BalancedText(
+                        keepWords(ai?.title ?? DreamBook.summary(picked)),
+                        style: text.titleLarge!.copyWith(color: scheme.primary),
+                      ),
+                      if (ai != null) ...[
+                        const SizedBox(height: 16),
+                        Text(
+                          ai.reading,
+                          style: text.bodyLarge?.copyWith(height: 1.7),
+                        ),
+                      ],
+                      if (picked.isNotEmpty) ...[
+                        const SizedBox(height: 24),
+                        if (ai != null) ...[
+                          Text('키워드로 보는 해몽', style: text.titleSmall),
+                          const SizedBox(height: 8),
+                        ],
+                        for (final s in picked) _SymbolCard(symbol: s),
+                      ],
+                      const SizedBox(height: 20),
+                      BalancedText(
+                        keepWords(ai?.advice ?? DreamBook.advice(picked)),
+                        style: text.bodyLarge!.copyWith(
+                          color: scheme.primary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const CircularProgressIndicator(),
-                          const SizedBox(height: 16),
-                          Text('꿈을 읽고 있어요', style: text.bodyMedium),
+                          SmallActionButton(
+                            label: isSaved ? '저장됨' : '저장',
+                            filled: isSaved,
+                            tooltip: isSaved ? '저장 취소' : '저장',
+                            onPressed: _toggleSave,
+                          ),
+                          const SizedBox(width: 12),
+                          SmallActionButton(
+                            label: '공유',
+                            tooltip: '글로 공유',
+                            onPressed: () => _share(picked),
+                          ),
                         ],
                       ),
-                    )
-                  else if (empty)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 32),
-                      child: Text(
-                        '지금은 꿈 이야기를 읽지 못했어요.\n잠시 뒤 다시 해 보거나, 꿈 속 장면을 골라 보세요.',
-                        textAlign: TextAlign.center,
-                        style: text.bodyMedium,
-                      ),
-                    )
-                  else ...[
-                    BalancedText(
-                      keepWords(ai?.title ?? DreamBook.summary(picked)),
-                      style: text.titleLarge!.copyWith(color: scheme.primary),
-                    ),
-                    if (ai != null) ...[
-                      const SizedBox(height: 16),
-                      Text(
-                        ai.reading,
-                        style: text.bodyLarge?.copyWith(height: 1.7),
-                      ),
                     ],
-                    if (picked.isNotEmpty) ...[
+                    if (widget.saved == null && !_pending) ...[
                       const SizedBox(height: 24),
-                      if (ai != null) ...[
-                        Text('키워드로 보는 해몽', style: text.titleSmall),
-                        const SizedBox(height: 8),
-                      ],
-                      for (final s in picked) _SymbolCard(symbol: s),
-                    ],
-                    const SizedBox(height: 20),
-                    BalancedText(
-                      keepWords(ai?.advice ?? DreamBook.advice(picked)),
-                      style: text.bodyLarge!.copyWith(
-                        color: scheme.primary,
-                        fontWeight: FontWeight.w600,
+                      PrimaryButton(
+                        label: '다른 꿈 해몽하기',
+                        onPressed: () => Navigator.of(context).pop(),
                       ),
-                    ),
-                    const SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SmallActionButton(
-                          label: isSaved ? '저장됨' : '저장',
-                          filled: isSaved,
-                          tooltip: isSaved ? '저장 취소' : '저장',
-                          onPressed: _toggleSave,
-                        ),
-                        const SizedBox(width: 12),
-                        SmallActionButton(
-                          label: '공유',
-                          tooltip: '글로 공유',
-                          onPressed: () => _share(picked),
-                        ),
-                      ],
+                    ],
+                    const SizedBox(height: 10),
+                    Text(
+                      '재미로 보는 해몽이에요. 가볍게 즐겨주세요.',
+                      textAlign: TextAlign.center,
+                      style: text.bodySmall,
                     ),
                   ],
-                  if (widget.saved == null && !_pending) ...[
-                    const SizedBox(height: 24),
-                    PrimaryButton(
-                      label: '다른 꿈 해몽하기',
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
-                  ],
-                  const SizedBox(height: 10),
-                  Text(
-                    '재미로 보는 해몽이에요. 가볍게 즐겨주세요.',
-                    textAlign: TextAlign.center,
-                    style: text.bodySmall,
-                  ),
-                ],
+                ),
               ),
       ),
     );
