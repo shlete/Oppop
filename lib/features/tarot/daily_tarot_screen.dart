@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../core/image_save/image_save.dart';
+import '../../core/widgets/save_share_row.dart';
 import '../../core/widgets/primary_button.dart';
 import '../../core/widgets/scroll_fade.dart';
-import '../../core/widgets/small_action_button.dart';
 import '../../core/widgets/balanced_text.dart';
 import '../daily/phrase_card.dart' show keepWords;
 import '../daily/save_card_image.dart';
@@ -149,80 +149,72 @@ class _DailyTarotScreenState extends ConsumerState<DailyTarotScreen>
                   child: ScrollFade(
                     child: SingleChildScrollView(
                       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                      child: GestureDetector(
-                        onLongPress: done
-                            ? () => saveCardImage(context, _shotKey)
-                            : null,
-                        child: RepaintBoundary(
-                          key: _shotKey,
-                          child: ColoredBox(
-                            color: Theme.of(context).colorScheme.surface,
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              child: Column(
-                                children: [
-                                  Text(
-                                    '${_now.month}월 ${_now.day}일 오늘의 카드',
-                                    style: text.titleMedium,
+                      child: Column(
+                        children: [
+                          GestureDetector(
+                            onLongPress: done
+                                ? () => saveCardImage(context, _shotKey)
+                                : null,
+                            child: RepaintBoundary(
+                              key: _shotKey,
+                              child: ColoredBox(
+                                color: Theme.of(context).colorScheme.surface,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 8,
                                   ),
-                                  const SizedBox(height: 16),
-                                  GestureDetector(
-                                    onTap: _doFlip,
-                                    child: SizedBox(
-                                      // 해석이 나타나면서 카드는 조금 작아져 한 화면에 다 보이게.
-                                      width: 150 - 30 * infoOpacity,
-                                      child: FlippingCard(
-                                        t: t,
-                                        card: card,
-                                        reversed: fortune.card.reversed,
+                                  child: Column(
+                                    children: [
+                                      Text(
+                                        '${_now.month}월 ${_now.day}일 오늘의 카드',
+                                        style: text.titleMedium,
                                       ),
-                                    ),
+                                      const SizedBox(height: 16),
+                                      GestureDetector(
+                                        onTap: _doFlip,
+                                        child: SizedBox(
+                                          // 해석이 나타나면서 카드는 조금 작아져 한 화면에 다 보이게.
+                                          width: 150 - 30 * infoOpacity,
+                                          child: FlippingCard(
+                                            t: t,
+                                            card: card,
+                                            reversed: fortune.card.reversed,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 20),
+                                      Opacity(
+                                        opacity: infoOpacity,
+                                        child: _DailyInfo(
+                                          card: card,
+                                          reading: reading,
+                                          fortune: fortune,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  const SizedBox(height: 20),
-                                  Opacity(
-                                    opacity: infoOpacity,
-                                    child: _DailyInfo(
-                                      card: card,
-                                      reading: reading,
-                                      fortune: fortune,
-                                    ),
-                                  ),
-                                ],
+                                ),
                               ),
                             ),
                           ),
-                        ),
+                          // 스크롤 맨 끝. 이미지 저장에는 들어가지 않는다.
+                          const SizedBox(height: 4),
+                          SaveShareRow(
+                            visible: done,
+                            saved: isSaved,
+                            onSave: () => _toggleSave(fortune),
+                            onShare: () => _share(card, fortune),
+                          ),
+                        ],
                       ),
                     ),
                   ),
                 ),
+                const SizedBox(height: 12),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                   child: Column(
                     children: [
-                      SizedBox(
-                        height: 36,
-                        child: done
-                            ? Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  SmallActionButton(
-                                    label: isSaved ? '저장됨' : '저장',
-                                    filled: isSaved,
-                                    tooltip: isSaved ? '저장 취소' : '저장',
-                                    onPressed: () => _toggleSave(fortune),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  SmallActionButton(
-                                    label: '공유',
-                                    tooltip: '이미지로 공유',
-                                    onPressed: () => _share(card, fortune),
-                                  ),
-                                ],
-                              )
-                            : null,
-                      ),
-                      const SizedBox(height: 12),
                       PrimaryButton(
                         label: done ? '오늘의 고민 보러 가기' : '카드 뒤집기',
                         onPressed: _flip.isAnimating
@@ -235,7 +227,7 @@ class _DailyTarotScreenState extends ConsumerState<DailyTarotScreen>
                               )
                             : _doFlip,
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 6),
                       Text(
                         done
                             ? '오늘의 카드는 내일 바뀌어요 · 꾹 누르면 이미지 저장'

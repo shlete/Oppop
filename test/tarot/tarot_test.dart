@@ -98,6 +98,9 @@ void main() {
     );
     expect(container.read(dailyFlippedProvider), isTrue);
 
+    // 저장 버튼은 해석 맨 끝에 있어서 내려야 보인다.
+    await tester.ensureVisible(find.text('저장'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('저장'));
     await tester.pump();
     expect(container.read(savedReadingsProvider).single.cards.single, f.card);
