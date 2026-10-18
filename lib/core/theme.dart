@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 /// 앱 컬러 팔레트: 인디고 바이올렛 (밤하늘 퍼플 + 미드나잇 골드).
 /// 오늘의 뽑기 문구 카드는 카테고리별 색을 따로 쓴다 (phrase_card.dart).
@@ -184,6 +185,11 @@ class AppTheme {
       splashColor: soft.withValues(alpha: 0.6),
       highlightColor: soft.withValues(alpha: 0.4),
       hoverColor: soft.withValues(alpha: 0.25),
+      // 뒤로 가기·닫기 버튼도 Lucide 아이콘으로.
+      actionIconTheme: ActionIconThemeData(
+        backButtonIconBuilder: (_) => const Icon(LucideIcons.arrowLeft),
+        closeButtonIconBuilder: (_) => const Icon(LucideIcons.x),
+      ),
       appBarTheme: AppBarTheme(
         backgroundColor: background,
         surfaceTintColor: Colors.transparent,

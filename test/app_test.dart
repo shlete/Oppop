@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oneul_ppopgi/app.dart';
@@ -13,7 +14,12 @@ void main() {
 
     expect(find.text('오늘의 뽑기'), findsWidgets);
 
-    await tester.tap(find.byIcon(Icons.casino));
+    await tester.tap(
+      find.descendant(
+        of: find.byType(NavigationBar),
+        matching: find.byIcon(LucideIcons.dices),
+      ),
+    );
     await tester.pumpAndSettle();
     expect(find.text('번호 뽑기'), findsOneWidget);
 

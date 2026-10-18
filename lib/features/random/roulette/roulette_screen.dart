@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../palette.dart';
 import '../presets.dart';
@@ -158,7 +159,7 @@ class _RouletteScreenState extends State<RouletteScreen>
           IconButton(
             tooltip: '항목 편집',
             onPressed: _spinning ? null : _edit,
-            icon: const Icon(Icons.edit),
+            icon: const Icon(LucideIcons.pencil),
           ),
         ],
       ),
@@ -188,7 +189,7 @@ class _RouletteScreenState extends State<RouletteScreen>
                           ),
                         ),
                         Icon(
-                          Icons.arrow_drop_down,
+                          LucideIcons.chevronDown,
                           size: 56,
                           color: Theme.of(context).colorScheme.primary,
                         ),

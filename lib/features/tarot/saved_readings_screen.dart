@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/widgets/balanced_text.dart';
@@ -93,7 +94,7 @@ class _SavedTile extends ConsumerWidget {
               ),
               IconButton(
                 tooltip: '삭제',
-                icon: const Icon(Icons.delete_outline),
+                icon: const Icon(LucideIcons.trash2),
                 onPressed: () => _delete(context, ref),
               ),
             ],

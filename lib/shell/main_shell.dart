@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/ads/banner_ad_bar.dart';
-import '../core/widgets/dream_icon.dart';
+import '../core/widgets/app_icons.dart';
 import '../features/daily/daily_screen.dart';
 import '../features/dream/dream_screen.dart';
 import '../features/home/home_screen.dart';
@@ -33,16 +34,23 @@ Widget navItemScreen(NavItem item) => switch (item) {
 
 /// 탭바에 쓰는 메뉴 아이콘 (고르기 전 / 고른 뒤).
 Widget navItemIcon(NavItem item, {bool selected = false}) => switch (item) {
-  NavItem.tarot => Icon(selected ? Icons.style : Icons.style_outlined),
-  NavItem.dream => Builder(
-    builder: (context) =>
-        DreamIcon(color: IconTheme.of(context).color ?? Colors.black, size: 22),
-  ),
-  NavItem.lotto => Icon(selected ? Icons.casino : Icons.casino_outlined),
-  NavItem.random => const Icon(Icons.shuffle),
-  NavItem.daily => Icon(
-    selected ? Icons.auto_awesome : Icons.auto_awesome_outlined,
-  ),
+  NavItem.tarot => AppGlyph(selected ? AppGlyph.tarotFilled : AppGlyph.tarot),
+  NavItem.dream =>
+    selected
+        ? const AppGlyph(AppGlyph.moonStarFilled)
+        : const Icon(LucideIcons.moonStar),
+  NavItem.lotto =>
+    selected
+        ? const AppGlyph(AppGlyph.dicesFilled)
+        : const Icon(LucideIcons.dices),
+  NavItem.random =>
+    selected
+        ? const AppGlyph(AppGlyph.shuffleBold)
+        : const Icon(LucideIcons.shuffle),
+  NavItem.daily =>
+    selected
+        ? const AppGlyph(AppGlyph.sparklesFilled)
+        : const Icon(LucideIcons.sparkles),
 };
 
 class _MainShellState extends ConsumerState<MainShell> {
@@ -128,8 +136,8 @@ class _MainShellState extends ConsumerState<MainShell> {
               onDestinationSelected: _goTo,
               destinations: [
                 const NavigationDestination(
-                  icon: Icon(Icons.home_outlined),
-                  selectedIcon: Icon(Icons.home),
+                  icon: Icon(LucideIcons.house),
+                  selectedIcon: AppGlyph(AppGlyph.houseFilled),
                   label: '홈',
                 ),
                 for (final item in tabs)
@@ -139,8 +147,8 @@ class _MainShellState extends ConsumerState<MainShell> {
                     label: item.label,
                   ),
                 const NavigationDestination(
-                  icon: Icon(Icons.person_outline),
-                  selectedIcon: Icon(Icons.person),
+                  icon: Icon(LucideIcons.user),
+                  selectedIcon: AppGlyph(AppGlyph.userFilled),
                   label: '마이',
                 ),
               ],

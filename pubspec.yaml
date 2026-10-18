@@ -43,6 +43,8 @@ dependencies:
   http: ^1.6.0
   firebase_core: ^4.15.0
   firebase_app_check: ^0.4.8
+  lucide_icons_flutter: ^4.0.0
+  flutter_svg: ^2.3.0
 
 dev_dependencies:
   flutter_test:
@@ -73,6 +75,7 @@ flutter:
     - assets/tarot/cards/
     - assets/fonts/suit/OFL.txt
     - assets/legal/privacy_ko.md
+    - assets/legal/lucide_LICENSE.txt
     - assets/fonts/ibmplexsanskr/OFL.txt
 
   # 앱 글꼴 (모두 SIL Open Font License 1.1, 각 폴더의 OFL.txt):

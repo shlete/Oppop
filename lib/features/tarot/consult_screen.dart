@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/gestures.dart';
 
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/ads/interstitial.dart';
@@ -113,11 +114,11 @@ class _TopicPicker extends StatelessWidget {
   final ValueChanged<TarotTopic> onPick;
 
   static const _icons = {
-    TarotTopic.love: Icons.favorite_outline,
-    TarotTopic.study: Icons.menu_book_outlined,
-    TarotTopic.career: Icons.explore_outlined,
-    TarotTopic.money: Icons.savings_outlined,
-    TarotTopic.health: Icons.spa_outlined,
+    TarotTopic.love: LucideIcons.heart,
+    TarotTopic.study: LucideIcons.bookOpen,
+    TarotTopic.career: LucideIcons.compass,
+    TarotTopic.money: LucideIcons.piggyBank,
+    TarotTopic.health: LucideIcons.leaf,
   };
 
   @override
@@ -142,7 +143,7 @@ class _TopicPicker extends StatelessWidget {
               ),
               leading: Icon(_icons[t], size: 28),
               title: Text(t.label, style: text.titleMedium),
-              trailing: const Icon(Icons.chevron_right),
+              trailing: const Icon(LucideIcons.chevronRight),
               onTap: () => onPick(t),
             ),
           ),
@@ -649,7 +650,9 @@ class _ScrollArrow extends StatelessWidget {
                   width: 40,
                   height: 40,
                   child: Icon(
-                    forward ? Icons.chevron_right : Icons.chevron_left,
+                    forward
+                        ? LucideIcons.chevronRight
+                        : LucideIcons.chevronLeft,
                     color: scheme.primary,
                     semanticLabel: forward ? '다음 카드' : '이전 카드',
                   ),

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/theme.dart';
-import '../../core/widgets/dream_icon.dart';
+import '../../core/widgets/app_icons.dart';
 
 import '../daily/daily_state.dart';
 import '../dream/dream_book.dart';
@@ -43,7 +44,7 @@ class MyScreen extends ConsumerWidget {
       for (final r in readings)
         _Record(
           at: r.savedAt,
-          icon: Icons.style,
+          icon: const AppGlyph(AppGlyph.tarot),
           kind: '타로',
           title: r.title,
           detail: deck == null
@@ -59,7 +60,7 @@ class MyScreen extends ConsumerWidget {
       for (final g in games)
         _Record(
           at: g.savedAt,
-          icon: Icons.casino,
+          icon: const Icon(LucideIcons.dices),
           kind: '로또',
           title: g.numbers.join('  '),
           detail: g.memo.isEmpty ? null : g.memo,
@@ -68,7 +69,7 @@ class MyScreen extends ConsumerWidget {
       for (final p in phrases)
         _Record(
           at: p.savedAt,
-          icon: Icons.auto_awesome,
+          icon: const Icon(LucideIcons.sparkles),
           kind: p.category.label,
           title: p.text.replaceAll('\n', ' '),
           detail: p.by == null ? null : '— ${p.by}',
@@ -77,7 +78,7 @@ class MyScreen extends ConsumerWidget {
       for (final d in dreams)
         _Record(
           at: d.savedAt,
-          icon: Icons.hotel,
+          icon: const Icon(LucideIcons.moonStar),
           kind: '해몽뽑기',
           title: savedDreamTitle(d, dreamBook),
           detail: savedDreamDetail(d, dreamBook),
@@ -96,7 +97,7 @@ class MyScreen extends ConsumerWidget {
             children: [
               Expanded(
                 child: _CountTile(
-                  icon: Icons.style,
+                  icon: const AppGlyph(AppGlyph.tarot),
                   label: '타로',
                   count: readings.length,
                   onTap: () => open(const SavedReadingsScreen()),
@@ -105,7 +106,7 @@ class MyScreen extends ConsumerWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: _CountTile(
-                  icon: Icons.casino,
+                  icon: const Icon(LucideIcons.dices),
                   label: '로또',
                   count: games.length,
                   onTap: () => open(const SavedLottoScreen()),
@@ -114,7 +115,7 @@ class MyScreen extends ConsumerWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: _CountTile(
-                  icon: Icons.auto_awesome,
+                  icon: const Icon(LucideIcons.sparkles),
                   label: '오늘의 뽑기',
                   count: phrases.length,
                   onTap: () => open(const SavedPhrasesScreen()),
@@ -123,11 +124,7 @@ class MyScreen extends ConsumerWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: _CountTile(
-                  icon: Icons.hotel,
-                  art: DreamIcon(
-                    color: AppPalette.of(context).tileIcon,
-                    size: 24,
-                  ),
+                  icon: const Icon(LucideIcons.moonStar),
                   label: '해몽뽑기',
                   count: dreams.length,
                   onTap: () => open(const SavedDreamsScreen()),
@@ -160,7 +157,7 @@ class MyScreen extends ConsumerWidget {
           Card(
             child: ListTile(
               title: const Text('설정'),
-              trailing: const Icon(Icons.chevron_right),
+              trailing: const Icon(LucideIcons.chevronRight),
               onTap: () => open(const SettingsScreen()),
             ),
           ),
@@ -190,7 +187,7 @@ class _Record {
   });
 
   final DateTime at;
-  final IconData icon;
+  final Widget icon;
   final String kind;
   final String title;
   final String? detail;
@@ -203,11 +200,9 @@ class _CountTile extends StatelessWidget {
     required this.label,
     required this.count,
     required this.onTap,
-    this.art,
   });
 
-  final IconData icon;
-  final Widget? art;
+  final Widget icon;
   final String label;
   final int count;
   final VoidCallback onTap;
@@ -228,7 +223,10 @@ class _CountTile extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              art ?? Icon(icon, size: 24, color: palette.tileIcon),
+              IconTheme(
+                data: IconThemeData(size: 24, color: palette.tileIcon),
+                child: icon,
+              ),
               const SizedBox(height: 6),
               Text(label, style: text.labelLarge),
               const SizedBox(height: 2),
@@ -260,7 +258,10 @@ class _RecordTile extends StatelessWidget {
         onTap: record.onTap,
         leading: CircleAvatar(
           backgroundColor: scheme.primaryContainer,
-          child: Icon(record.icon, size: 20, color: scheme.primary),
+          child: IconTheme(
+            data: IconThemeData(size: 20, color: scheme.primary),
+            child: record.icon,
+          ),
         ),
         title: Text(
           record.title,
@@ -273,7 +274,7 @@ class _RecordTile extends StatelessWidget {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
-        trailing: const Icon(Icons.chevron_right),
+        trailing: const Icon(LucideIcons.chevronRight),
       ),
     );
   }

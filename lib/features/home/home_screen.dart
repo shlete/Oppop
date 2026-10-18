@@ -1,9 +1,10 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../core/theme.dart';
-import '../../core/widgets/dream_icon.dart';
+import '../../core/widgets/app_icons.dart';
 import '../../shell/nav_tabs.dart';
 
 /// 홈: 오늘의 뽑기를 가장 크게, 그 아래 타로·해몽·로또·랜덤 바로가기.
@@ -27,7 +28,7 @@ class HomeScreen extends StatelessWidget {
               Expanded(
                 child: _MenuTile(
                   title: '타로뽑기',
-                  icon: Icons.style,
+                  icon: const AppGlyph(AppGlyph.tarot),
                   onTap: () => onOpen(NavItem.tarot),
                 ),
               ),
@@ -35,11 +36,7 @@ class HomeScreen extends StatelessWidget {
               Expanded(
                 child: _MenuTile(
                   title: '해몽뽑기',
-                  icon: Icons.hotel,
-                  art: (hovered) => DreamIcon(
-                    color: AppPalette.of(context).tileIcon,
-                    animate: hovered,
-                  ),
+                  icon: const Icon(LucideIcons.moonStar),
                   onTap: () => onOpen(NavItem.dream),
                 ),
               ),
@@ -51,7 +48,7 @@ class HomeScreen extends StatelessWidget {
               Expanded(
                 child: _MenuTile(
                   title: '로또뽑기',
-                  icon: Icons.casino,
+                  icon: const Icon(LucideIcons.dices),
                   onTap: () => onOpen(NavItem.lotto),
                 ),
               ),
@@ -59,7 +56,7 @@ class HomeScreen extends StatelessWidget {
               Expanded(
                 child: _MenuTile(
                   title: '랜덤뽑기',
-                  icon: Icons.shuffle,
+                  icon: const Icon(LucideIcons.shuffle),
                   onTap: () => onOpen(NavItem.random),
                 ),
               ),
@@ -298,7 +295,7 @@ class _Twinkle extends StatelessWidget {
       child: Opacity(
         opacity: 0.35 + 0.65 * (0.5 + 0.5 * sin(phase)),
         child: Icon(
-          Icons.auto_awesome,
+          LucideIcons.sparkles,
           size: size * 1.6,
           color: const Color(0xFFF6E2B3),
         ),
@@ -312,23 +309,17 @@ class _MenuTile extends StatefulWidget {
     required this.title,
     required this.icon,
     required this.onTap,
-    this.art,
   });
 
   final String title;
-  final IconData icon;
+  final Widget icon;
   final VoidCallback onTap;
-
-  /// 아이콘 대신 그릴 그림 (같은 높이). 마우스를 올리면 움직인다.
-  final Widget Function(bool hovered)? art;
 
   @override
   State<_MenuTile> createState() => _MenuTileState();
 }
 
 class _MenuTileState extends State<_MenuTile> {
-  bool _hovered = false;
-
   @override
   Widget build(BuildContext context) {
     final palette = AppPalette.of(context);
@@ -337,20 +328,15 @@ class _MenuTileState extends State<_MenuTile> {
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: widget.onTap,
-        onHover: (v) => setState(() => _hovered = v),
         child: SizedBox(
           height: 100,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              if (widget.art case final art?)
-                // 구름이 위로 솟은 만큼 글자 쪽으로 조금 내린다.
-                Transform.translate(
-                  offset: const Offset(0, 4),
-                  child: art(_hovered),
-                )
-              else
-                Icon(widget.icon, size: 28, color: palette.tileIcon),
+              IconTheme(
+                data: IconThemeData(size: 28, color: palette.tileIcon),
+                child: widget.icon,
+              ),
               const SizedBox(height: 8),
               Text(
                 widget.title,

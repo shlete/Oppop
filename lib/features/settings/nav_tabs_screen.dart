@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/widgets/primary_button.dart';
@@ -66,8 +67,8 @@ class _NavTabsScreenState extends ConsumerState<NavTabsScreen> {
                   selectedIndex: 0,
                   destinations: [
                     const NavigationDestination(
-                      icon: Icon(Icons.home_outlined),
-                      selectedIcon: Icon(Icons.home),
+                      icon: Icon(LucideIcons.house),
+                      selectedIcon: Icon(LucideIcons.house),
                       label: '홈',
                     ),
                     for (final item in _draft)
@@ -76,7 +77,7 @@ class _NavTabsScreenState extends ConsumerState<NavTabsScreen> {
                         label: item.label,
                       ),
                     const NavigationDestination(
-                      icon: Icon(Icons.person_outline),
+                      icon: Icon(LucideIcons.user),
                       label: '마이',
                     ),
                   ],
@@ -92,7 +93,7 @@ class _NavTabsScreenState extends ConsumerState<NavTabsScreen> {
                     ListTile(
                       title: Text(NavTabsScreen.slotName(slot)),
                       subtitle: Text(_draft[slot].label),
-                      trailing: const Icon(Icons.chevron_right),
+                      trailing: const Icon(LucideIcons.chevronRight),
                       onTap: () => _pick(slot),
                     ),
                 ],
