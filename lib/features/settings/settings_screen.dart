@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/haptics.dart';
@@ -48,7 +49,7 @@ class SettingsScreen extends ConsumerWidget {
             ListTile(
               title: const Text('테마'),
               subtitle: Text(_themeLabel(themeMode)),
-              trailing: const Icon(Icons.chevron_right),
+              trailing: const Icon(LucideIcons.chevronRight),
               onTap: () => _pickTheme(context, ref, themeMode),
             ),
             ListTile(
@@ -56,7 +57,7 @@ class SettingsScreen extends ConsumerWidget {
               subtitle: Text(
                 ['홈', for (final i in navTabs) i.label, '마이'].join(' · '),
               ),
-              trailing: const Icon(Icons.chevron_right),
+              trailing: const Icon(LucideIcons.chevronRight),
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute<void>(builder: (_) => const NavTabsScreen()),
               ),
@@ -81,7 +82,7 @@ class SettingsScreen extends ConsumerWidget {
             const ListTile(title: Text('앱 버전'), trailing: Text(appVersion)),
             ListTile(
               title: const Text('오픈소스 라이선스'),
-              trailing: const Icon(Icons.chevron_right),
+              trailing: const Icon(LucideIcons.chevronRight),
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute<void>(builder: (_) => const _Licenses()),
               ),
@@ -92,7 +93,7 @@ class SettingsScreen extends ConsumerWidget {
             ),
             ListTile(
               title: const Text('개인정보처리방침'),
-              trailing: const Icon(Icons.chevron_right),
+              trailing: const Icon(LucideIcons.chevronRight),
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute<void>(builder: (_) => const PrivacyScreen()),
               ),

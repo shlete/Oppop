@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oneul_ppopgi/features/daily/phrase_card.dart' show keepWords;
@@ -128,14 +129,14 @@ void main() {
 
     // 좌우 화살표로 넘겼다가 되돌아온다.
     final x0 = tester.getRect(find.byKey(const ValueKey('spread-39'))).left;
-    await tester.tap(find.byIcon(Icons.chevron_right));
+    await tester.tap(find.byIcon(LucideIcons.chevronRight));
     await tester.pumpAndSettle();
     final moved = find.byKey(const ValueKey('spread-39'));
     expect(
       moved.evaluate().isEmpty || tester.getRect(moved).left < x0 - 50,
       isTrue,
     );
-    await tester.tap(find.byIcon(Icons.chevron_left));
+    await tester.tap(find.byIcon(LucideIcons.chevronLeft));
     await tester.pumpAndSettle();
     expect(
       tester.getRect(find.byKey(const ValueKey('spread-39'))).left,

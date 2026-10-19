@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 /// 항목 추가·삭제·수정 목록. [min]개 미만으로는 지울 수 없고 [max]개까지 추가할 수 있다.
 class ItemListEditor extends StatefulWidget {
@@ -93,7 +94,7 @@ class _ItemListEditorState extends State<ItemListEditor> {
                 IconButton(
                   tooltip: '삭제',
                   onPressed: canRemove ? () => _remove(i) : null,
-                  icon: const Icon(Icons.remove_circle_outline),
+                  icon: const Icon(LucideIcons.circleMinus),
                 ),
               ],
             ),
@@ -101,7 +102,7 @@ class _ItemListEditorState extends State<ItemListEditor> {
         if (_controllers.length < widget.max)
           OutlinedButton.icon(
             onPressed: _add,
-            icon: const Icon(Icons.add),
+            icon: const Icon(LucideIcons.plus),
             label: Text('${widget.hint} 추가'),
           ),
       ],

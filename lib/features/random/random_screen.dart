@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../core/widgets/app_icons.dart';
 import 'ladder/ladder_screen.dart';
 import 'roulette/roulette_screen.dart';
 
@@ -17,7 +19,7 @@ class RandomScreen extends StatelessWidget {
           _Entry(
             title: '룰렛',
             subtitle: '항목을 넣고 돌려서 하나 뽑기',
-            icon: Icons.donut_large,
+            icon: const Icon(LucideIcons.loaderPinwheel),
             color: scheme.surfaceContainerLowest,
             builder: (_) => const RouletteScreen(),
           ),
@@ -25,7 +27,7 @@ class RandomScreen extends StatelessWidget {
           _Entry(
             title: '사다리타기',
             subtitle: '친구들과 누가 뭘 할지 정하기',
-            icon: Icons.stairs_outlined,
+            icon: const AppGlyph(AppGlyph.ladder),
             color: scheme.surfaceContainerLowest,
             builder: (_) => const LadderScreen(),
           ),
@@ -46,7 +48,7 @@ class _Entry extends StatelessWidget {
 
   final String title;
   final String subtitle;
-  final IconData icon;
+  final Widget icon;
   final Color color;
   final WidgetBuilder builder;
 
@@ -57,10 +59,13 @@ class _Entry extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: ListTile(
         contentPadding: const EdgeInsets.all(16),
-        leading: Icon(icon, size: 32),
+        leading: IconTheme.merge(
+          data: const IconThemeData(size: 32),
+          child: icon,
+        ),
         title: Text(title, style: Theme.of(context).textTheme.titleLarge),
         subtitle: Text(subtitle),
-        trailing: const Icon(Icons.chevron_right),
+        trailing: const Icon(LucideIcons.chevronRight),
         onTap: () =>
             Navigator.of(context).push(MaterialPageRoute(builder: builder)),
       ),

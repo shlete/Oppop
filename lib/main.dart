@@ -17,11 +17,12 @@ Future<void> main() async {
   await AppHaptics.load();
   await AppThemeMode.load();
   await AppNavTabs.load();
-  // 설정 > 오픈소스 라이선스에 앱 글꼴 라이선스도 보이게.
+  // 설정 > 오픈소스 라이선스에 앱 글꼴과 아이콘(Lucide) 라이선스도 보이게.
   LicenseRegistry.addLicense(() async* {
     for (final (name, path) in [
       ('SUIT', 'assets/fonts/suit/OFL.txt'),
       ('IBM Plex Sans KR', 'assets/fonts/ibmplexsanskr/OFL.txt'),
+      ('Lucide', 'assets/legal/lucide_LICENSE.txt'),
     ]) {
       yield LicenseEntryWithLineBreaks([
         name,

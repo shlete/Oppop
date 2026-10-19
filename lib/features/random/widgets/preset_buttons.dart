@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../presets.dart';
@@ -17,12 +18,12 @@ class PresetButtons extends ConsumerWidget {
       children: [
         TextButton.icon(
           onPressed: () => _pick(context, ref),
-          icon: const Icon(Icons.folder_open),
+          icon: const Icon(LucideIcons.folderOpen),
           label: const Text('불러오기'),
         ),
         TextButton.icon(
           onPressed: () => _save(context, ref),
-          icon: const Icon(Icons.bookmark_add_outlined),
+          icon: const Icon(LucideIcons.bookmarkPlus),
           label: const Text('저장'),
         ),
       ],
@@ -52,7 +53,7 @@ class PresetButtons extends ConsumerWidget {
                         ? null
                         : IconButton(
                             tooltip: '프리셋 삭제',
-                            icon: const Icon(Icons.delete_outline),
+                            icon: const Icon(LucideIcons.trash2),
                             onPressed: () =>
                                 ref.read(presetsProvider.notifier).remove(p),
                           ),
